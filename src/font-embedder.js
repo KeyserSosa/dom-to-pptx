@@ -9,7 +9,6 @@ const R_NS = 'http://schemas.openxmlformats.org/officeDocument/2006/relationship
 const CONTENT_TYPES_NS = 'http://schemas.openxmlformats.org/package/2006/content-types';
 const RELS_NS = 'http://schemas.openxmlformats.org/package/2006/relationships';
 
-
 export class PPTXEmbedFonts {
   constructor() {
     this.zip = null;
@@ -105,8 +104,9 @@ export class PPTXEmbedFonts {
       embeddedFontLst = doc.createElementNS(P_NS, 'p:embeddedFontLst');
 
       // Insert before defaultTextStyle or at end
-      const defaultTextStyle = presentation.getElementsByTagName('p:defaultTextStyle')[0] || 
-                             presentation.getElementsByTagNameNS(P_NS, 'defaultTextStyle')[0];
+      const defaultTextStyle =
+        presentation.getElementsByTagName('p:defaultTextStyle')[0] ||
+        presentation.getElementsByTagNameNS(P_NS, 'defaultTextStyle')[0];
       if (defaultTextStyle) {
         presentation.insertBefore(embeddedFontLst, defaultTextStyle);
       } else {
@@ -117,11 +117,13 @@ export class PPTXEmbedFonts {
     // Add font references
     this.fonts.forEach((font) => {
       // Check if already exists
-      const existing = Array.from(embeddedFontLst.getElementsByTagNameNS(P_NS, 'font')).find(
-        (node) => node.getAttribute('typeface') === font.name
-      ) || Array.from(embeddedFontLst.getElementsByTagName('p:font')).find(
-        (node) => node.getAttribute('typeface') === font.name
-      );
+      const existing =
+        Array.from(embeddedFontLst.getElementsByTagNameNS(P_NS, 'font')).find(
+          (node) => node.getAttribute('typeface') === font.name
+        ) ||
+        Array.from(embeddedFontLst.getElementsByTagName('p:font')).find(
+          (node) => node.getAttribute('typeface') === font.name
+        );
 
       if (!existing) {
         const embedFont = doc.createElementNS(P_NS, 'p:embeddedFont');

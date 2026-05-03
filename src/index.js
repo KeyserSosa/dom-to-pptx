@@ -1001,7 +1001,8 @@ function prepareRenderItem(
   const isBgClipText = bgClip === 'text';
   const bgImgStr = style.backgroundImage;
   const hasGradient = !isBgClipText && bgImgStr && bgImgStr.includes('linear-gradient');
-  const urlMatch = !isBgClipText && !hasGradient && bgImgStr ? bgImgStr.match(/url\(['"]?(.*?)['"]?\)/) : null;
+  const urlMatch =
+    !isBgClipText && !hasGradient && bgImgStr ? bgImgStr.match(/url\(['"]?(.*?)['"]?\)/) : null;
   const hasBgImgUrl = !!urlMatch;
 
   const borderColorObj = parseColor(style.borderColor);
@@ -1109,7 +1110,7 @@ function prepareRenderItem(
         br: parseFloat(style.borderBottomRightRadius) || 0,
         bl: parseFloat(style.borderBottomLeftRadius) || 0,
       };
-      
+
       const bgItem = {
         type: 'image',
         zIndex,
@@ -1117,7 +1118,7 @@ function prepareRenderItem(
         options: { x, y, w, h, rotate: rotation, data: null },
       };
       items.push(bgItem);
-      
+
       bgJob = async () => {
         const processed = await getProcessedImage(
           bgUrl,
@@ -1148,12 +1149,14 @@ function prepareRenderItem(
           widthPx,
           heightPx,
           style.backgroundImage,
-          hasPartialBorderRadius ? {
-            tl: borderTopLeftRadius,
-            tr: borderTopRightRadius,
-            br: borderBottomRightRadius,
-            bl: borderBottomLeftRadius
-          } : borderRadiusValue,
+          hasPartialBorderRadius
+            ? {
+                tl: borderTopLeftRadius,
+                tr: borderTopRightRadius,
+                br: borderBottomRightRadius,
+                bl: borderBottomLeftRadius,
+              }
+            : borderRadiusValue,
           hasBorder ? { color: borderColorObj.hex, width: borderWidth } : null
         );
       }

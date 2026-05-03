@@ -68,11 +68,13 @@ export function extractTableData(node, scale) {
     const rowData = [];
     const cellList = Array.from(tr.children).filter((c) => ['TD', 'TH'].includes(c.tagName));
 
-      cellList.forEach((cell) => {
-        const style = window.getComputedStyle(cell);
-        const cellParts = collectTextParts(cell, style, scale);
-        // Fallback to plain text if collectTextParts returns empty/invalid
-        const cellText = (cellParts && cellParts.length > 0) ? cellParts
+    cellList.forEach((cell) => {
+      const style = window.getComputedStyle(cell);
+      const cellParts = collectTextParts(cell, style, scale);
+      // Fallback to plain text if collectTextParts returns empty/invalid
+      const cellText =
+        cellParts && cellParts.length > 0
+          ? cellParts
           : cell.innerText.replace(/[\n\r\t]+/g, ' ').trim();
 
       // A. Text Style
@@ -842,7 +844,10 @@ export function generateGradientSVG(w, h, bgString, radius, border) {
       strokeAttr = `stroke="#${border.color}" stroke-width="${border.width}"`;
     }
 
-    let tl = 0, tr = 0, br = 0, bl = 0;
+    let tl = 0,
+      tr = 0,
+      br = 0,
+      bl = 0;
     if (typeof radius === 'object' && radius !== null) {
       tl = radius.tl || 0;
       tr = radius.tr || 0;
@@ -860,7 +865,10 @@ export function generateGradientSVG(w, h, bgString, radius, border) {
     );
 
     if (factor < 1) {
-      tl *= factor; tr *= factor; br *= factor; bl *= factor;
+      tl *= factor;
+      tr *= factor;
+      br *= factor;
+      bl *= factor;
     }
 
     // Generate absolute path based on radius bounds
@@ -1092,7 +1100,11 @@ export function collectTextParts(node, parentStyle, scale) {
   });
 
   // Cleanup potential trailing empty breakLines
-  while (parts.length > 0 && parts[parts.length - 1].options?.breakLine && parts[parts.length - 1].text === '') {
+  while (
+    parts.length > 0 &&
+    parts[parts.length - 1].options?.breakLine &&
+    parts[parts.length - 1].text === ''
+  ) {
     parts.pop();
   }
 

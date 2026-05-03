@@ -1,8 +1,30 @@
-node_modules
-.DS_Store
-.git
-test-playground
+# Dependencies (always excluded from publish)
+node_modules/
+
+# Environment variables (never publish secrets)
 .env
-.vscode
+
+# OS files
+.DS_Store
+
+# IDE / editor configs
+.vscode/
+
+# Git internals (not needed in package)
+.git/
+
+# Project-specific directories
+test-playground/
+demo/
+exported-pptx/
+.agent/
+
+# Test files
+test*
+
+# Internal / documentation files
 ins.md
 code_context.txt
+
+# Temp / backup files
+*~
