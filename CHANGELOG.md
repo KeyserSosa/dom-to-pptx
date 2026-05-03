@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- **AI Skills Installer (CLI)**: Added `npx dom-to-pptx-skills` interactive installer to automatically distribute professional PPT creation skills to Claude Code, Gemini CLI, Windsurf, and Cursor.
+- **Smart Agent Auto-Detection**: CLI now scans the home directory to detect installed AI agents and suggests appropriate installation paths.
+- **Premium Design Themes**: Integrated 6 new high-fidelity visual presets (Neo-Brutalism, Soft Pastel, Swiss Minimalism, Nature Eco, Luxury Noir, Cyberpunk Neon) into the skill library.
+- **Structured Prompt Architecture**: Re-architected `SKILL.md` with a "Principal Visual Engineering Director" persona and XML-like `<SLIDE_CONFIG>` templates to improve performance on low-end AI models.
 - **Vertical-Align CSS Support**: Implemented support for the `vertical-align` property. Text can now be explicitly aligned to the `middle` or `bottom` of its container, matching browser rendering.
 
 ### Fixed
