@@ -6,33 +6,53 @@ Every prompt below already bakes in the constraints from [STYLE_WHITELIST.md](ST
 
 ---
 
-## How to use these prompts
+## The Design Engine (Global Instructions)
 
-1. Pick the layout that matches what you need.
-2. Fill in the bracketed placeholders (`[TITLE]`, `[POINT 1]`, etc.).
-3. Paste the filled-in prompt into a fresh conversation (or use it as the user message inside this skill).
-4. Drop the returned slide(s) into the `.slide-stage` container from the safe template.
+When generating slides, always adhere to these elite design principles:
 
-> **Tip:** all prompts assume the "Electric Studio" preset by default. Swap the palette by appending *"Use the [PRESET NAME] palette from STYLE_PRESETS.md"* — e.g. "Bold Signal", "Corporate Navy", "Pastel Light".
+- **Aesthetics:** Clean, modern, "Apple Keynote" style. Use subtle gradients, soft shadows (`box-shadow: 0 20px 50px rgba(0,0,0,0.1)`), and rounded corners (`border-radius: 24px`).
+- **Typography:** Create dramatic contrast. Use massive, thin headers paired with bold, wide-tracked subheaders.
+- **Layout:** Prioritize whitespace (60%+). Never stack more than 3 elements vertically. Use horizontal distribution (Grid/Flex) for 3+ items.
+- **Anti-Overflow:** Every container must have `overflow: hidden` and `min-height: 0` to prevent vertical blowout.
+- **Images:** Use descriptive keywords joined by underscores for `gen.pollinations.ai`. Style them with `object-fit: cover` and large `border-radius`.
 
 ---
 
-## 1. Title slide
+## Theme Directive Snippet
+
+Copy and paste this into any prompt to apply a specific theme:
 
 ```
-Generate a single dom-to-pptx-safe title slide (1920×1080, class="slide").
+<THEME_CONFIG>
+  - Palette: [HEX1 (BG)], [HEX2 (SURFACE)], [HEX3 (ACCENT)], [HEX4 (TEXT1)], [HEX5 (TEXT2)]
+  - Vibe: [PRESET NAME] from STYLE_PRESETS.md
+  - Logic: Use HEX1 for slide background, HEX2 for cards, HEX3 for highlights, HEX4 for headings.
+</THEME_CONFIG>
+```
 
-Title: [MAIN TITLE]
-Subtitle: [SUBTITLE / TAGLINE]
-Presenter / Date (optional): [NAME • DATE]
+---
 
-Requirements:
-- Fixed 1920×1080, position: relative, overflow: hidden, inline styles only.
-- Linear-gradient background (two stops, 135deg).
-- Title 80–96px, subtitle 28–36px, presenter line 20px.
-- Include one accent shape (bar, circle, or block) using the accent color.
-- No transforms except rotate; no animations; no backdrop-filter.
-- Arial / Helvetica fallback on every text element.
+```
+<SLIDE_CONFIG>
+  <TYPE>Title Slide</TYPE>
+  <CANVAS>1920x1080, position: relative, overflow: hidden</CANVAS>
+  <CONTENT>
+    <TITLE>[MAIN TITLE]</TITLE>
+    <SUBTITLE>[SUBTITLE / TAGLINE]</SUBTITLE>
+    <META>[NAME • DATE]</META>
+  </CONTENT>
+  <VISUALS>
+    - Background: Linear-gradient (135deg, HEX1 0%, HEX2 100%)
+    - Accent: A single geometric shape (bar or circle) in HEX3
+    - Image (optional): You can use any image from the web, from Pexels, Unsplash, URL from internet, or any ai image generator like pollinations.
+  </VISUALS>
+  <TYPOGRAPHY>
+    - Title: 96px, weight 800, tracking-tight, Arial/Helvetica
+    - Subtitle: 36px, weight 400, opacity 0.8
+    - Meta: 20px, uppercase, tracking-widest
+  </TYPOGRAPHY>
+  <CONSTRAINTS>No transforms except rotate; no animations; inline styles only.</CONSTRAINTS>
+</SLIDE_CONFIG>
 ```
 
 ---
@@ -61,20 +81,28 @@ Requirements:
 ## 3. Content slide — bullets (4–6 points)
 
 ```
-Generate a dom-to-pptx-safe bullet slide (1920×1080, class="slide").
-
-Heading: [SECTION HEADING]
-Bullets:
-- [POINT 1]
-- [POINT 2]
-- [POINT 3]
-- [POINT 4]
-
-Requirements:
-- Heading at top-left (font-size 56px, weight 700).
-- ul with list-style: disc; padding-left: 40px; each li font-size 28–32px with margin-bottom: 24px.
-- Max width 1200px on the list so lines wrap cleanly.
-- Background: #ffffff; no transforms except rotate; inline styles only.
+<SLIDE_CONFIG>
+  <TYPE>Bullet List</TYPE>
+  <CANVAS>1920x1080, background: #FFFFFF</CANVAS>
+  <CONTENT>
+    <HEADING>[SECTION HEADING]</HEADING>
+    <LIST>
+      - [POINT 1]
+      - [POINT 2]
+      - [POINT 3]
+      - [POINT 4]
+    </LIST>
+  </CONTENT>
+  <LAYOUT>
+    - Heading at top: 100px, left: 120px (font-size 64px)
+    - List container at top: 280px, left: 120px, max-width: 1400px
+    - Spacing: gap-8 between points
+  </LAYOUT>
+  <TYPOGRAPHY>
+    - Bullets: 32px, line-height 1.6, Arial/Helvetica
+  </TYPOGRAPHY>
+  <CONSTRAINTS>ul list-style: disc; margin-bottom: 32px per li; inline styles only.</CONSTRAINTS>
+</SLIDE_CONFIG>
 ```
 
 ---
@@ -82,21 +110,29 @@ Requirements:
 ## 4. Two-column: text + image
 
 ```
-Generate a dom-to-pptx-safe two-column slide (1920×1080, class="slide").
-
-Left column (text):
-- Heading: [HEADING]
-- Body (2–3 sentences): [BODY COPY]
-- Optional small call-to-action: [CTA]
-
-Right column (image):
-- https image URL: [UNSPLASH URL] (fallback: https://images.unsplash.com/photo-1557683316-973673baf926?w=1200&auto=format&fit=crop)
-- object-fit: cover; border-radius: 16px; subtle box-shadow.
-
-Requirements:
-- Columns split roughly 40/60 or 50/50; absolute-position each at top:120px.
-- Image dimensions around 840×840 to 960×840.
-- Inline styles, no transforms except rotate, no backdrop-filter.
+<SLIDE_CONFIG>
+  <TYPE>Visual Split</TYPE>
+  <CANVAS>1920x1080</CANVAS>
+  <CONTENT>
+    <LEFT_COL>
+      <HEADING>[HEADING]</HEADING>
+      <BODY>[BODY COPY]</BODY>
+      <CTA>[CTA]</CTA>
+    </LEFT_COL>
+    <RIGHT_COL>
+      <IMAGE>https://image.pollinations.ai/prompt/[IMAGE_DESCRIPTION]?model=flux</IMAGE>
+    </RIGHT_COL>
+  </CONTENT>
+  <LAYOUT>
+    - Split: 45/55 ratio
+    - Left Col: Absolute top: 200px, left: 120px, width: 700px
+    - Right Col: Absolute top: 120px, right: 100px, width: 900px, height: 840px
+  </LAYOUT>
+  <VISUALS>
+    - Image: object-fit: cover, border-radius: 32px, shadow-2xl
+  </VISUALS>
+  <CONSTRAINTS>No backdrop-filter; inline styles; absolute positioning for columns.</CONSTRAINTS>
+</SLIDE_CONFIG>
 ```
 
 ---
