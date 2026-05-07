@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.9] - 2026-05-07
+
+### Fixed
+
+- **Microsoft PowerPoint Compatibility**: Generated `.pptx` files were rejected by Microsoft PowerPoint as "corrupt" while WPS Office opened them fine. Two root causes fixed:
+  - PptxGenJS produced a zip stored with `STORED` instead of `DEFLATED`. Output is now always re-zipped with `DEFLATE` (level 6) before download.
+  - `[Content_Types].xml` advertised `Override` parts (e.g. `slideMaster2.xml`–`slideMaster8.xml`) that were never actually written into the package. Dangling `Override` entries are now stripped by the new `pptx-normalizer` module on every export, on both the font-embedding and no-font paths.
+- A new `options.skipNormalize` (default `false`) escape hatch is available for debugging the raw PptxGenJS output. Leave it off unless you know what you are doing.
+
 ## [1.1.8] - 2026-05-03
 
 ### Added

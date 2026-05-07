@@ -2,6 +2,7 @@
 import * as PptxGenJSImport from 'pptxgenjs';
 import html2canvas from 'html2canvas';
 import { PPTXEmbedFonts } from './font-embedder.js';
+import { normalizePptxZip } from './pptx-normalizer.js';
 import JSZip from 'jszip';
 
 // Normalize import
@@ -42,6 +43,9 @@ const PX_TO_INCH = 1 / PPI;
  * @param {boolean} [options.skipDownload=false] - If true, prevents automatic download
  * @param {Object} [options.listConfig] - Config for bullets
  * @param {boolean} [options.svgAsVector=false] - If true, keeps SVG as vector (for Convert to Shape in PowerPoint)
+ * @param {boolean} [options.skipNormalize=false] - If true, skips re-zipping with DEFLATE
+ *   and stripping dangling [Content_Types].xml Overrides. Leave it false unless you are
+ *   debugging the raw PptxGenJS output, otherwise Microsoft PowerPoint may reject the file.
  * @returns {Promise<Blob>} - Returns the generated PPTX Blob
  */
 export async function exportToPptx(target, options = {}) {
@@ -160,10 +164,26 @@ export async function exportToPptx(target, options = {}) {
     }
 
     await embedder.updateFiles();
+    if (options.skipNormalize !== true) {
+      await normalizePptxZip(zip);
+    }
     finalBlob = await embedder.generateBlob();
   } else {
-    // No fonts to embed
-    finalBlob = await pptx.write({ outputType: 'blob' });
+    // No fonts to embed — still re-zip with DEFLATE and strip dangling Overrides
+    // so Microsoft PowerPoint accepts the file (PptxGenJS leaves both issues
+    // unresolved on its own; see 错误诊断.md).
+    const initialBlob = await pptx.write({ outputType: 'blob' });
+    if (options.skipNormalize === true) {
+      finalBlob = initialBlob;
+    } else {
+      const zip = await JSZip.loadAsync(initialBlob);
+      await normalizePptxZip(zip);
+      finalBlob = await zip.generateAsync({
+        type: 'blob',
+        compression: 'DEFLATE',
+        compressionOptions: { level: 6 },
+      });
+    }
   }
 
   // 4. Output Handling
