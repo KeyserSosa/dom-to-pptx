@@ -6,6 +6,9 @@
 > **Quick Start for AI Agents (Claude Code, Gemini, Windsurf):**
 > Run `npx dom-to-pptx-skills` to automatically install professional PPT creation skills into your agent's toolkit.
 
+> [!IMPORTANT]
+> **Experience the Power of dom-to-pptx:** Check out **[Preso AI](https://preso-ai.vercel.app)** — an AI-native presentation platform that uses this library to deliver professional, high-fidelity PowerPoint exports from simple text prompts.
+
 ---
 
 Most HTML-to-PPTX libraries fail when faced with modern web design. They break on gradients, misalign text, ignore rounded corners, or simply take a screenshot (which isn't editable).
@@ -46,6 +49,16 @@ Most HTML-to-PPTX libraries fail when faced with modern web design. They break o
 - **Border Radius Math:** Calculates perfect corner rounding percentages based on element dimensions.
 - **Client-Side:** Runs entirely in the browser. No server required.
 
+## ✨ Featured Project: Preso AI
+
+**[Preso AI](https://preso-ai.vercel.app)** is a state-of-the-art AI presentation builder built entirely on top of the `dom-to-pptx` engine. It demonstrates the full potential of this library by transforming AI-generated content into premium, editable PowerPoint decks.
+
+- **AI-to-PPTX Workflow**: Turn a single prompt into a 10+ slide high-fidelity presentation.
+- **Atmospheric UI**: Implements the "Atmospheric UI" design system natively.
+- **Pixel-Perfect Exports**: Uses `dom-to-pptx` to ensure every gradient, shadow, and layout is preserved in the final `.pptx` file.
+
+> **Try it now:** [preso-ai.vercel.app](https://preso-ai.vercel.app)
+
 ## Installation
 
 ```bash
@@ -63,6 +76,7 @@ npx dom-to-pptx-skills
 ```
 
 The installer will ask you:
+
 1. **Which AI Agent** you are using.
 2. **Installation scope** (Local `.agent/skills` for current project or Global for all projects).
 3. It will then automatically copy the latest optimized prompts and templates to your agent's directory.

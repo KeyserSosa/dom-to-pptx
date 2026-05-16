@@ -1038,7 +1038,14 @@ export async function getAutoDetectedFonts(usedFamilies) {
   return foundFonts;
 }
 
-export function collectTextParts(node, parentStyle, scale, activeHyperlink = null, isRoot = true, inheritedOpacity = 1) {
+export function collectTextParts(
+  node,
+  parentStyle,
+  scale,
+  activeHyperlink = null,
+  isRoot = true,
+  inheritedOpacity = 1
+) {
   const parts = [];
   let hyperlink = activeHyperlink;
 
@@ -1107,7 +1114,6 @@ export function collectTextParts(node, parentStyle, scale, activeHyperlink = nul
           text: val,
           options: textOpts,
         });
-
       }
     } else if (child.nodeType === 1) {
       if (child.tagName === 'BR') {
@@ -1125,7 +1131,14 @@ export function collectTextParts(node, parentStyle, scale, activeHyperlink = nul
           parts.push({ text: '', options: { breakLine: true } });
         }
 
-        const childParts = collectTextParts(child, parentStyle, scale, hyperlink, false, inheritedOpacity);
+        const childParts = collectTextParts(
+          child,
+          parentStyle,
+          scale,
+          hyperlink,
+          false,
+          inheritedOpacity
+        );
         if (childParts.length > 0) parts.push(...childParts);
 
         if (isBlock) {
@@ -1147,4 +1160,3 @@ export function collectTextParts(node, parentStyle, scale, activeHyperlink = nul
 
   return parts;
 }
-

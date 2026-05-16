@@ -561,7 +561,12 @@ function prepareRenderItem(
           textParts: [
             {
               text: textContent,
-              options: getTextStyle(style, config.scale, true, globalOptions._inheritedOpacity || 1),
+              options: getTextStyle(
+                style,
+                config.scale,
+                true,
+                globalOptions._inheritedOpacity || 1
+              ),
             },
           ],
           options: { x, y, w: unrotatedW, h: unrotatedH, margin: 0, autoFit: true },
@@ -1063,7 +1068,6 @@ function prepareRenderItem(
   if (isText) {
     const textParts = collectTextParts(node, style, config.scale, null, true, inheritedOpacity);
 
-
     if (textParts.length > 0) {
       let align = style.textAlign || 'left';
       if (align === 'start') align = 'left';
@@ -1074,8 +1078,7 @@ function prepareRenderItem(
 
       // Fix: Handle Flexbox axis swap for vertical writing modes OR column-direction flex
       const isVertical = writingModeVert && writingModeVert !== 'none';
-      const isColumn =
-        style.flexDirection === 'column' || style.flexDirection === 'column-reverse';
+      const isColumn = style.flexDirection === 'column' || style.flexDirection === 'column-reverse';
 
       if (isVertical || isColumn) {
         // Vertical Axis Swap (Main axis is vertical)
@@ -1083,7 +1086,8 @@ function prepareRenderItem(
         if (style.alignItems === 'flex-end' || style.alignItems === 'end') align = 'right';
 
         if (style.justifyContent === 'center' && style.display.includes('flex')) valign = 'middle';
-        if (style.justifyContent === 'flex-end' && style.display.includes('flex')) valign = 'bottom';
+        if (style.justifyContent === 'flex-end' && style.display.includes('flex'))
+          valign = 'bottom';
       } else {
         // Standard Row Axis (Main axis is horizontal)
         if (style.alignItems === 'center') valign = 'middle';
@@ -1105,7 +1109,6 @@ function prepareRenderItem(
       let padding = getPadding(style, config.scale);
 
       textPayload = { text: textParts, align, valign, inset: padding };
-
     }
   }
 

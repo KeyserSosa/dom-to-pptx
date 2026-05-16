@@ -1,12 +1,16 @@
 #!/usr/bin/env node
 
-const fs = require('fs');
-const path = require('path');
-const readline = require('readline');
+import fs from 'fs';
+import path from 'path';
+import readline from 'readline';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const rl = readline.createInterface({
   input: process.stdin,
-  output: process.stdout
+  output: process.stdout,
 });
 
 const question = (query) => new Promise((resolve) => rl.question(query, resolve));
@@ -16,27 +20,30 @@ async function main() {
   console.log('-----------------------------------');
 
   const homeDir = process.env.HOME || process.env.USERPROFILE || process.env.HOMEPATH;
-  
+
   // Define known agents and their detection folders
   const agents = [
     { name: 'Claude Code', path: path.join(homeDir, '.claude', 'skills') },
-    { name: 'Gemini CLI / Antigravity', path: path.join(homeDir, '.gemini', 'antigravity', 'skills') },
+    {
+      name: 'Gemini CLI / Antigravity',
+      path: path.join(homeDir, '.gemini', 'antigravity', 'skills'),
+    },
     { name: 'Windsurf', path: path.join(homeDir, '.windsurf', 'skills') },
-    { name: 'Cursor', path: path.join(homeDir, '.cursor', 'skills') }
+    { name: 'Cursor', path: path.join(homeDir, '.cursor', 'skills') },
   ];
 
   // Auto-detect installed agents
-  const detectedAgents = agents.filter(a => fs.existsSync(path.dirname(a.path)));
+  const detectedAgents = agents.filter((a) => fs.existsSync(path.dirname(a.path)));
 
   let targetBase;
 
   console.log('\nChecking for installed AI agents...');
-  
+
   if (detectedAgents.length > 0) {
     console.log(`\nDetected ${detectedAgents.length} potential agent(s):`);
     detectedAgents.forEach((a, i) => console.log(`${i + 1}) ${a.name}`));
     console.log(`${detectedAgents.length + 1}) Custom / Project Local (.agent/skills)`);
-    
+
     const choice = await question(`\nSelect target (1-${detectedAgents.length + 1}): `);
     const index = parseInt(choice) - 1;
 
@@ -72,14 +79,19 @@ async function main() {
   // 4. Copying Logic
   try {
     const sourceDir = path.join(__dirname, '..', 'skills', 'dom-to-pptx-skill');
-    
+
     if (!fs.existsSync(sourceDir)) {
-      throw new Error(`Source skills not found at ${sourceDir}. Are you running from the package root?`);
+      throw new Error(
+        `Source skills not found at ${sourceDir}. Are you running from the package root?`
+      );
     }
 
     copyRecursiveSync(sourceDir, targetDir);
 
-    console.log('\n\x1b[32m%s\x1b[0m', '✅ Success! dom-to-pptx "Atmospheric UI" skills installed.');
+    console.log(
+      '\n\x1b[32m%s\x1b[0m',
+      '✅ Success! dom-to-pptx "Atmospheric UI" skills installed.'
+    );
     console.log('Your agent is now equipped with the Premium Presentation Engineering framework.');
     console.log('You may need to restart your AI agent to see the new skill.');
   } catch (err) {
@@ -94,7 +106,7 @@ function copyRecursiveSync(src, dest) {
   const exists = fs.existsSync(src);
   const stats = exists && fs.statSync(src);
   const isDirectory = exists && stats.isDirectory();
-  
+
   if (isDirectory) {
     if (!fs.existsSync(dest)) {
       fs.mkdirSync(dest, { recursive: true });
