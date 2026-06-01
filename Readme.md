@@ -1,6 +1,6 @@
 # dom-to-pptx
 
-**The High-Fidelity HTML to PowerPoint Converter (v1.1.9)**
+**The High-Fidelity HTML to PowerPoint Converter (v1.1.10)**
 
 > [!TIP]
 > **Quick Start for AI Agents (Claude Code, Gemini, Windsurf):**
@@ -15,13 +15,12 @@ Most HTML-to-PPTX libraries fail when faced with modern web design. They break o
 
 **dom-to-pptx** is different. It is a **Coordinate Scraper & Style Engine** that traverses your DOM, calculates the exact computed styles of every element (Flexbox/Grid positions, complex gradients, shadows), and mathematically maps them to native PowerPoint shapes and text boxes. The result is a fully editable, vector-sharp presentation that looks exactly like your web view.
 
-### 🛠️ Updates in v1.1.9
+### 🛠️ Updates in v1.1.10
 
-- **Native Hyperlink Support**: Added support for `<a>` tags with `href` and `title` (tooltip) mapping directly to PowerPoint text runs.
-- **Flexbox Axis-Swap Intelligence**: Fixed centering issues in `flex-direction: column` containers by dynamically swapping alignment axes.
-- **Vertical Text Optimization**: Resolved character-stacking gaps in vertical writing modes and fixed alignment for vertical block containers.
-- **Width Safety Buffers**: Implemented sub-pixel rect sizing for unrotated elements, preserve offset sizing for rotated elements, floor font sizes to 0.1pt, and add a 1.5% text width buffer to prevent cross-platform wrapping differences.
-- **Enhanced Agentic Skills**: The `dom-to-pptx-skill` has been upgraded to v2.0, featuring an "Atmospheric UI" design engine, multi-phase autonomous workflows, and automated local image management.
+- **CSS Pseudo-Element Text Content Support**: Added full support for extracting and rendering custom text content inside pseudo-elements (`::before` / `::after`), styled natively with background colors, borders, and margins.
+- **Canvas Rendering Bugfix**: Fixed a bug where clipped divs with partial border-radius were not being captured via canvas because the job promise was not correctly assigned to `bgJob`.
+- **Handled Known Limitations**: Resolved advanced scenarios like OOXML Schema Corrections, Missing OOXML Features, CSS-Only Visuals, Slide-Aspect Matching, and Layout Primitives.
+- **ESLint 9 Support & Lint Cleanup**: Restructured devDependencies to natively support ESLint 9 configs and cleaned up all static analysis issues in the source directories.
 
 ## Features
 

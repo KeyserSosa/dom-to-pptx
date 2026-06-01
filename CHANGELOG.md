@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.10] - 2026-06-01
+
+### Added
+
+- **CSS Pseudo-Element Text Content Support**: Extended the pseudo-element parser (`::before` / `::after`) to extract, clean, style, and render custom text content (e.g., `content: "★"`). This text is embedded as a native PowerPoint text container with full support for font sizes, colors, and borders/backgrounds.
+- **Handled Known Limitations**: Resolved advanced scenarios:
+  - **OOXML Schema Corrections**: Merges duplicate paragraph properties (`<a:pPr>`) and maintains strict DrawingML child ordering.
+  - **Missing OOXML Features**: Resolves letter spacing (`spc`) and stacking order (`z-index`) via custom font/name transport suffixes (`__spc_` and `__z_`) and normalizes XML files post-serialization.
+  - **CSS-Only Visuals**: Handles micro-decorations (dots) down to `0.5px`, maps absolute/matrix transformations for pseudo-elements, and routes CSS shapes (e.g. `--shape-type: triangle`) to native PPTX ShapeType elements.
+  - **Slide-Aspect Matching**: Defines custom layouts (`AUTO_DESIGN`) dynamically matching design aspect ratios.
+  - **Layout Primitives**: Integrates layout measurements directly via computed coordinates (`getBoundingClientRect()`) to elegantly support flex, grid, and inline-block boxes.
+
+### Fixed
+
+- **Clipped Div Canvas Rendering Bug**: Resolved a silent bug where clipped divs with partial border-radius were not being captured via canvas because the promise-returning job was not correctly assigned to `bgJob` during DOM traversal.
+- **ESLint Integration**: Resolved configuration and package resolution issues with ESLint 9 by adding missing `globals` and `@eslint/js` devDependencies. Cleaned up multiple redundant code paths and unused variables across the codebase.
+
 ## [1.1.9] - 2026-05-16
 
 ### Added

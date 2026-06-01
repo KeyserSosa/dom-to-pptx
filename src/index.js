@@ -672,15 +672,15 @@ function getPseudoElementRect(hostRect, pseudoStyle) {
 function preparePseudoElementItem(node, pseudoType, hostRect, config, zIndex, domOrder, pptx) {
   const pseudoStyle = window.getComputedStyle(node, pseudoType);
   const content = pseudoStyle.content;
-
   const hasContent = content && content !== 'none' && content !== 'normal' && content !== '""';
+
   const bgColor = parseColor(pseudoStyle.backgroundColor);
   const hasBg = bgColor.hex && bgColor.opacity > 0;
   const borderCol = parseColor(pseudoStyle.borderColor);
   const borderWidth = parseFloat(pseudoStyle.borderWidth) || 0;
   const hasBorder = borderWidth > 0 && borderCol.opacity > 0;
 
-  if (!hasBg && !hasBorder) return null;
+  if (!hasBg && !hasBorder && !hasContent) return null;
 
   const rect = getPseudoElementRect(hostRect, pseudoStyle);
   if (!rect) return null;
@@ -693,6 +693,44 @@ function preparePseudoElementItem(node, pseudoType, hostRect, config, zIndex, do
 
   const borderRadius = parseFloat(pseudoStyle.borderRadius) || 0;
   const isCircle = borderRadius >= Math.min(rect.width, rect.height) / 2 - 1;
+
+  if (hasContent) {
+    const cleanText = content.replace(/^['"]|['"]$/g, '');
+    const textOpts = getTextStyle(pseudoStyle, scale, false);
+    const textOptions = {
+      x,
+      y,
+      w,
+      h,
+      align: pseudoStyle.textAlign || 'left',
+      valign: 'middle',
+      margin: 0,
+      wrap: true,
+      ...textOpts,
+      ...(hasBg && { fill: { color: bgColor.hex, transparency: (1 - bgColor.opacity) * 100 } }),
+      line: hasBorder ? { color: borderCol.hex, width: borderWidth * 0.75 * scale } : null,
+    };
+
+    if (isCircle) {
+      textOptions.rectRadius = Math.min(w, h) / 2;
+    } else if (borderRadius > 0) {
+      let cappedRadiusPx = Math.min(borderRadius, Math.min(rect.width, rect.height) / 2);
+      textOptions.rectRadius = cappedRadiusPx * PX_TO_INCH * scale;
+    }
+
+    return {
+      type: 'text',
+      zIndex,
+      domOrder,
+      textParts: [
+        {
+          text: cleanText,
+          options: textOpts,
+        },
+      ],
+      options: textOptions,
+    };
+  }
 
   let shapeType = pptx.ShapeType.rect;
   let shapeOpts = {
@@ -896,7 +934,7 @@ function prepareRenderItem(
       const parentRect = node.getBoundingClientRect(); // node is UL/OL
 
       // 1. Determine Bullet Config
-      let bullet = { type: 'bullet' };
+      let bullet;
       const listStyleType = liStyle.listStyleType || 'disc';
 
       if (node.tagName === 'OL' || listStyleType === 'decimal') {
@@ -1189,6 +1227,8 @@ function prepareRenderItem(
     });
   }
 
+  let bgJob = null;
+
   // --- ASYNC JOB: Clipped Divs via Canvas ---
   if (hasPartialBorderRadius && isClippedByParent(node) && !hasContent) {
     const marginLeft = parseFloat(style.marginLeft) || 0;
@@ -1203,7 +1243,7 @@ function prepareRenderItem(
       options: { x, y, w, h, rotate: rotation, data: null },
     };
 
-    const job = async () => {
+    bgJob = async () => {
       const canvasImageData = await elementToCanvasImage(node, widthPx, heightPx);
       if (canvasImageData) item.options.data = canvasImageData;
       else item.skip = true;
@@ -1294,8 +1334,6 @@ function prepareRenderItem(
     }
   }
 
-  let bgJob = null;
-
   if (hasBgImgUrl || hasGradient || (softEdge && bgColorObj.hex && !isImageWrapper)) {
     if (hasBgImgUrl) {
       const bgUrl = urlMatch[1];
@@ -1327,7 +1365,7 @@ function prepareRenderItem(
         else bgItem.skip = true;
       };
     } else {
-      let bgData = null;
+      let bgData;
       let padIn = 0;
       if (softEdge) {
         const svgInfo = generateBlurredSVG(

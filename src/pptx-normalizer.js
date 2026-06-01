@@ -29,24 +29,6 @@ const pPrOrder = [
   'extLst',
 ];
 
-const presentationOrder = [
-  'sldMasterIdLst',
-  'notesMasterIdLst',
-  'handoutMasterIdLst',
-  'sldIdLst',
-  'sldSz',
-  'notesSz',
-  'smartTags',
-  'embeddedFontLst',
-  'customShowLst',
-  'photoAlbum',
-  'custDataLst',
-  'kins',
-  'defaultTextStyle',
-  'modifyVerifier',
-  'extLst',
-];
-
 /**
  * Strips dangling <Override> entries from [Content_Types].xml.
  *
@@ -174,13 +156,11 @@ function cleanParagraphProperties(doc) {
           for (const attr of Array.from(sourcePPr.attributes)) {
             if (targetPPr.getAttribute(attr.name) !== attr.value) {
               targetPPr.setAttribute(attr.name, attr.value);
-              mutated = true;
             }
           }
           // merge children
           while (sourcePPr.firstChild) {
             targetPPr.appendChild(sourcePPr.firstChild);
-            mutated = true;
           }
           p.removeChild(sourcePPr);
           mutated = true;
@@ -337,7 +317,6 @@ function sortSpTree(doc) {
           if (!hasVal) {
             zVal = parseInt(nameMatch[1], 10);
             domVal = parseInt(nameMatch[2], 10);
-            hasVal = true;
           }
           const userText = nameMatch[3].trim();
           if (userText) {

@@ -952,7 +952,7 @@ export function generateBlurredSVG(w, h, color, radius, blurPx) {
   const fullH = h + padding * 2;
   const x = padding;
   const y = padding;
-  let shapeTag = '';
+  let shapeTag;
   const isCircle = radius >= Math.min(w, h) / 2 - 1 && Math.abs(w - h) < 2;
 
   if (isCircle) {
