@@ -1,0 +1,26 @@
+/* transitions.css */
+/* 
+  These classes are parsed by dom-to-pptx to generate native PowerPoint slide transitions.
+  You can optionally add CSS animations here to preview the transitions in the browser.
+*/
+
+.slide-transition-fade {}
+.slide-transition-push {}
+.slide-transition-wipe {}
+.slide-transition-strips {}
+.slide-transition-split {}
+.slide-transition-reveal {}
+.slide-transition-cut {}
+.slide-transition-randomBar {}
+.slide-transition-circle {}
+.slide-transition-flash {}
+.slide-transition-ripple {}
+.slide-transition-curtains {}
+.slide-transition-peelOff {}
+
+/* 
+  Usage examples:
+  <div class="export-container slide-transition-push transition-dir-u transition-dur-1500">
+    Slide 1
+  </div>
+*/

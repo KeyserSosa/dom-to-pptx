@@ -1,5 +1,6 @@
 // src/pptx-normalizer.js
 import { buildTimingXml } from './animations/xml-templates.js';
+import { getTransitionXml } from './animations/transitions.js';
 //
 // Defensive OOXML normalizer that runs over the PPTX produced by PptxGenJS
 // before we hand the .pptx blob to the user. Microsoft PowerPoint refuses to
@@ -127,9 +128,16 @@ export async function normalizePptxZip(zip, options = {}) {
         const slideMatch = relativePath.match(/ppt\/slides\/slide(\d+)\.xml/);
         const slideIndex = slideMatch ? parseInt(slideMatch[1], 10) - 1 : -1;
 
-        if (slideIndex >= 0 && options._slideAnimations) {
-          if (applySlideAnimations(doc, slideIndex, options)) {
-            mutated = true;
+        if (slideIndex >= 0) {
+          if (options._slideTransitions && options._slideTransitions[slideIndex]) {
+            if (applySlideTransitions(doc, slideIndex, options)) {
+              mutated = true;
+            }
+          }
+          if (options._slideAnimations) {
+            if (applySlideAnimations(doc, slideIndex, options)) {
+              mutated = true;
+            }
           }
         }
 
@@ -323,7 +331,7 @@ function sortSpTree(doc) {
         }
 
         const nameMatch = nameAttr.match(/^__z_(\d+)__dom_(\d+)__type_([^_]*)/) ||
-                          nameAttr.match(/^__z_(\d+)__dom_(\d+)(.*)/);
+          nameAttr.match(/^__z_(\d+)__dom_(\d+)(.*)/);
         if (nameMatch) {
           if (!hasVal) {
             zVal = parseInt(nameMatch[1], 10);
@@ -335,11 +343,11 @@ function sortSpTree(doc) {
             // New format: __z_N__dom_N__type_TYPE — use type to set a proper name
             const typeSegment = nameMatch[3] || '';
             const typePrefix =
-              typeSegment === 'text'  ? 'TextBox' :
-              typeSegment === 'image' ? 'Picture'  :
-              typeSegment === 'table' ? 'Table'    :
-              typeSegment === 'line'  ? 'Line'     :
-              typeSegment === 'shape' ? 'Shape'    : 'Shape';
+              typeSegment === 'text' ? 'TextBox' :
+                typeSegment === 'image' ? 'Picture' :
+                  typeSegment === 'table' ? 'Table' :
+                    typeSegment === 'line' ? 'Line' :
+                      typeSegment === 'shape' ? 'Shape' : 'Shape';
             shapeName = `${typePrefix} ${domVal + 1}`;
           } else {
             // Old format: __z_N__dom_N [optional user text]
@@ -412,7 +420,7 @@ function applySlideAnimations(doc, slideIndex, options) {
   const cNvPrs = Array.from(doc.getElementsByTagName('*')).filter(
     (n) => n.localName === 'cNvPr'
   );
-  
+
   for (const cNvPr of cNvPrs) {
     const descr = cNvPr.getAttribute('descr') || '';
     const nameAttr = cNvPr.getAttribute('name') || '';
@@ -421,7 +429,7 @@ function applySlideAnimations(doc, slideIndex, options) {
 
     const descrMatch = descr.match(/^__z_(\d+)__dom_(\d+)(.*)/);
     const nameMatch = nameAttr.match(/^__z_(\d+)__dom_(\d+)(.*)/);
-    
+
     let domVal = null;
     if (descrMatch) {
       domVal = parseInt(descrMatch[2], 10);
@@ -448,7 +456,7 @@ function applySlideAnimations(doc, slideIndex, options) {
     console.warn('[pptx-normalizer] Failed to parse timing XML string:', e);
     return false;
   }
-  
+
   const parserError = timingDoc.getElementsByTagName('parsererror')[0];
   if (parserError) {
     console.warn('[pptx-normalizer] Timing XML parsing failed:', parserError.textContent);
@@ -457,16 +465,79 @@ function applySlideAnimations(doc, slideIndex, options) {
 
   const timingNode = doc.importNode(timingDoc.documentElement, true);
   const sld = doc.documentElement;
-  
+
   // Find where to insert (before extLst if exists)
   const extLst = Array.from(sld.childNodes).find(
     (n) => n.nodeType === 1 && n.localName === 'extLst'
   );
-  
+
   if (extLst) {
     sld.insertBefore(timingNode, extLst);
   } else {
     sld.appendChild(timingNode);
+  }
+
+  return true;
+}
+
+/**
+ * Injects a transition node into the slide XML.
+ */
+function applySlideTransitions(doc, slideIndex, options) {
+  const transitionData = options._slideTransitions[slideIndex];
+  if (!transitionData) return false;
+
+  const transitionXml = getTransitionXml(transitionData);
+  if (!transitionXml) return false;
+
+  const sldNode = doc.documentElement;
+  
+  // Parse the transition XML fragment
+  const tmpDoc = new DOMParser().parseFromString(
+    `<root xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main">${transitionXml}</root>`, 
+    'text/xml'
+  );
+  
+  const parserError = tmpDoc.getElementsByTagName('parsererror')[0];
+  if (parserError) {
+    console.warn('[pptx-normalizer] Transition XML parsing failed:', parserError.textContent);
+    return false;
+  }
+
+  const transitionNode = tmpDoc.documentElement.firstChild;
+  if (!transitionNode) return false;
+
+  const importedNode = doc.importNode(transitionNode, true);
+  
+  // Add required namespaces if they aren't on the root
+  if (transitionXml.includes('p14:')) {
+    if (!sldNode.getAttribute('xmlns:p14')) {
+      sldNode.setAttribute('xmlns:p14', 'http://schemas.microsoft.com/office/powerpoint/2010/main');
+    }
+  }
+  if (transitionXml.includes('p15:')) {
+    if (!sldNode.getAttribute('xmlns:p15')) {
+      sldNode.setAttribute('xmlns:p15', 'http://schemas.microsoft.com/office/powerpoint/2012/main');
+    }
+  }
+
+  // The <p:transition> node must be inserted in the correct OOXML schema order:
+  // p:cSld, p:clrMapOvr, p:transition, p:timing, p:extLst
+  // So we insert it before p:timing, p:hf, or p:extLst. If none exist, we append it.
+  const insertBeforeTags = ['p:timing', 'p:hf', 'p:extLst'];
+  let insertRef = null;
+  for (const tag of insertBeforeTags) {
+    const el = doc.getElementsByTagName(tag)[0];
+    if (el && el.parentNode === sldNode) {
+      insertRef = el;
+      break;
+    }
+  }
+
+  if (insertRef) {
+    sldNode.insertBefore(importedNode, insertRef);
+  } else {
+    sldNode.appendChild(importedNode);
   }
 
   return true;

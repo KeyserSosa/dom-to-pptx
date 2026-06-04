@@ -32,6 +32,7 @@ import {
 } from './utils.js';
 import { getProcessedImage } from './image-processor.js';
 import { parseAnimation } from './animations/css-parser.js';
+import { extractTransitionFromElement } from './animations/transitions.js';
 
 const PPI = 96;
 const PX_TO_INCH = 1 / PPI;
@@ -117,12 +118,19 @@ export async function exportToPptx(target, options = {}) {
 
   let slideIndex = 0;
   const slideAnimations = {};
+  const slideTransitions = {};
   for (const el of elements) {
     const root = typeof el === 'string' ? document.querySelector(el) : el;
     if (!root) {
       console.warn('Element not found, skipping slide:', el);
       continue;
     }
+    
+    const transition = extractTransitionFromElement(root);
+    if (transition) {
+      slideTransitions[slideIndex] = transition;
+    }
+
     const slide = pptx.addSlide();
     const slideOptions = {
       ...extendedOptions,
@@ -134,6 +142,7 @@ export async function exportToPptx(target, options = {}) {
     slideIndex++;
   }
   extendedOptions._slideAnimations = slideAnimations;
+  extendedOptions._slideTransitions = slideTransitions;
 
   // 3. Font Embedding Logic
   let finalBlob;
@@ -1439,11 +1448,11 @@ function prepareRenderItem(
           style.backgroundImage,
           hasPartialBorderRadius
             ? {
-                tl: borderTopLeftRadius,
-                tr: borderTopRightRadius,
-                br: borderBottomRightRadius,
-                bl: borderBottomLeftRadius,
-              }
+              tl: borderTopLeftRadius,
+              tr: borderTopRightRadius,
+              br: borderBottomRightRadius,
+              bl: borderBottomLeftRadius,
+            }
             : borderRadiusValue,
           hasBorder ? { color: borderColorObj.hex, width: borderWidth } : null
         );
