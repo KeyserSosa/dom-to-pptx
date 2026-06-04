@@ -1,0 +1,217 @@
+/* src/animations/animations.css
+ * Minimal browser preview keyframes for dom-to-pptx animations.
+ * Features 10 basic entrance and 10 basic exit animations.
+ * 
+ * Usage:
+ *   Entrance: class="fade-in" or class="zoom-in", etc.
+ *   Exit:     class="fade-out" or class="zoom-out", etc.
+ */
+
+/* ── Entrance Animations (10) ── */
+
+.fade-in {
+  animation-name: fade-in;
+  animation-duration: 0.7s;
+  animation-fill-mode: both;
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.appear {
+  animation-name: appear;
+  animation-duration: 0.01s;
+  animation-fill-mode: both;
+}
+@keyframes appear {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.zoom-in {
+  animation-name: zoom-in;
+  animation-duration: 0.5s;
+  animation-fill-mode: both;
+}
+@keyframes zoom-in {
+  from { transform: scale(0.1); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+.fly-in {
+  animation-name: fly-in;
+  animation-duration: 0.5s;
+  animation-fill-mode: both;
+}
+@keyframes fly-in {
+  from { transform: translateY(60px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
+.wipe-in {
+  animation-name: wipe-in;
+  animation-duration: 0.6s;
+  animation-fill-mode: both;
+}
+@keyframes wipe-in {
+  from { clip-path: inset(0 100% 0 0); }
+  to   { clip-path: inset(0 0 0 0); }
+}
+
+.split-in {
+  animation-name: split-in;
+  animation-duration: 0.6s;
+  animation-fill-mode: both;
+}
+@keyframes split-in {
+  from { clip-path: inset(0 50% 0 50%); }
+  to   { clip-path: inset(0 0 0 0); }
+}
+
+.wheel {
+  animation-name: wheel;
+  animation-duration: 0.8s;
+  animation-fill-mode: both;
+}
+@keyframes wheel {
+  from { transform: rotate(-180deg) scale(0); opacity: 0; }
+  to   { transform: rotate(0deg) scale(1); opacity: 1; }
+}
+
+.bounce-in {
+  animation-name: bounce-in;
+  animation-duration: 0.8s;
+  animation-fill-mode: both;
+}
+@keyframes bounce-in {
+  0%   { transform: scale(0.3); opacity: 0; }
+  50%  { transform: scale(1.05); opacity: 0.8; }
+  70%  { transform: scale(0.9); opacity: 0.9; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.checkerboard-in {
+  animation-name: checkerboard-in;
+  animation-duration: 0.6s;
+  animation-fill-mode: both;
+}
+@keyframes checkerboard-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.random-bars-in {
+  animation-name: random-bars-in;
+  animation-duration: 0.6s;
+  animation-fill-mode: both;
+}
+@keyframes random-bars-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+
+/* ── Exit Animations (10) ── */
+
+.fade-out {
+  animation-name: fade-out;
+  animation-duration: 0.7s;
+  animation-fill-mode: both;
+}
+@keyframes fade-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+.disappear {
+  animation-name: disappear;
+  animation-duration: 0.01s;
+  animation-fill-mode: both;
+}
+@keyframes disappear {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+.zoom-out {
+  animation-name: zoom-out;
+  animation-duration: 0.5s;
+  animation-fill-mode: both;
+}
+@keyframes zoom-out {
+  from { transform: scale(1); opacity: 1; }
+  to   { transform: scale(0.1); opacity: 0; }
+}
+
+.fly-out {
+  animation-name: fly-out;
+  animation-duration: 0.5s;
+  animation-fill-mode: both;
+}
+@keyframes fly-out {
+  from { transform: translateY(0); opacity: 1; }
+  to   { transform: translateY(60px); opacity: 0; }
+}
+
+.wipe-out {
+  animation-name: wipe-out;
+  animation-duration: 0.6s;
+  animation-fill-mode: both;
+}
+@keyframes wipe-out {
+  from { clip-path: inset(0 0 0 0); }
+  to   { clip-path: inset(0 100% 0 0); }
+}
+
+.split-out {
+  animation-name: split-out;
+  animation-duration: 0.6s;
+  animation-fill-mode: both;
+}
+@keyframes split-out {
+  from { clip-path: inset(0 0 0 0); }
+  to   { clip-path: inset(0 50% 0 50%); }
+}
+
+.wheel-out {
+  animation-name: wheel-out;
+  animation-duration: 0.8s;
+  animation-fill-mode: both;
+}
+@keyframes wheel-out {
+  from { transform: rotate(0deg) scale(1); opacity: 1; }
+  to   { transform: rotate(180deg) scale(0); opacity: 0; }
+}
+
+.bounce-out {
+  animation-name: bounce-out;
+  animation-duration: 0.8s;
+  animation-fill-mode: both;
+}
+@keyframes bounce-out {
+  0%   { transform: scale(1); opacity: 1; }
+  30%  { transform: scale(0.9); opacity: 0.9; }
+  50%  { transform: scale(1.05); opacity: 0.8; }
+  100% { transform: scale(0.3); opacity: 0; }
+}
+
+.checkerboard-out {
+  animation-name: checkerboard-out;
+  animation-duration: 0.6s;
+  animation-fill-mode: both;
+}
+@keyframes checkerboard-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+.random-bars-out {
+  animation-name: random-bars-out;
+  animation-duration: 0.6s;
+  animation-fill-mode: both;
+}
+@keyframes random-bars-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}

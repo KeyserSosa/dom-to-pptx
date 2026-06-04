@@ -31,6 +31,7 @@ import {
   collectTextParts,
 } from './utils.js';
 import { getProcessedImage } from './image-processor.js';
+import { parseAnimation } from './animations/css-parser.js';
 
 const PPI = 96;
 const PX_TO_INCH = 1 / PPI;
@@ -114,6 +115,8 @@ export async function exportToPptx(target, options = {}) {
 
   const elements = Array.isArray(target) ? target : [target];
 
+  let slideIndex = 0;
+  const slideAnimations = {};
   for (const el of elements) {
     const root = typeof el === 'string' ? document.querySelector(el) : el;
     if (!root) {
@@ -121,8 +124,16 @@ export async function exportToPptx(target, options = {}) {
       continue;
     }
     const slide = pptx.addSlide();
-    await processSlide(root, slide, pptx, extendedOptions);
+    const slideOptions = {
+      ...extendedOptions,
+      _slideIndex: slideIndex,
+      _animations: [],
+    };
+    await processSlide(root, slide, pptx, slideOptions);
+    slideAnimations[slideIndex] = slideOptions._animations;
+    slideIndex++;
   }
+  extendedOptions._slideAnimations = slideAnimations;
 
   // 3. Font Embedding Logic
   let finalBlob;
@@ -180,7 +191,7 @@ export async function exportToPptx(target, options = {}) {
 
     await embedder.updateFiles();
     if (options.skipNormalize !== true) {
-      await normalizePptxZip(zip);
+      await normalizePptxZip(zip, extendedOptions);
     }
     finalBlob = await embedder.generateBlob();
   } else {
@@ -192,7 +203,7 @@ export async function exportToPptx(target, options = {}) {
       finalBlob = initialBlob;
     } else {
       const zip = await JSZip.loadAsync(initialBlob);
-      await normalizePptxZip(zip);
+      await normalizePptxZip(zip, extendedOptions);
       finalBlob = await zip.generateAsync({
         type: 'blob',
         compression: 'DEFLATE',
@@ -278,7 +289,7 @@ async function processSlide(root, slide, pptx, globalOptions = {}) {
   let domOrderCounter = 0;
 
   // Sync Traversal Function
-  function collect(node, parentSortKey, parentOpacity = 1) {
+  function collect(node, parentSortKey, parentOpacity = 1, inheritedAnimation = null) {
     const order = domOrderCounter++;
 
     let currentSortKey = parentSortKey;
@@ -319,7 +330,7 @@ async function processSlide(root, slide, pptx, globalOptions = {}) {
       pptx,
       currentSortKey,
       nodeStyle,
-      { ...globalOptions, _inheritedOpacity: parentOpacity }
+      { ...globalOptions, _inheritedOpacity: parentOpacity, _inheritedAnimation: inheritedAnimation }
     );
 
     if (result) {
@@ -334,10 +345,20 @@ async function processSlide(root, slide, pptx, globalOptions = {}) {
       if (result.stopRecursion) return;
     }
 
-    // Recurse children synchronously
+    // Recurse children synchronously.
+    // Determine what animation to pass down to children:
+    // If this element has its own animation, children inherit it (with start='with' applied in prepareRenderItem).
+    // Otherwise, continue passing whatever was already inherited from an ancestor.
     const childNodes = node.childNodes;
+    let nextInheritedAnimation = inheritedAnimation;
+    if (nodeType === 1 && nodeStyle) {
+      const ownAnim = parseAnimation(node, nodeStyle);
+      if (ownAnim) {
+        nextInheritedAnimation = ownAnim;
+      }
+    }
     for (let i = 0; i < childNodes.length; i++) {
-      collect(childNodes[i], currentSortKey, currentOpacity);
+      collect(childNodes[i], currentSortKey, currentOpacity, nextInheritedAnimation);
     }
   }
 
@@ -362,7 +383,7 @@ async function processSlide(root, slide, pptx, globalOptions = {}) {
   // 4. Add to Slide
   for (let i = 0; i < finalQueue.length; i++) {
     const item = finalQueue[i];
-    const transportVal = `__z_${i}__dom_${item.domOrder}`;
+    const transportVal = `__z_${i}__dom_${item.domOrder}__type_${item.type}`;
     item.options.altText = transportVal;
     item.options.objectName = transportVal;
 
@@ -759,6 +780,19 @@ function preparePseudoElementItem(node, pseudoType, hostRect, config, zIndex, do
   };
 }
 
+function countParagraphs(node, scale) {
+  if (!node) return 1;
+  const style = window.getComputedStyle(node);
+  const parts = collectTextParts(node, style, scale, null, true, 1);
+  let count = 1;
+  for (const part of parts) {
+    if (part.options?.breakLine) {
+      count++;
+    }
+  }
+  return count;
+}
+
 function prepareRenderItem(
   node,
   config,
@@ -834,6 +868,27 @@ function prepareRenderItem(
 
   if (node.nodeType !== 1) return null;
   const style = computedStyle; // Use pre-computed style
+
+  const anim = parseAnimation(node, style);
+  // Use the node's own animation, or fall back to the inherited one from an ancestor.
+  // Inherited animations use start='with' so children animate simultaneously with the parent.
+  const effectiveAnim = anim || (
+    globalOptions._inheritedAnimation
+      ? { ...globalOptions._inheritedAnimation, start: 'with' }
+      : null
+  );
+  if (effectiveAnim) {
+    let numParagraphs = 1;
+    if (isTextContainer(node)) {
+      numParagraphs = countParagraphs(node, config.scale);
+    }
+    globalOptions._animations = globalOptions._animations || [];
+    globalOptions._animations.push({
+      domOrder,
+      ...effectiveAnim,
+      numParagraphs,
+    });
+  }
 
   const rect = node.getBoundingClientRect();
   if (rect.width < 0.5 || rect.height < 0.5) return null;
@@ -1664,4 +1719,38 @@ function createCompositeBorderItems(sides, x, y, w, h, scale, zIndex, domOrder) 
     });
 
   return items;
+}
+
+/**
+ * Applies browser animation inline styles by parsing animation class utilities.
+ * This helper enables real-time browser previewing of custom slide animation speeds/delays.
+ * 
+ * @param {HTMLElement} parentElement
+ */
+export function applyBrowserAnimations(parentElement) {
+  if (!parentElement) return;
+  const elements = parentElement.querySelectorAll('*');
+  const allElements = [parentElement, ...Array.from(elements)];
+
+  for (const el of allElements) {
+    if (el.nodeType !== 1) continue;
+
+    // Parse animation classes: e.g. animate-duration-[700]
+    let duration = null;
+    let delay = null;
+
+    for (const cls of Array.from(el.classList)) {
+      const durMatch = cls.match(/^animate-duration-\[(\d+)\]$/);
+      if (durMatch) {
+        duration = `${durMatch[1]}ms`;
+      }
+      const delayMatch = cls.match(/^animate-delay-\[(\d+)\]$/);
+      if (delayMatch) {
+        delay = `${delayMatch[1]}ms`;
+      }
+    }
+
+    if (duration) el.style.animationDuration = duration;
+    if (delay) el.style.animationDelay = delay;
+  }
 }

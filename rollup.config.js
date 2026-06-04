@@ -3,6 +3,22 @@ import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import polyfillNode from 'rollup-plugin-polyfill-node';
 import json from '@rollup/plugin-json';
+import fs from 'fs';
+
+// Simple plugin that copies src/animations/animations.css → dist/animations.css after build
+const copyCss = {
+  name: 'copy-css',
+  writeBundle() {
+    fs.copyFileSync('src/animations/animations.css', 'dist/animations.css');
+    console.log('Copied animations.css → dist/animations.css');
+    
+    // Copy transitions if it exists
+    if (fs.existsSync('src/animations/transitions.css')) {
+      fs.copyFileSync('src/animations/transitions.css', 'dist/transitions.css');
+      console.log('Copied transitions.css → dist/transitions.css');
+    }
+  },
+};
 
 const input = 'src/index.js';
 
@@ -87,6 +103,9 @@ const configBundle = {
 
     // 4. Inject Node.js Polyfills (Buffer, Stream, etc.)
     polyfillNode(),
+
+    // 5. Copy animations.css to dist/
+    copyCss,
   ],
   // Empty external list means "Bundle everything"
   external: [],

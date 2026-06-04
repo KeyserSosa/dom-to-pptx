@@ -333,7 +333,7 @@ describe('normalizePptxZip', () => {
 
     // Shape 1 (id="1") should be sorted first among visual elements because z=0 < z=1
     expect(elements[2].getElementsByTagName('p:cNvPr')[0].getAttribute('id')).toBe('1');
-    expect(elements[2].getElementsByTagName('p:cNvPr')[0].getAttribute('name')).toBe('Object 0');
+    expect(elements[2].getElementsByTagName('p:cNvPr')[0].getAttribute('name')).toBe('Shape 1');
 
     // Shape 2 (id="2") should be sorted second among visual elements because z=1
     expect(elements[3].getElementsByTagName('p:cNvPr')[0].getAttribute('id')).toBe('2');

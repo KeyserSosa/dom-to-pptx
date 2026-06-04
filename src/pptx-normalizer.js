@@ -1,4 +1,5 @@
 // src/pptx-normalizer.js
+import { buildTimingXml } from './animations/xml-templates.js';
 //
 // Defensive OOXML normalizer that runs over the PPTX produced by PptxGenJS
 // before we hand the .pptx blob to the user. Microsoft PowerPoint refuses to
@@ -44,7 +45,7 @@ const pPrOrder = [
  * @param {import('jszip')} zip - JSZip instance with the loaded PPTX package.
  * @returns {Promise<void>}
  */
-export async function normalizePptxZip(zip) {
+export async function normalizePptxZip(zip, options = {}) {
   if (!zip) return;
 
   const contentTypesFile = zip.file('[Content_Types].xml');
@@ -123,6 +124,15 @@ export async function normalizePptxZip(zip) {
       }
 
       if (relativePath.startsWith('ppt/slides/slide')) {
+        const slideMatch = relativePath.match(/ppt\/slides\/slide(\d+)\.xml/);
+        const slideIndex = slideMatch ? parseInt(slideMatch[1], 10) - 1 : -1;
+
+        if (slideIndex >= 0 && options._slideAnimations) {
+          if (applySlideAnimations(doc, slideIndex, options)) {
+            mutated = true;
+          }
+        }
+
         if (sortSpTree(doc)) {
           mutated = true;
         }
@@ -312,18 +322,32 @@ function sortSpTree(doc) {
           mutated = true;
         }
 
-        const nameMatch = nameAttr.match(/^__z_(\d+)__dom_(\d+)(.*)/);
+        const nameMatch = nameAttr.match(/^__z_(\d+)__dom_(\d+)__type_([^_]*)/) ||
+                          nameAttr.match(/^__z_(\d+)__dom_(\d+)(.*)/);
         if (nameMatch) {
           if (!hasVal) {
             zVal = parseInt(nameMatch[1], 10);
             domVal = parseInt(nameMatch[2], 10);
           }
-          const userText = nameMatch[3].trim();
-          if (userText) {
-            cNvPr.setAttribute('name', userText);
+
+          let shapeName;
+          if (nameAttr.includes('__type_')) {
+            // New format: __z_N__dom_N__type_TYPE — use type to set a proper name
+            const typeSegment = nameMatch[3] || '';
+            const typePrefix =
+              typeSegment === 'text'  ? 'TextBox' :
+              typeSegment === 'image' ? 'Picture'  :
+              typeSegment === 'table' ? 'Table'    :
+              typeSegment === 'line'  ? 'Line'     :
+              typeSegment === 'shape' ? 'Shape'    : 'Shape';
+            shapeName = `${typePrefix} ${domVal + 1}`;
           } else {
-            cNvPr.setAttribute('name', `Object ${domVal}`);
+            // Old format: __z_N__dom_N [optional user text]
+            const userText = (nameMatch[3] || '').trim();
+            shapeName = userText || `Shape ${domVal + 1}`;
           }
+
+          cNvPr.setAttribute('name', shapeName);
           mutated = true;
         }
       }
@@ -376,4 +400,74 @@ function serializeXmlWithDeclaration(doc) {
     serialized = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n' + serialized;
   }
   return serialized;
+}
+
+function applySlideAnimations(doc, slideIndex, options) {
+  const slideAnimations = options._slideAnimations?.[slideIndex];
+  if (!slideAnimations || slideAnimations.length === 0) return false;
+
+  const domToSpIdMap = new Map();
+
+  // Find all cNvPr elements to build the mapping from domVal to spId
+  const cNvPrs = Array.from(doc.getElementsByTagName('*')).filter(
+    (n) => n.localName === 'cNvPr'
+  );
+  
+  for (const cNvPr of cNvPrs) {
+    const descr = cNvPr.getAttribute('descr') || '';
+    const nameAttr = cNvPr.getAttribute('name') || '';
+    const spId = cNvPr.getAttribute('id');
+    if (!spId) continue;
+
+    const descrMatch = descr.match(/^__z_(\d+)__dom_(\d+)(.*)/);
+    const nameMatch = nameAttr.match(/^__z_(\d+)__dom_(\d+)(.*)/);
+    
+    let domVal = null;
+    if (descrMatch) {
+      domVal = parseInt(descrMatch[2], 10);
+    } else if (nameMatch) {
+      domVal = parseInt(nameMatch[2], 10);
+    }
+
+    if (domVal !== null && !isNaN(domVal)) {
+      if (!domToSpIdMap.has(domVal)) {
+        domToSpIdMap.set(domVal, []);
+      }
+      domToSpIdMap.get(domVal).push(spId);
+    }
+  }
+
+  // Build the p:timing XML block
+  const timingXml = buildTimingXml(slideAnimations, domToSpIdMap);
+  if (!timingXml) return false;
+
+  let timingDoc;
+  try {
+    timingDoc = new DOMParser().parseFromString(timingXml, 'text/xml');
+  } catch (e) {
+    console.warn('[pptx-normalizer] Failed to parse timing XML string:', e);
+    return false;
+  }
+  
+  const parserError = timingDoc.getElementsByTagName('parsererror')[0];
+  if (parserError) {
+    console.warn('[pptx-normalizer] Timing XML parsing failed:', parserError.textContent);
+    return false;
+  }
+
+  const timingNode = doc.importNode(timingDoc.documentElement, true);
+  const sld = doc.documentElement;
+  
+  // Find where to insert (before extLst if exists)
+  const extLst = Array.from(sld.childNodes).find(
+    (n) => n.nodeType === 1 && n.localName === 'extLst'
+  );
+  
+  if (extLst) {
+    sld.insertBefore(timingNode, extLst);
+  } else {
+    sld.appendChild(timingNode);
+  }
+
+  return true;
 }
