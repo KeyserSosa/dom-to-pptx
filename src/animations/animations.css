@@ -117,7 +117,7 @@
 .fade-out {
   animation-name: fade-out;
   animation-duration: 0.7s;
-  animation-fill-mode: both;
+  animation-fill-mode: backwards;
 }
 @keyframes fade-out {
   from { opacity: 1; }
@@ -127,7 +127,7 @@
 .disappear {
   animation-name: disappear;
   animation-duration: 0.01s;
-  animation-fill-mode: both;
+  animation-fill-mode: backwards;
 }
 @keyframes disappear {
   from { opacity: 1; }
@@ -137,7 +137,7 @@
 .zoom-out {
   animation-name: zoom-out;
   animation-duration: 0.5s;
-  animation-fill-mode: both;
+  animation-fill-mode: backwards;
 }
 @keyframes zoom-out {
   from { transform: scale(1); opacity: 1; }
@@ -147,7 +147,7 @@
 .fly-out {
   animation-name: fly-out;
   animation-duration: 0.5s;
-  animation-fill-mode: both;
+  animation-fill-mode: backwards;
 }
 @keyframes fly-out {
   from { transform: translateY(0); opacity: 1; }
@@ -157,7 +157,7 @@
 .wipe-out {
   animation-name: wipe-out;
   animation-duration: 0.6s;
-  animation-fill-mode: both;
+  animation-fill-mode: backwards;
 }
 @keyframes wipe-out {
   from { clip-path: inset(0 0 0 0); }
@@ -167,7 +167,7 @@
 .split-out {
   animation-name: split-out;
   animation-duration: 0.6s;
-  animation-fill-mode: both;
+  animation-fill-mode: backwards;
 }
 @keyframes split-out {
   from { clip-path: inset(0 0 0 0); }
@@ -177,7 +177,7 @@
 .wheel-out {
   animation-name: wheel-out;
   animation-duration: 0.8s;
-  animation-fill-mode: both;
+  animation-fill-mode: backwards;
 }
 @keyframes wheel-out {
   from { transform: rotate(0deg) scale(1); opacity: 1; }
@@ -187,7 +187,7 @@
 .bounce-out {
   animation-name: bounce-out;
   animation-duration: 0.8s;
-  animation-fill-mode: both;
+  animation-fill-mode: backwards;
 }
 @keyframes bounce-out {
   0%   { transform: scale(1); opacity: 1; }
@@ -199,7 +199,7 @@
 .checkerboard-out {
   animation-name: checkerboard-out;
   animation-duration: 0.6s;
-  animation-fill-mode: both;
+  animation-fill-mode: backwards;
 }
 @keyframes checkerboard-out {
   from { opacity: 1; }
@@ -209,7 +209,7 @@
 .random-bars-out {
   animation-name: random-bars-out;
   animation-duration: 0.6s;
-  animation-fill-mode: both;
+  animation-fill-mode: backwards;
 }
 @keyframes random-bars-out {
   from { opacity: 1; }
