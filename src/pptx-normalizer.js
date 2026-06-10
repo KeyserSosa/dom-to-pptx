@@ -330,7 +330,8 @@ function sortSpTree(doc) {
           mutated = true;
         }
 
-        const nameMatch = nameAttr.match(/^__z_(\d+)__dom_(\d+)__type_([^_]*)/) ||
+        const nameMatch =
+          nameAttr.match(/^__z_(\d+)__dom_(\d+)__type_([^_]*)/) ||
           nameAttr.match(/^__z_(\d+)__dom_(\d+)(.*)/);
         if (nameMatch) {
           if (!hasVal) {
@@ -343,11 +344,17 @@ function sortSpTree(doc) {
             // New format: __z_N__dom_N__type_TYPE — use type to set a proper name
             const typeSegment = nameMatch[3] || '';
             const typePrefix =
-              typeSegment === 'text' ? 'TextBox' :
-                typeSegment === 'image' ? 'Picture' :
-                  typeSegment === 'table' ? 'Table' :
-                    typeSegment === 'line' ? 'Line' :
-                      typeSegment === 'shape' ? 'Shape' : 'Shape';
+              typeSegment === 'text'
+                ? 'TextBox'
+                : typeSegment === 'image'
+                  ? 'Picture'
+                  : typeSegment === 'table'
+                    ? 'Table'
+                    : typeSegment === 'line'
+                      ? 'Line'
+                      : typeSegment === 'shape'
+                        ? 'Shape'
+                        : 'Shape';
             shapeName = `${typePrefix} ${domVal + 1}`;
           } else {
             // Old format: __z_N__dom_N [optional user text]
@@ -415,11 +422,10 @@ function applySlideAnimations(doc, slideIndex, options) {
   if (!slideAnimations || slideAnimations.length === 0) return false;
 
   const domToSpIdMap = new Map();
+  const textBoxSpIds = new Set();
 
   // Find all cNvPr elements to build the mapping from domVal to spId
-  const cNvPrs = Array.from(doc.getElementsByTagName('*')).filter(
-    (n) => n.localName === 'cNvPr'
-  );
+  const cNvPrs = Array.from(doc.getElementsByTagName('*')).filter((n) => n.localName === 'cNvPr');
 
   for (const cNvPr of cNvPrs) {
     const descr = cNvPr.getAttribute('descr') || '';
@@ -442,11 +448,23 @@ function applySlideAnimations(doc, slideIndex, options) {
         domToSpIdMap.set(domVal, []);
       }
       domToSpIdMap.get(domVal).push(spId);
+
+      // Check if this cNvPr's shape represents a TextBox (has <p:txBody>)
+      // Structure: <p:sp> -> <p:nvSpPr> -> <p:cNvPr>
+      const grandParent = cNvPr.parentNode?.parentNode;
+      if (grandParent) {
+        const hasTxBody = Array.from(grandParent.childNodes).some(
+          (child) => child.nodeType === 1 && child.localName === 'txBody'
+        );
+        if (hasTxBody) {
+          textBoxSpIds.add(spId);
+        }
+      }
     }
   }
 
   // Build the p:timing XML block
-  const timingXml = buildTimingXml(slideAnimations, domToSpIdMap);
+  const timingXml = buildTimingXml(slideAnimations, domToSpIdMap, textBoxSpIds);
   if (!timingXml) return false;
 
   let timingDoc;
@@ -491,13 +509,13 @@ function applySlideTransitions(doc, slideIndex, options) {
   if (!transitionXml) return false;
 
   const sldNode = doc.documentElement;
-  
+
   // Parse the transition XML fragment
   const tmpDoc = new DOMParser().parseFromString(
-    `<root xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main">${transitionXml}</root>`, 
+    `<root xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main">${transitionXml}</root>`,
     'text/xml'
   );
-  
+
   const parserError = tmpDoc.getElementsByTagName('parsererror')[0];
   if (parserError) {
     console.warn('[pptx-normalizer] Transition XML parsing failed:', parserError.textContent);
@@ -508,7 +526,7 @@ function applySlideTransitions(doc, slideIndex, options) {
   if (!transitionNode) return false;
 
   const importedNode = doc.importNode(transitionNode, true);
-  
+
   // Add required namespaces if they aren't on the root
   if (transitionXml.includes('p14:')) {
     if (!sldNode.getAttribute('xmlns:p14')) {

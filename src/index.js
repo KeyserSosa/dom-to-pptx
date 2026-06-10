@@ -125,7 +125,7 @@ export async function exportToPptx(target, options = {}) {
       console.warn('Element not found, skipping slide:', el);
       continue;
     }
-    
+
     const transition = extractTransitionFromElement(root);
     if (transition) {
       slideTransitions[slideIndex] = transition;
@@ -339,7 +339,11 @@ async function processSlide(root, slide, pptx, globalOptions = {}) {
       pptx,
       currentSortKey,
       nodeStyle,
-      { ...globalOptions, _inheritedOpacity: parentOpacity, _inheritedAnimation: inheritedAnimation }
+      {
+        ...globalOptions,
+        _inheritedOpacity: parentOpacity,
+        _inheritedAnimation: inheritedAnimation,
+      }
     );
 
     if (result) {
@@ -881,11 +885,11 @@ function prepareRenderItem(
   const anim = parseAnimation(node, style);
   // Use the node's own animation, or fall back to the inherited one from an ancestor.
   // Inherited animations use start='with' so children animate simultaneously with the parent.
-  const effectiveAnim = anim || (
-    globalOptions._inheritedAnimation
+  const effectiveAnim =
+    anim ||
+    (globalOptions._inheritedAnimation
       ? { ...globalOptions._inheritedAnimation, start: 'with' }
-      : null
-  );
+      : null);
   if (effectiveAnim) {
     let numParagraphs = 1;
     if (isTextContainer(node)) {
@@ -1448,11 +1452,11 @@ function prepareRenderItem(
           style.backgroundImage,
           hasPartialBorderRadius
             ? {
-              tl: borderTopLeftRadius,
-              tr: borderTopRightRadius,
-              br: borderBottomRightRadius,
-              bl: borderBottomLeftRadius,
-            }
+                tl: borderTopLeftRadius,
+                tr: borderTopRightRadius,
+                br: borderBottomRightRadius,
+                bl: borderBottomLeftRadius,
+              }
             : borderRadiusValue,
           hasBorder ? { color: borderColorObj.hex, width: borderWidth } : null
         );
@@ -1733,7 +1737,7 @@ function createCompositeBorderItems(sides, x, y, w, h, scale, zIndex, domOrder) 
 /**
  * Applies browser animation inline styles by parsing animation class utilities.
  * This helper enables real-time browser previewing of custom slide animation speeds/delays.
- * 
+ *
  * @param {HTMLElement} parentElement
  */
 export function applyBrowserAnimations(parentElement) {

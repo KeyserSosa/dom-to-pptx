@@ -11,7 +11,7 @@ const copyCss = {
   writeBundle() {
     fs.copyFileSync('src/animations/animations.css', 'dist/animations.css');
     console.log('Copied animations.css → dist/animations.css');
-    
+
     // Copy transitions if it exists
     if (fs.existsSync('src/animations/transitions.css')) {
       fs.copyFileSync('src/animations/transitions.css', 'dist/transitions.css');

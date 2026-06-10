@@ -5,14 +5,37 @@
  * Used to both detect if an element has an animation AND infer direction.
  */
 const ENTRANCE_NAMES = new Set([
-  'fade-in', 'appear', 'zoom-in', 'fly-in', 'wipe-in', 'split-in', 'wheel',
-  'bounce-in', 'checkerboard-in', 'random-bars-in', 'rise-up', 'swivel-in',
-  'drop-in', 'fly-in-left', 'fly-in-right', 'fly-in-top',
+  'fade-in',
+  'appear',
+  'zoom-in',
+  'fly-in',
+  'wipe-in',
+  'split-in',
+  'wheel',
+  'bounce-in',
+  'checkerboard-in',
+  'random-bars-in',
+  'rise-up',
+  'swivel-in',
+  'drop-in',
+  'fly-in-left',
+  'fly-in-right',
+  'fly-in-top',
 ]);
 
 const EXIT_NAMES = new Set([
-  'fade-out', 'disappear', 'zoom-out', 'fly-out', 'wipe-out', 'split-out', 'wheel-out',
-  'bounce-out', 'checkerboard-out', 'random-bars-out', 'swivel-out', 'drop-out',
+  'fade-out',
+  'disappear',
+  'zoom-out',
+  'fly-out',
+  'wipe-out',
+  'split-out',
+  'wheel-out',
+  'bounce-out',
+  'checkerboard-out',
+  'random-bars-out',
+  'swivel-out',
+  'drop-out',
 ]);
 
 /**
@@ -76,7 +99,13 @@ export function parseAnimation(node, style) {
   // ── 1. Resolve animation name ────────────────────────────────────────────
   let name =
     (node.dataset?.pptxAnimation || node.dataset?.pptxAnimationType || '').trim().toLowerCase() ||
-    (style?.getPropertyValue('--pptx-animation-name') || style?.getPropertyValue('--pptx-animation') || '').trim().toLowerCase();
+    (
+      style?.getPropertyValue('--pptx-animation-name') ||
+      style?.getPropertyValue('--pptx-animation') ||
+      ''
+    )
+      .trim()
+      .toLowerCase();
 
   if (!name || name === 'none') {
     // Try computed CSS animation-name (set by our .fade-in, .zoom-in classes etc.)
@@ -101,17 +130,27 @@ export function parseAnimation(node, style) {
   if (!name || name === 'none') return null;
 
   // ── 2. Determine class (entrance vs exit) ────────────────────────────────
-  let animClass =
-    (node.dataset?.pptxAnimationClass || style?.getPropertyValue('--pptx-animation-class') || '').trim().toLowerCase();
+  let animClass = (
+    node.dataset?.pptxAnimationClass ||
+    style?.getPropertyValue('--pptx-animation-class') ||
+    ''
+  )
+    .trim()
+    .toLowerCase();
 
   if (!animClass) {
-    if (EXIT_NAMES.has(name) || name.endsWith('-out') || name.includes('disappear') || name.includes('exit')) {
+    if (
+      EXIT_NAMES.has(name) ||
+      name.endsWith('-out') ||
+      name.includes('disappear') ||
+      name.includes('exit')
+    ) {
       animClass = 'exit';
     } else {
       animClass = 'entr';
     }
   } else {
-    animClass = (animClass.includes('exit') || animClass.includes('out')) ? 'exit' : 'entr';
+    animClass = animClass.includes('exit') || animClass.includes('out') ? 'exit' : 'entr';
   }
 
   // ── 3. Resolve duration ──────────────────────────────────────────────────
@@ -150,8 +189,14 @@ export function parseAnimation(node, style) {
   }
 
   // ── 5. Resolve start trigger ─────────────────────────────────────────────
-  let start =
-    (node.dataset?.pptxAnimationStart || style?.getPropertyValue('--pptx-animation-start') || style?.getPropertyValue('--pptx-start') || '').trim().toLowerCase();
+  let start = (
+    node.dataset?.pptxAnimationStart ||
+    style?.getPropertyValue('--pptx-animation-start') ||
+    style?.getPropertyValue('--pptx-start') ||
+    ''
+  )
+    .trim()
+    .toLowerCase();
 
   if (!start) {
     // Check utility trigger classes
@@ -171,7 +216,12 @@ export function parseAnimation(node, style) {
 
   // ── 6. Subtype ────────────────────────────────────────────────────────────
   const subtype =
-    (node.dataset?.pptxAnimationSubtype || style?.getPropertyValue('--pptx-animation-subtype') || style?.getPropertyValue('--pptx-subtype') || '').trim() || null;
+    (
+      node.dataset?.pptxAnimationSubtype ||
+      style?.getPropertyValue('--pptx-animation-subtype') ||
+      style?.getPropertyValue('--pptx-subtype') ||
+      ''
+    ).trim() || null;
 
   // ── 7. Build Type (all at once, paragraph, letter) ───────────────────────
   let build = (
@@ -180,7 +230,9 @@ export function parseAnimation(node, style) {
     style?.getPropertyValue('--pptx-animation-build') ||
     style?.getPropertyValue('--pptx-build') ||
     ''
-  ).trim().toLowerCase();
+  )
+    .trim()
+    .toLowerCase();
 
   if (!build) {
     const classSet = new Set(classList);
@@ -188,7 +240,11 @@ export function parseAnimation(node, style) {
       build = 'paragraph';
     } else if (classSet.has('letter') || classSet.has('animate-build-letter')) {
       build = 'letter';
-    } else if (classSet.has('all-at-once') || classSet.has('all-once') || classSet.has('animate-build-all')) {
+    } else if (
+      classSet.has('all-at-once') ||
+      classSet.has('all-once') ||
+      classSet.has('animate-build-all')
+    ) {
       build = 'all';
     } else {
       build = 'all';
@@ -206,7 +262,9 @@ export function parseAnimation(node, style) {
     style?.getPropertyValue('--pptx-animation-direction') ||
     style?.getPropertyValue('--pptx-direction') ||
     ''
-  ).trim().toLowerCase();
+  )
+    .trim()
+    .toLowerCase();
 
   if (!direction) {
     const classSet = new Set(classList);
@@ -236,7 +294,9 @@ export function parseAnimation(node, style) {
     style?.getPropertyValue('--pptx-animation-orientation') ||
     style?.getPropertyValue('--pptx-orientation') ||
     ''
-  ).trim().toLowerCase();
+  )
+    .trim()
+    .toLowerCase();
 
   if (!orientation) {
     const classSet = new Set(classList);
@@ -249,7 +309,8 @@ export function parseAnimation(node, style) {
     }
   } else {
     if (orientation.includes('vert')) orientation = 'vertical';
-    else if (orientation.includes('horz') || orientation.includes('hori')) orientation = 'horizontal';
+    else if (orientation.includes('horz') || orientation.includes('hori'))
+      orientation = 'horizontal';
     else orientation = null;
   }
 
