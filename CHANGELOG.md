@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Fixed
+
+- **`white-space: pre` / `pre-wrap` / `pre-line` now preserve line breaks**: text inside `<pre>` or elements with these `white-space` values previously had every newline, tab, and run of spaces collapsed to a single space (`collectTextParts`), so multi-line content (code blocks, ASCII art, formatted text) rendered as one line. Author newlines are now emitted as hard line breaks, and `pre`/`pre-wrap` preserve indentation/spaces (tabs become spaces, since PPTX text runs have no tab stops). `normal`/`nowrap` collapsing is unchanged.
+
 ## [1.1.10] - 2026-06-01
 
 ### Added
