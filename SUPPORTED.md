@@ -26,7 +26,8 @@ Note: The library measures computed layout from the browser (getBoundingClientRe
 - backdrop-filter: blur() (simulated via html2canvas snapshot)
 - transform: rotate() (extraction of rotation angle)
 - display, position, width, height, padding, margin
-- text-align, vertical-align, white-space, text-transform
+- text-align, vertical-align, text-transform
+- white-space (`normal`/`nowrap` collapse whitespace; `pre`/`pre-wrap`/`pre-line` preserve author line breaks, and `pre`/`pre-wrap` also preserve indentation/spaces)
 - font-family, font-size, font-weight, font-style, line-height
 
 ## Common utility/Tailwind-like classes (recognized by visual result)
