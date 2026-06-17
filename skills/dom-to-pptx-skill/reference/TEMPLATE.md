@@ -440,6 +440,56 @@ background: linear-gradient(180deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 
 </html>
 ```
 
+### Slide with Transitions & Animations
+
+This layout is a content slide that enters with a **Push Left** transition, fades the title in, and flys in three info cards from the bottom.
+
+```html
+<!-- Slide with Push Left transition -->
+<div
+  class="slide slide-transition-push transition-dir-l"
+  style="width: 1920px; height: 1080px; position: relative; overflow: hidden; background: #ffffff;"
+>
+  <!-- Animated Title (Fades in on click) -->
+  <h2
+    class="fade-in animate-duration-[800]"
+    style="position: absolute; left: 120px; top: 100px; margin: 0; font-family: 'Inter', Arial, sans-serif; font-size: 56px; font-weight: 700; color: #1a1a1a;"
+  >
+    Animated Feature Deck
+  </h2>
+
+  <!-- Card Grid (Cards fly in sequentially) -->
+  <div style="position: absolute; top: 260px; left: 120px; right: 120px; display: flex; gap: 40px;">
+    <!-- Card 1 (Flys in after the title) -->
+    <div
+      class="fly-in to-up animate-duration-[700] animate-trigger-after"
+      style="flex: 1; height: 450px; background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 24px; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);"
+    >
+      <h3 style="font-size: 32px; color: #333333; margin: 0 0 16px 0;">01</h3>
+      <p style="font-size: 20px; color: #666666; margin: 0; line-height: 1.5;">Card content animated sequentially.</p>
+    </div>
+
+    <!-- Card 2 (Flys in simultaneously with Card 1 but delayed by 150ms) -->
+    <div
+      class="fly-in to-up animate-duration-[700] animate-delay-[150] animate-trigger-with"
+      style="flex: 1; height: 450px; background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 24px; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);"
+    >
+      <h3 style="font-size: 32px; color: #333333; margin: 0 0 16px 0;">02</h3>
+      <p style="font-size: 20px; color: #666666; margin: 0; line-height: 1.5;">Card content animated sequentially.</p>
+    </div>
+
+    <!-- Card 3 (Flys in simultaneously with Card 1 but delayed by 300ms) -->
+    <div
+      class="fly-in to-up animate-duration-[700] animate-delay-[300] animate-trigger-with"
+      style="flex: 1; height: 450px; background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 24px; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);"
+    >
+      <h3 style="font-size: 32px; color: #333333; margin: 0 0 16px 0;">03</h3>
+      <p style="font-size: 20px; color: #666666; margin: 0; line-height: 1.5;">Card content animated sequentially.</p>
+    </div>
+  </div>
+</div>
+```
+
 ---
 
 ## Troubleshooting

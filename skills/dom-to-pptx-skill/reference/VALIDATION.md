@@ -20,7 +20,7 @@ Run through this when generating the HTML by hand. The runnable validator below 
 ### Styling
 
 - [ ] No element on a slide uses `transform: translate(...)`, `scale(...)`, `skew(...)`, or `matrix(...)` (rotate is fine).
-- [ ] No `animation`, `transition`, or `@keyframes` on slide content.
+- [ ] No custom inline `animation` or `transition` CSS styles (use whitelisted animation/transition CSS classes instead).
 - [ ] No `backdrop-filter`, `clip-path`, or `mix-blend-mode` on slide content.
 - [ ] No `text-shadow` (or accept that it may drop).
 - [ ] No `radial-gradient` or `conic-gradient` as a background (linear only).
@@ -64,8 +64,6 @@ Paste this script **above** your export script in the HTML. It exposes `window.v
       { name: 'clip-path', re: /clip-path\s*:/i },
       { name: 'mix-blend-mode', re: /mix-blend-mode\s*:/i },
       { name: 'text-shadow', re: /text-shadow\s*:/i },
-      { name: 'animation', re: /(?:^|[;\s])animation(?:-\w+)?\s*:/i },
-      { name: 'transition', re: /(?:^|[;\s])transition(?:-\w+)?\s*:/i },
     ];
 
     function describe(el) {
@@ -324,3 +322,5 @@ It's a static sniffer — it can miss a few things. Manual spot-checks to do aft
 
 - [STYLE_WHITELIST.md](STYLE_WHITELIST.md) — exhaustive list of rules this validator enforces
 - [SAFE_HTML_TEMPLATE.md](SAFE_HTML_TEMPLATE.md) — template with validator pre-wired
+- [ANIMATIONS_WHITELIST.md](ANIMATIONS_WHITELIST.md) — exhaustive list of whitelisted element-level animations, triggers, and text builds
+- [TRANSITIONS_WHITELIST.md](TRANSITIONS_WHITELIST.md) — exhaustive list of whitelisted slide-level transition effects and durations

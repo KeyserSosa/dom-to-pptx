@@ -121,8 +121,8 @@ The validator in [VALIDATION.md](VALIDATION.md) enforces this list.
 
 | Feature                                                             | Status | Notes                                                                        |
 | ------------------------------------------------------------------- | :----: | ---------------------------------------------------------------------------- |
-| `@keyframes` / `animation`                                          |   ❌   | Only the _current computed frame_ is captured. Set the desired static state. |
-| `transition`                                                        |   ❌   | Same — only the resting state is exported.                                   |
+| `@keyframes` / `animation`                                          |   ✅   | Supported natively via whitelisted CSS classes (e.g. `fade-in`, `zoom-in`, `fly-in`, etc.) defined in `animations.css`. Customize trigger flow, delay (`animate-delay-[MS]`), duration (`animate-duration-[MS]`), paragraph/letter builds (`paragraph`/`letter`), direction (`to-up`, `to-down`, etc.) or orientation (`vertical`/`horizontal`) via utility classes. Custom `@keyframes` or raw properties are ignored. |
+| `transition`                                                        |   ✅   | Supported on `.slide` elements via whitelisted slide transition classes (e.g., `slide-transition-fade`, `slide-transition-push`, `slide-transition-wipe`, `slide-transition-split`, etc.). Configurable via direction classes (e.g., `transition-dir-l`) and duration classes (e.g. `transition-dur-1000`). Custom transitions on child elements are ignored. |
 | `:hover`, `:focus`, `:active`                                       |   ❌   | Only the default state fires during export.                                  |
 | `filter: blur(Npx)`                                                 |   ✅   | Maps to PPTX soft-edge.                                                      |
 | `filter: brightness / contrast / saturate / hue-rotate / grayscale` |   ❌   | Ignored. Bake into the image instead.                                        |
@@ -181,7 +181,7 @@ Every `.slide` root MUST:
 | Center something                                  | `display: flex; justify-content: center; align-items: center;` on the parent — NOT `transform: translate(-50%, -50%)`. |
 | Make something half-transparent                   | `background: rgba(…, 0.5)` or `opacity: 0.5` — NOT `backdrop-filter: blur`.                                            |
 | Add a glassmorphism panel                         | Stack a semi-transparent div over a solid background — NOT `backdrop-filter`.                                          |
-| Animate a reveal                                  | Export multiple slides, one per state — NOT `@keyframes`.                                                              |
+| Animate a reveal                                  | Apply whitelisted animation classes (e.g. `fade-in`, `fly-in`) and slide transitions — NOT custom CSS `@keyframes` or custom transition properties. |
 | Use a custom font                                 | Google Font `<link crossorigin="anonymous">` or `fonts: [{name,url}]` option — NOT a relative `@font-face`.            |
 | Clip an image to a shape                          | `border-radius` (including `50%` for circles) — NOT `clip-path`.                                                       |
 | Tint/darken an image                              | Overlay a colored div at the same position — NOT `filter: brightness()`.                                               |
@@ -205,4 +205,6 @@ rg -n "getPropertyValue\('([a-z-]+)'\)" src/utils.js
 
 - [SAFE_HTML_TEMPLATE.md](SAFE_HTML_TEMPLATE.md) — a template that only uses ✅ items
 - [VALIDATION.md](VALIDATION.md) — a scanner that flags ❌/⚠️ items in your DOM
+- [ANIMATIONS_WHITELIST.md](ANIMATIONS_WHITELIST.md) — exhaustive list of whitelisted element-level animations, triggers, and text builds
+- [TRANSITIONS_WHITELIST.md](TRANSITIONS_WHITELIST.md) — exhaustive list of whitelisted slide-level transition effects and durations
 - [TEMPLATE.md](TEMPLATE.md) — layout patterns using whitelisted features

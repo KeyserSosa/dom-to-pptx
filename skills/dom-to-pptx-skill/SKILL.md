@@ -78,6 +78,12 @@ Refer to [DESIGN_PHILOSOPHY.md](reference/DESIGN_PHILOSOPHY.md) for the complete
 - **Luminous Design Bias**: Prioritize light themes (off-whites, bone, ivory) for a premium editorial feel.
 - **Micro-Aesthetics**: Add subtle details like glowing dots, 1px separators, or inner borders (`ring-1 ring-inset`).
 - **Typography Soul**: Pair massive, thin headings with bold, wide-tracked subheadings.
+- **Dynamic motion (Animations & Transitions)**: Make presentations feel alive.
+  - Apply **Slide Transitions** (e.g. `slide-transition-fade`, `slide-transition-push`, `slide-transition-wipe`, `slide-transition-split`) to `.slide` elements. Use transition direction/duration modifiers if needed (e.g. `transition-dir-l`, `transition-dur-1000`).
+  - Apply **Element Animations** (e.g. `fade-in`, `zoom-in`, `fly-in`, `wipe-in`, `split-in`, `wheel`, `bounce-in`) to elements inside slides.
+  - Control trigger flows with: `animate-trigger-on-click`, `animate-trigger-with` (simultaneous), and `animate-trigger-after` (sequential chain).
+  - Fine-tune duration and delay using utility classes: `animate-duration-[700]` and `animate-delay-[200]` (duration in ms).
+  - Animate text lists or paragraphs block-by-block using the `paragraph` (or `animate-build-paragraph`) class, or character-by-character using the `letter` (or `animate-build-letter`) class.
 
 </DESIGN_DIRECTIVES>
 
@@ -95,15 +101,32 @@ Refer to [DESIGN_PHILOSOPHY.md](reference/DESIGN_PHILOSOPHY.md) for the complete
       rel="stylesheet"
       crossorigin="anonymous"
     />
+    <!-- dom-to-pptx animation stylesheets (required for browser previews) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/dom-to-pptx@latest/dist/animations.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/dom-to-pptx@latest/dist/transitions.css" />
   </head>
   <body style="margin: 0; background: #f0f0f0;">
     <div class="slide-stage">
-      <!-- Slide 1: Title -->
+      <!-- Slide 1: Title (Fades in on slide entry) -->
       <div
-        class="slide"
-        style="width: 1920px; height: 1080px; position: relative; overflow: hidden; background: #000000;"
+        class="slide slide-transition-fade"
+        style="width: 1920px; height: 1080px; position: relative; overflow: hidden; background: #0b0d19;"
       >
-        <!-- Premium Content Here -->
+        <!-- Animated Title (Triggers on click) -->
+        <h1 
+          class="fade-in animate-duration-[1000]"
+          style="position: absolute; left: 120px; top: 400px; font-size: 84px; color: #ffffff; font-family: 'Inter', sans-serif; font-weight: 700; margin: 0;"
+        >
+          Dynamic Presentation
+        </h1>
+
+        <!-- Animated Subtitle (Triggers after the title animates) -->
+        <p 
+          class="fly-in to-up animate-duration-[800] animate-delay-[200] animate-trigger-after"
+          style="position: absolute; left: 120px; top: 520px; font-size: 32px; color: #8f9bb3; font-family: 'Inter', sans-serif; margin: 0;"
+        >
+          Powered by dom-to-pptx native animations
+        </p>
       </div>
     </div>
 
@@ -117,6 +140,11 @@ Refer to [DESIGN_PHILOSOPHY.md](reference/DESIGN_PHILOSOPHY.md) for the complete
     </button>
 
     <script>
+      // Apply browser animation inline properties before load
+      if (window.domToPptx && window.domToPptx.applyBrowserAnimations) {
+        window.domToPptx.applyBrowserAnimations(document.body);
+      }
+
       document.getElementById('export-btn').onclick = async () => {
         const slides = document.querySelectorAll('.slide');
         await domToPptx.exportToPptx(Array.from(slides), {
@@ -128,7 +156,6 @@ Refer to [DESIGN_PHILOSOPHY.md](reference/DESIGN_PHILOSOPHY.md) for the complete
   </body>
 </html>
 ```
-
 </HTML_STRUCTURE_TEMPLATE>
 
 ---
@@ -140,6 +167,8 @@ Refer to [DESIGN_PHILOSOPHY.md](reference/DESIGN_PHILOSOPHY.md) for the complete
 | [DESIGN_PHILOSOPHY.md](reference/DESIGN_PHILOSOPHY.md)   | Core "Premium UI/UX Engine" rules, layout strategies, and aesthetic signatures.           |
 | [SAFE_HTML_TEMPLATE.md](reference/SAFE_HTML_TEMPLATE.md) | Copy-paste skeleton that satisfies every compatibility rule; validator + export pre-wired |
 | [STYLE_WHITELIST.md](reference/STYLE_WHITELIST.md)       | Definitive ✅/⚠️/❌ list of CSS & HTML features, with alternatives                        |
+| [ANIMATIONS_WHITELIST.md](reference/ANIMATIONS_WHITELIST.md) | Exhaustive list of whitelisted element-level animations, triggers, and text builds. |
+| [TRANSITIONS_WHITELIST.md](reference/TRANSITIONS_WHITELIST.md) | Exhaustive list of whitelisted slide-level transition effects and durations. |
 | [VALIDATION.md](reference/VALIDATION.md)                 | Pre-export runnable scanner (`window.validateSlides()`) and manual checklist              |
 | [SAMPLE_PROMPTS.md](reference/SAMPLE_PROMPTS.md)         | 14 ready-to-use prompts for common slide layouts updated for premium aesthetics.          |
 | [STYLE_PRESETS.md](reference/STYLE_PRESETS.md)           | dom-to-pptx-compatible visual presets with HEX hierarchies and materiality descriptions.  |
