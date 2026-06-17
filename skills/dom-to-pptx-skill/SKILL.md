@@ -78,12 +78,15 @@ Refer to [DESIGN_PHILOSOPHY.md](reference/DESIGN_PHILOSOPHY.md) for the complete
 - **Luminous Design Bias**: Prioritize light themes (off-whites, bone, ivory) for a premium editorial feel.
 - **Micro-Aesthetics**: Add subtle details like glowing dots, 1px separators, or inner borders (`ring-1 ring-inset`).
 - **Typography Soul**: Pair massive, thin headings with bold, wide-tracked subheadings.
-- **Dynamic motion (Animations & Transitions)**: Make presentations feel alive.
-  - Apply **Slide Transitions** (e.g. `slide-transition-fade`, `slide-transition-push`, `slide-transition-wipe`, `slide-transition-split`) to `.slide` elements. Use transition direction/duration modifiers if needed (e.g. `transition-dir-l`, `transition-dur-1000`).
-  - Apply **Element Animations** (e.g. `fade-in`, `zoom-in`, `fly-in`, `wipe-in`, `split-in`, `wheel`, `bounce-in`) to elements inside slides.
-  - Control trigger flows with: `animate-trigger-on-click`, `animate-trigger-with` (simultaneous), and `animate-trigger-after` (sequential chain).
-  - Fine-tune duration and delay using utility classes: `animate-duration-[700]` and `animate-delay-[200]` (duration in ms).
-  - Animate text lists or paragraphs block-by-block using the `paragraph` (or `animate-build-paragraph`) class, or character-by-character using the `letter` (or `animate-build-letter`) class.
+- **Dynamic motion (Animations & Transitions)**: Make presentations feel alive with intent.
+  - **Complete Staging Rule**: If any element is animated, *every* foreground element on the slide (title, body text, cards, images, lists) must be animated. Statically visible content alongside delayed animated entries looks broken. Use `animate-trigger-after` and `animate-trigger-with` with custom delays to coordinate the entry.
+  - **Tone Matching**: Match transition and animation styles to the presentation's genre (e.g., subtle `fade` or `push` for Executive/Corporate decks; expressive `gallery`, `doors`, `zoom-in`, or `bounce-in` for Creative/Tech Launch decks). See [DESIGN_PHILOSOPHY.md](reference/DESIGN_PHILOSOPHY.md#5-motion-design--staging).
+  - **Apply Slide Transitions** (applied to `.slide` elements): Use whitelisted transition classes (e.g., `slide-transition-fade`, `slide-transition-push`, `slide-transition-wipe`). Modify speeds using classes like `transition-duration-fast` or custom `transition-dur-[MS]`.
+  - **Apply Element Animations**: Apply whitelisted animation classes (e.g. `fade-in`, `zoom-in`, `fly-in`, `wipe-in`) to elements inside slides.
+  - **Control Timing**: Fine-tune duration and delay using utility classes: `animate-duration-[MS]` and `animate-delay-[MS]`.
+  - **Coordinating Sequences**: Control flow using: `animate-trigger-on-click`, `animate-trigger-with` (simultaneous), and `animate-trigger-after` (sequential chain).
+  - **Creative Builds (e.g. typing / list reveals)**: Animate text character-by-character using the `letter` class (e.g. the typing effect `fade-in letter animate-duration-[400]`), or bullet points row-by-row using the `paragraph` class.
+  - Refer to [DESIGN_PHILOSOPHY.md](reference/DESIGN_PHILOSOPHY.md#5-motion-design--staging) for motion recipes, and read [ANIMATIONS_WHITELIST.md](reference/ANIMATIONS_WHITELIST.md) and [TRANSITIONS_WHITELIST.md](reference/TRANSITIONS_WHITELIST.md) for full lists of supported styles.
 
 </DESIGN_DIRECTIVES>
 

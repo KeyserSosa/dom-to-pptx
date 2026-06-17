@@ -78,6 +78,21 @@ Animate text blocks incrementally rather than all at once:
 
 ---
 
+## 5. Intelligent Motion Design & Recipes
+
+When animating elements on a slide, apply these best practices to ensure professional quality and visual flow:
+
+1. **Avoid Floating Orphans**: Never animate a slide's title without also animating its body or surrounding items. If any element on the slide is animated, all foreground elements must be animated in a coordinated sequence.
+2. **Stagger Parallel Items**: When revealing grids, cards, or lists, use parallel stagger patterns.
+   * Combine `animate-trigger-with` on secondary elements with incremented delays like `animate-delay-[150]`, `animate-delay-[300]`, etc.
+3. **Use the "Typing Effect" for Key Text**:
+   * Combine `fade-in` with the `letter` build class and set a duration of `300ms` or `400ms`. This creates a premium typing-style sweep.
+   * Example: `<h1 class="fade-in letter animate-duration-[400]">Executive Concept</h1>`
+4. **Use Paragraph Builds for Lists**:
+   * Set `paragraph` on the parent container to reveal bullet points one click at a time, preventing cognitive overload.
+
+---
+
 ## See also
 - [SAFE_HTML_TEMPLATE.md](SAFE_HTML_TEMPLATE.md) — a template that only uses ✅ items
 - [STYLE_WHITELIST.md](STYLE_WHITELIST.md) — exhaustive allow/block list

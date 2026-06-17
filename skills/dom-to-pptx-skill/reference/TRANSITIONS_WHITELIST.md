@@ -74,6 +74,19 @@ Apply transition speed classes to define slide transition length:
 
 ---
 
+## 3. Intelligent Transition Design & Tone Matching
+
+When choosing transitions, align the transition type and speed with the presentation's genre and purpose:
+
+1. **Executive / Professional Decks** (Board meetings, academic talks, sales reports):
+   * **Approved Transitions**: Use subtle, classic changes like `slide-transition-fade` or `slide-transition-push` (with direction `transition-dir-l` or `transition-dir-r`).
+   * **Guideline**: Transitions should be fast or normal (`transition-duration-fast` or `transition-duration-normal`). They must not distract the audience from the content.
+2. **Creative / Launch Decks** (Product launches, creative design portfolios, portfolio lookbooks):
+   * **Approved Transitions**: Use more premium, expressive transitions like `slide-transition-gallery`, `slide-transition-doors`, `slide-transition-wind-left`, `slide-transition-curtains` (excellent for slide 1/intro).
+   * **Guideline**: Can use slower transition durations (e.g. `transition-duration-slow` or custom `transition-dur-2000`) for dramatic impact and pacing.
+
+---
+
 ## See also
 - [SAFE_HTML_TEMPLATE.md](SAFE_HTML_TEMPLATE.md) — a template that only uses ✅ items
 - [STYLE_WHITELIST.md](STYLE_WHITELIST.md) — exhaustive allow/block list
