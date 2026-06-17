@@ -198,7 +198,7 @@ export function getPreset(name, animClass, options = {}) {
   if (n.startsWith('fly-in')) n = 'fly-in';
   if (n.startsWith('fly-out')) n = 'fly-out';
 
-  let presetObj = null;
+  let presetObj;
   if (PRESETS[n]) {
     presetObj = { ...PRESETS[n], class: cls };
   } else {
@@ -481,7 +481,7 @@ function buildBounceExitChildren(spid, duration, paragraphIndex, build) {
   const d1 = Math.round(1822 * scale);
   const d2 = Math.round(664 * scale);
   const d3 = Math.round(664 * scale);
-  const d4 = Math.round(332 * scale);
+
   const d5 = Math.round(164 * scale);
   const wipeDelay = Math.round(1820 * scale);
   const wipeDur = Math.round(180 * scale);
@@ -664,40 +664,6 @@ function buildEffectPar(spid, preset, duration, animClass, nodeType, paragraphIn
 }
 
 /**
- * Builds ONE inner <p:par> wrapper that holds one or more effect pars as siblings.
- * The delay goes on this wrapper's cTn (0 for click/with, cumulative ms for after).
- */
-function buildInnerWrapper(delay, effects) {
-  const id = nextId();
-  const effectParXml = effects.map((e) => buildEffectPar(e)).join('');
-  return (
-    '<p:par>' +
-    `<p:cTn id="${id}" fill="hold">` +
-    `<p:stCondLst><p:cond delay="${delay}"/></p:stCondLst>` +
-    `<p:childTnLst>${effectParXml}</p:childTnLst>` +
-    '</p:cTn>' +
-    '</p:par>'
-  );
-}
-
-/**
- * Builds one outer click-group <p:par>.
- * delay="indefinite" → PowerPoint shows numbered animation (not ⚡).
- */
-function buildClickGroupPar(innerWrappers) {
-  const id = nextId();
-  const innerXml = innerWrappers.join('');
-  return (
-    '<p:par>' +
-    `<p:cTn id="${id}" fill="hold">` +
-    '<p:stCondLst><p:cond delay="indefinite"/></p:stCondLst>' +
-    `<p:childTnLst>${innerXml}</p:childTnLst>` +
-    '</p:cTn>' +
-    '</p:par>'
-  );
-}
-
-/**
  * Builds the full <p:timing> XML (including <p:bldLst>) for a slide.
  *
  * Grouping rules:
@@ -735,7 +701,7 @@ export function buildTimingXml(animations, domToSpIdMap, textBoxSpIds) {
 
       if (actualBuild === 'paragraph') {
         shapeBuilds.set(spid, 'p');
-        
+
         // 1. Add background step (required by PowerPoint for timeline consistency when animBg="1")
         resolved.push({
           spid,
@@ -750,7 +716,7 @@ export function buildTimingXml(animations, domToSpIdMap, textBoxSpIds) {
 
         // 2. Expand to one step per paragraph
         for (let pIdx = 0; pIdx < numParagraphs; pIdx++) {
-          const pStart = pIdx === 0 ? 'with' : (anim.start === 'with' ? 'with' : 'after');
+          const pStart = pIdx === 0 ? 'with' : anim.start === 'with' ? 'with' : 'after';
           const pDelay = 0;
           resolved.push({
             spid,
