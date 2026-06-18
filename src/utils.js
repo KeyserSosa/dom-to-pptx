@@ -113,7 +113,11 @@ export function extractTableData(node, scale) {
       const borderBottom = getTableBorder(style, 'Bottom', scale);
       const borderLeft = getTableBorder(style, 'Left', scale);
 
-      // F. Construct Cell Object
+      // F. Text Direction
+      const writingModeVert = getWritingModeVert(style.writingMode, style.textOrientation);
+      const textDirection = mapVertToTextDirection(writingModeVert);
+
+      // G. Construct Cell Object
       rowData.push({
         text: cellText,
         options: {
@@ -133,6 +137,8 @@ export function extractTableData(node, scale) {
           colspan: parseInt(cell.getAttribute('colspan')) || null,
 
           border: [borderTop, borderRight, borderBottom, borderLeft],
+
+          ...(textDirection && { textDirection }),
         },
       });
     });
@@ -633,6 +639,14 @@ export function getWritingModeVert(writingMode, textOrientation) {
     default:
       return null;
   }
+}
+
+export function mapVertToTextDirection(vertVal) {
+  if (!vertVal) return null;
+  if (vertVal === 'eaVert' || vertVal === 'mongolianVert') return 'vert';
+  if (vertVal === 'wordArtVertRtl') return 'wordArtVert';
+  if (['vert', 'vert270', 'wordArtVert', 'horz'].includes(vertVal)) return vertVal;
+  return null;
 }
 
 /**

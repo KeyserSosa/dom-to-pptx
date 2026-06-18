@@ -74,6 +74,7 @@ const configBundle = {
     name: 'domToPptx',
     esModule: false,
     sourcemap: false,
+    inlineDynamicImports: true,
     // Inject global variables for browser compatibility
     intro: `
       var global = typeof self !== "undefined" ? self : this; 

@@ -16,6 +16,7 @@ import {
   generateGradientSVG,
   getRotation,
   getWritingModeVert,
+  mapVertToTextDirection,
   svgToPng,
   svgToSvg,
   getPadding,
@@ -1143,6 +1144,7 @@ function prepareRenderItem(node, config, domOrder, pptx, effectiveZIndex, comput
           autoFit: true,
           wrap: !(style.whiteSpace === 'nowrap' || style.whiteSpace === 'pre'),
           vert: writingModeVert,
+          ...(writingModeVert && { textDirection: mapVertToTextDirection(writingModeVert) }),
         },
       });
 
@@ -1482,6 +1484,7 @@ function prepareRenderItem(node, config, domOrder, pptx, effectiveZIndex, comput
           wrap: !(style.whiteSpace === 'nowrap' || style.whiteSpace === 'pre'),
           autoFit: true,
           vert: writingModeVert,
+          ...(writingModeVert && { textDirection: mapVertToTextDirection(writingModeVert) }),
         },
       });
     }
@@ -1577,6 +1580,7 @@ function prepareRenderItem(node, config, domOrder, pptx, effectiveZIndex, comput
           wrap: !(style.whiteSpace === 'nowrap' || style.whiteSpace === 'pre'),
           autoFit: true,
           vert: writingModeVert,
+          ...(writingModeVert && { textDirection: mapVertToTextDirection(writingModeVert) }),
         };
         items.push({
           type: 'text',
