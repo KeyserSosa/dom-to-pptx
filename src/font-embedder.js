@@ -161,10 +161,7 @@ export class PPTXEmbedFonts {
       const rel = doc.createElementNS(RELS_NS, 'Relationship');
       rel.setAttribute('Id', `rId${font.rid}`);
       rel.setAttribute('Target', `fonts/${font.rid}.fntdata`);
-      rel.setAttribute(
-        'Type',
-        'http://schemas.openxmlformats.org/officeDocument/2006/relationships/font'
-      );
+      rel.setAttribute('Type', 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/font');
       relationships.appendChild(rel);
     });
 

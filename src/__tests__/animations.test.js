@@ -208,9 +208,7 @@ describe('xml-templates - buildTimingXml', () => {
   });
 
   it('generates correct structure matching PowerPoint reference XML', () => {
-    const anims = [
-      { domOrder: 0, name: 'fade-in', class: 'entr', duration: 500, delay: 0, start: 'click' },
-    ];
+    const anims = [{ domOrder: 0, name: 'fade-in', class: 'entr', duration: 500, delay: 0, start: 'click' }];
     const domToSpIdMap = new Map([[0, ['18']]]);
     const xml = buildTimingXml(anims, domToSpIdMap);
 
@@ -240,9 +238,7 @@ describe('xml-templates - buildTimingXml', () => {
   });
 
   it('supports multiple spIds per domOrder', () => {
-    const anims = [
-      { domOrder: 0, name: 'fade-in', class: 'entr', duration: 1000, delay: 0, start: 'click' },
-    ];
+    const anims = [{ domOrder: 0, name: 'fade-in', class: 'entr', duration: 1000, delay: 0, start: 'click' }];
     const domToSpIdMap = new Map([[0, ['3', '4']]]);
     const xml = buildTimingXml(anims, domToSpIdMap);
     expect(xml).toContain('spid="3"');
@@ -331,9 +327,7 @@ describe('normalizer integration', () => {
 
     const options = {
       _slideAnimations: {
-        0: [
-          { domOrder: 0, name: 'fade-in', class: 'entr', duration: 1000, delay: 0, start: 'click' },
-        ],
+        0: [{ domOrder: 0, name: 'fade-in', class: 'entr', duration: 1000, delay: 0, start: 'click' }],
       },
     };
 

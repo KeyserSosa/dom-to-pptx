@@ -14,7 +14,7 @@ let isWoff2Inited = false;
  * @param {string} [wasmUrl] - Custom URL for woff2.wasm
  */
 export async function fontToEot(typeOrSubsets, fontBufferOrWasmUrl, wasmUrl) {
-  let subsets = [];
+  let subsets;
   let actualWasmUrl = wasmUrl;
 
   if (Array.isArray(typeOrSubsets)) {
@@ -30,9 +30,7 @@ export async function fontToEot(typeOrSubsets, fontBufferOrWasmUrl, wasmUrl) {
 
   const hasWoff2 = subsets.some((s) => s.type === 'woff2');
   if (hasWoff2 && !isWoff2Inited) {
-    const defaultWasmUrl = typeof window !== 'undefined'
-      ? woff2WasmBase64
-      : undefined;
+    const defaultWasmUrl = typeof window !== 'undefined' ? woff2WasmBase64 : undefined;
     await woff2.init(actualWasmUrl || defaultWasmUrl);
     isWoff2Inited = true;
   }

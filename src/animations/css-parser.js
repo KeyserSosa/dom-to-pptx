@@ -99,11 +99,7 @@ export function parseAnimation(node, style) {
   // ── 1. Resolve animation name ────────────────────────────────────────────
   let name =
     (node.dataset?.pptxAnimation || node.dataset?.pptxAnimationType || '').trim().toLowerCase() ||
-    (
-      style?.getPropertyValue('--pptx-animation-name') ||
-      style?.getPropertyValue('--pptx-animation') ||
-      ''
-    )
+    (style?.getPropertyValue('--pptx-animation-name') || style?.getPropertyValue('--pptx-animation') || '')
       .trim()
       .toLowerCase();
 
@@ -130,21 +126,12 @@ export function parseAnimation(node, style) {
   if (!name || name === 'none') return null;
 
   // ── 2. Determine class (entrance vs exit) ────────────────────────────────
-  let animClass = (
-    node.dataset?.pptxAnimationClass ||
-    style?.getPropertyValue('--pptx-animation-class') ||
-    ''
-  )
+  let animClass = (node.dataset?.pptxAnimationClass || style?.getPropertyValue('--pptx-animation-class') || '')
     .trim()
     .toLowerCase();
 
   if (!animClass) {
-    if (
-      EXIT_NAMES.has(name) ||
-      name.endsWith('-out') ||
-      name.includes('disappear') ||
-      name.includes('exit')
-    ) {
+    if (EXIT_NAMES.has(name) || name.endsWith('-out') || name.includes('disappear') || name.includes('exit')) {
       animClass = 'exit';
     } else {
       animClass = 'entr';
@@ -240,11 +227,7 @@ export function parseAnimation(node, style) {
       build = 'paragraph';
     } else if (classSet.has('letter') || classSet.has('animate-build-letter')) {
       build = 'letter';
-    } else if (
-      classSet.has('all-at-once') ||
-      classSet.has('all-once') ||
-      classSet.has('animate-build-all')
-    ) {
+    } else if (classSet.has('all-at-once') || classSet.has('all-once') || classSet.has('animate-build-all')) {
       build = 'all';
     } else {
       build = 'all';
@@ -309,8 +292,7 @@ export function parseAnimation(node, style) {
     }
   } else {
     if (orientation.includes('vert')) orientation = 'vertical';
-    else if (orientation.includes('horz') || orientation.includes('hori'))
-      orientation = 'horizontal';
+    else if (orientation.includes('horz') || orientation.includes('hori')) orientation = 'horizontal';
     else orientation = null;
   }
 

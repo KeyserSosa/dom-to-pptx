@@ -1,6 +1,7 @@
 # Transition Whitelist for dom-to-pptx
 
-This document is the definitive reference for **slide-level transitions** supported by `dom-to-pptx` (defined in `transitions.css` and compiled into native PowerPoint `<p:transition>` structures on the slide).
+This document is the definitive reference for **slide-level transitions** supported by `dom-to-pptx` (defined in `transitions.css` and compiled into native PowerPoint `<p:transition>` structures on
+the slide).
 
 ---
 
@@ -9,6 +10,8 @@ This document is the definitive reference for **slide-level transitions** suppor
 Transitions are applied directly to the `.slide` container element.
 
 ### Classic Slide Transitions
+
+<!-- prettier-ignore -->
 | Class | Action | Supported Modifiers (Directions / Options) |
 | :--- | :--- | :--- |
 | `slide-transition-fade` | Fades the slide in from black or the previous slide. | None |
@@ -29,6 +32,8 @@ Transitions are applied directly to the `.slide` container element.
 | `slide-transition-flash` | Flashes a bright light before showing the slide. | None |
 
 ### PowerPoint 2010 (P14) Transitions
+
+<!-- prettier-ignore -->
 | Class | Action | Supported Modifiers (Directions / Options) |
 | :--- | :--- | :--- |
 | `slide-transition-honeycomb` | Reveals the slide via a honeycomb cellular pattern. | None |
@@ -46,6 +51,8 @@ Transitions are applied directly to the `.slide` container element.
 | `slide-transition-doors` | Opens the slide like vertical/horizontal double doors. | Direction: `transition-dir-vert` |
 
 ### PowerPoint 2013+ (P15) Transitions
+
+<!-- prettier-ignore -->
 | Class | Action |
 | :--- | :--- |
 | `slide-transition-wind-left` / `slide-transition-wind-right` | Blows the slide away like wind. |
@@ -67,10 +74,10 @@ Transitions are applied directly to the `.slide` container element.
 
 Apply transition speed classes to define slide transition length:
 
-*   **Fast**: `transition-duration-fast` (approx. `1000ms`)
-*   **Normal**: `transition-duration-normal` (approx. `1500ms`)
-*   **Slow**: `transition-duration-slow` (approx. `2000ms`)
-*   **Custom**: `transition-dur-[MS]` (e.g. `transition-dur-800` or `transition-dur-3000` for customized millisecond timing)
+- **Fast**: `transition-duration-fast` (approx. `1000ms`)
+- **Normal**: `transition-duration-normal` (approx. `1500ms`)
+- **Slow**: `transition-duration-slow` (approx. `2000ms`)
+- **Custom**: `transition-dur-[MS]` (e.g. `transition-dur-800` or `transition-dur-3000` for customized millisecond timing)
 
 ---
 
@@ -79,15 +86,17 @@ Apply transition speed classes to define slide transition length:
 When choosing transitions, align the transition type and speed with the presentation's genre and purpose:
 
 1. **Executive / Professional Decks** (Board meetings, academic talks, sales reports):
-   * **Approved Transitions**: Use subtle, classic changes like `slide-transition-fade` or `slide-transition-push` (with direction `transition-dir-l` or `transition-dir-r`).
-   * **Guideline**: Transitions should be fast or normal (`transition-duration-fast` or `transition-duration-normal`). They must not distract the audience from the content.
+   - **Approved Transitions**: Use subtle, classic changes like `slide-transition-fade` or `slide-transition-push` (with direction `transition-dir-l` or `transition-dir-r`).
+   - **Guideline**: Transitions should be fast or normal (`transition-duration-fast` or `transition-duration-normal`). They must not distract the audience from the content.
 2. **Creative / Launch Decks** (Product launches, creative design portfolios, portfolio lookbooks):
-   * **Approved Transitions**: Use more premium, expressive transitions like `slide-transition-gallery`, `slide-transition-doors`, `slide-transition-wind-left`, `slide-transition-curtains` (excellent for slide 1/intro).
-   * **Guideline**: Can use slower transition durations (e.g. `transition-duration-slow` or custom `transition-dur-2000`) for dramatic impact and pacing.
+   - **Approved Transitions**: Use more premium, expressive transitions like `slide-transition-gallery`, `slide-transition-doors`, `slide-transition-wind-left`, `slide-transition-curtains` (excellent
+     for slide 1/intro).
+   - **Guideline**: Can use slower transition durations (e.g. `transition-duration-slow` or custom `transition-dur-2000`) for dramatic impact and pacing.
 
 ---
 
 ## See also
+
 - [SAFE_HTML_TEMPLATE.md](SAFE_HTML_TEMPLATE.md) — a template that only uses ✅ items
 - [STYLE_WHITELIST.md](STYLE_WHITELIST.md) — exhaustive allow/block list
 - [VALIDATION.md](VALIDATION.md) — a scanner that flags ❌/⚠️ items in your DOM

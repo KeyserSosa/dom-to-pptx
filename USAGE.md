@@ -143,10 +143,7 @@ Images must use **complete HTTPS URLs** or **data URLs**, and the server must su
 The library automatically handles rounded images without extra steps:
 
 ```html
-<img
-  src="https://example.com/avatar.jpg"
-  style="width: 100px; height: 100px; border-radius: 50%;"
-/>
+<img src="https://example.com/avatar.jpg" style="width: 100px; height: 100px; border-radius: 50%;" />
 ```
 
 ### 3. Background Images
@@ -210,10 +207,7 @@ When using Google Fonts, you need to add the `crossorigin` attribute:
 />
 
 <!-- ❌ Might fail to embed -->
-<link
-  href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"
-  rel="stylesheet"
-/>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
 ```
 
 ### Manual Font Specification

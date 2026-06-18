@@ -32,18 +32,15 @@ describe('normalizePptxZip', () => {
         overrides: [
           {
             partName: '/ppt/slideMasters/slideMaster1.xml',
-            contentType:
-              'application/vnd.openxmlformats-officedocument.presentationml.slideMaster+xml',
+            contentType: 'application/vnd.openxmlformats-officedocument.presentationml.slideMaster+xml',
           },
           {
             partName: '/ppt/slideMasters/slideMaster2.xml',
-            contentType:
-              'application/vnd.openxmlformats-officedocument.presentationml.slideMaster+xml',
+            contentType: 'application/vnd.openxmlformats-officedocument.presentationml.slideMaster+xml',
           },
           {
             partName: '/ppt/slideMasters/slideMaster3.xml',
-            contentType:
-              'application/vnd.openxmlformats-officedocument.presentationml.slideMaster+xml',
+            contentType: 'application/vnd.openxmlformats-officedocument.presentationml.slideMaster+xml',
           },
         ],
       })
@@ -83,13 +80,11 @@ describe('normalizePptxZip', () => {
         overrides: [
           {
             partName: '/ppt/slideMasters/slideMaster1.xml',
-            contentType:
-              'application/vnd.openxmlformats-officedocument.presentationml.slideMaster+xml',
+            contentType: 'application/vnd.openxmlformats-officedocument.presentationml.slideMaster+xml',
           },
           {
             partName: '/ppt/slideMasters/slideMaster9.xml',
-            contentType:
-              'application/vnd.openxmlformats-officedocument.presentationml.slideMaster+xml',
+            contentType: 'application/vnd.openxmlformats-officedocument.presentationml.slideMaster+xml',
           },
         ],
       })
@@ -127,13 +122,11 @@ describe('normalizePptxZip', () => {
         overrides: [
           {
             partName: 'ppt/slideMasters/slideMaster1.xml',
-            contentType:
-              'application/vnd.openxmlformats-officedocument.presentationml.slideMaster+xml',
+            contentType: 'application/vnd.openxmlformats-officedocument.presentationml.slideMaster+xml',
           },
           {
             partName: 'ppt/slideMasters/slideMasterGhost.xml',
-            contentType:
-              'application/vnd.openxmlformats-officedocument.presentationml.slideMaster+xml',
+            contentType: 'application/vnd.openxmlformats-officedocument.presentationml.slideMaster+xml',
           },
         ],
       })
@@ -283,9 +276,7 @@ describe('normalizePptxZip', () => {
 
     // Shape 2 (id="2") should be sorted second among visual elements because z=1
     expect(elements[3].getElementsByTagName('p:cNvPr')[0].getAttribute('id')).toBe('2');
-    expect(elements[3].getElementsByTagName('p:cNvPr')[0].getAttribute('descr')).toBe(
-      'Original User Alt'
-    );
+    expect(elements[3].getElementsByTagName('p:cNvPr')[0].getAttribute('descr')).toBe('Original User Alt');
 
     expect(elements[4].localName).toBe('extLst');
   });
@@ -337,9 +328,7 @@ describe('normalizePptxZip', () => {
 
     // Shape 2 (id="2") should be sorted second among visual elements because z=1
     expect(elements[3].getElementsByTagName('p:cNvPr')[0].getAttribute('id')).toBe('2');
-    expect(elements[3].getElementsByTagName('p:cNvPr')[0].getAttribute('name')).toBe(
-      'Original User Name'
-    );
+    expect(elements[3].getElementsByTagName('p:cNvPr')[0].getAttribute('name')).toBe('Original User Name');
 
     expect(elements[4].localName).toBe('extLst');
   });

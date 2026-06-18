@@ -160,9 +160,7 @@ function cleanParagraphProperties(doc) {
   const paragraphs = elements.filter((n) => n.localName === 'p');
 
   for (const p of paragraphs) {
-    const pPrs = Array.from(p.childNodes).filter(
-      (node) => node.nodeType === 1 && node.localName === 'pPr'
-    );
+    const pPrs = Array.from(p.childNodes).filter((node) => node.nodeType === 1 && node.localName === 'pPr');
     if (pPrs.length > 0) {
       const targetPPr = pPrs[0];
 
@@ -253,12 +251,7 @@ function restoreCharSpacing(doc) {
 
     // Find the parent rPr or defRPr or endParaRPr to set 'spc'
     let parent = el.parentNode;
-    if (
-      parent &&
-      (parent.localName === 'rPr' ||
-        parent.localName === 'defRPr' ||
-        parent.localName === 'endParaRPr')
-    ) {
+    if (parent && (parent.localName === 'rPr' || parent.localName === 'defRPr' || parent.localName === 'endParaRPr')) {
       const spcVal = parts[1];
       if (parent.getAttribute('spc') !== spcVal) {
         parent.setAttribute('spc', spcVal);
@@ -299,13 +292,9 @@ function sortSpTree(doc) {
 
       // Find cNvPr element
       let cNvPr = null;
-      const nvPr = Array.from(el.childNodes).find(
-        (n) => n.nodeType === 1 && n.localName.startsWith('nv')
-      );
+      const nvPr = Array.from(el.childNodes).find((n) => n.nodeType === 1 && n.localName.startsWith('nv'));
       if (nvPr) {
-        cNvPr = Array.from(nvPr.childNodes).find(
-          (n) => n.nodeType === 1 && n.localName === 'cNvPr'
-        );
+        cNvPr = Array.from(nvPr.childNodes).find((n) => n.nodeType === 1 && n.localName === 'cNvPr');
       }
       if (!cNvPr) {
         cNvPr = Array.from(el.getElementsByTagName('*')).find((n) => n.localName === 'cNvPr');
@@ -331,8 +320,7 @@ function sortSpTree(doc) {
         }
 
         const nameMatch =
-          nameAttr.match(/^__z_(\d+)__dom_(\d+)__type_([^_]*)/) ||
-          nameAttr.match(/^__z_(\d+)__dom_(\d+)(.*)/);
+          nameAttr.match(/^__z_(\d+)__dom_(\d+)__type_([^_]*)/) || nameAttr.match(/^__z_(\d+)__dom_(\d+)(.*)/);
         if (nameMatch) {
           if (!hasVal) {
             zVal = parseInt(nameMatch[1], 10);
@@ -485,9 +473,7 @@ function applySlideAnimations(doc, slideIndex, options) {
   const sld = doc.documentElement;
 
   // Find where to insert (before extLst if exists)
-  const extLst = Array.from(sld.childNodes).find(
-    (n) => n.nodeType === 1 && n.localName === 'extLst'
-  );
+  const extLst = Array.from(sld.childNodes).find((n) => n.nodeType === 1 && n.localName === 'extLst');
 
   if (extLst) {
     sld.insertBefore(timingNode, extLst);

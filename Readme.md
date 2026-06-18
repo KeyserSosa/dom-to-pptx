@@ -187,12 +187,8 @@ We recommend building your slide container at **1920x1080px**. The library will 
   <div class="w-1/3 bg-slate-900 relative overflow-hidden flex flex-col p-10 justify-between">
     <!-- Decorative gradients -->
     <div class="absolute top-0 left-0 w-full h-full opacity-30 pointer-events-none">
-      <div
-        class="absolute -top-20 -left-20 w-64 h-64 bg-purple-600 rounded-full blur-3xl mix-blend-screen"
-      ></div>
-      <div
-        class="absolute bottom-0 right-0 w-80 h-80 bg-indigo-600 rounded-full blur-3xl mix-blend-screen"
-      ></div>
+      <div class="absolute -top-20 -left-20 w-64 h-64 bg-purple-600 rounded-full blur-3xl mix-blend-screen"></div>
+      <div class="absolute bottom-0 right-0 w-80 h-80 bg-indigo-600 rounded-full blur-3xl mix-blend-screen"></div>
     </div>
     <div class="relative z-10">
       <div
@@ -203,9 +199,7 @@ We recommend building your slide container at **1920x1080px**. The library will 
       </div>
       <h2 class="text-4xl font-bold text-white leading-tight mb-4">
         Quarterly <br />
-        <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400"
-          >Performance</span
-        >
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">Performance</span>
       </h2>
       <p class="text-slate-400 leading-relaxed">
         Visualizing the impact of high-fidelity DOM conversion on presentation workflows.
@@ -214,17 +208,13 @@ We recommend building your slide container at **1920x1080px**. The library will 
     <!-- Feature List (Flexbox/Grid test) -->
     <div class="relative z-10 space-y-4">
       <div class="flex items-center gap-3 p-3 rounded-lg bg-white/5 border border-white/5">
-        <div
-          class="w-8 h-8 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400 font-bold"
-        >
+        <div class="w-8 h-8 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400 font-bold">
           1
         </div>
         <div class="text-sm text-slate-300">Pixel-perfect Shadows</div>
       </div>
       <div class="flex items-center gap-3 p-3 rounded-lg bg-white/5 border border-white/5">
-        <div
-          class="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-400 font-bold"
-        >
+        <div class="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-400 font-bold">
           2
         </div>
         <div class="text-sm text-slate-300">Complex Gradients</div>
@@ -261,9 +251,7 @@ We recommend building your slide container at **1920x1080px**. The library will 
     <!-- Grid Layout Test -->
     <div class="grid grid-cols-2 gap-6 mb-8">
       <!-- Card 1: Gradient & Shadow -->
-      <div
-        class="bg-white p-5 rounded-xl complex-shadow border border-slate-100 relative overflow-hidden group"
-      >
+      <div class="bg-white p-5 rounded-xl complex-shadow border border-slate-100 relative overflow-hidden group">
         <div class="relative z-10">
           <p class="text-xs font-bold text-indigo-500 uppercase tracking-wider mb-1">Total Sales</p>
           <h4 class="text-3xl font-bold text-slate-800">$124,500</h4>

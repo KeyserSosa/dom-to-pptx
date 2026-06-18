@@ -81,17 +81,12 @@ async function main() {
     const sourceDir = path.join(__dirname, '..', 'skills', 'dom-to-pptx-skill');
 
     if (!fs.existsSync(sourceDir)) {
-      throw new Error(
-        `Source skills not found at ${sourceDir}. Are you running from the package root?`
-      );
+      throw new Error(`Source skills not found at ${sourceDir}. Are you running from the package root?`);
     }
 
     copyRecursiveSync(sourceDir, targetDir);
 
-    console.log(
-      '\n\x1b[32m%s\x1b[0m',
-      '✅ Success! dom-to-pptx "Atmospheric UI" skills installed.'
-    );
+    console.log('\n\x1b[32m%s\x1b[0m', '✅ Success! dom-to-pptx "Atmospheric UI" skills installed.');
     console.log('Your agent is now equipped with the Premium Presentation Engineering framework.');
     console.log('You may need to restart your AI agent to see the new skill.');
   } catch (err) {

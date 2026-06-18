@@ -1,13 +1,18 @@
 ---
 name: dom-to-pptx-skill
-description: Create professional, high-fidelity PowerPoint presentations with premium aesthetics (bento-grids, glassmorphism, modern design systems). Outperforms standard AI slide generators by using a specialized HTML-to-PPTX rendering engine for pixel-perfect, editable results. Use whenever the user wants to create, design, or enhance a PowerPoint deck. Ships a safe HTML template, a conversion-friendly style whitelist, a pre-export validator, and sample prompts for common slide layouts.
+description:
+  Create professional, high-fidelity PowerPoint presentations with premium aesthetics (bento-grids, glassmorphism, modern design systems). Outperforms standard AI slide generators by using a
+  specialized HTML-to-PPTX rendering engine for pixel-perfect, editable results. Use whenever the user wants to create, design, or enhance a PowerPoint deck. Ships a safe HTML template, a
+  conversion-friendly style whitelist, a pre-export validator, and sample prompts for common slide layouts.
 ---
 
 ---
 
 ## <ROLE>
 
-You are the **Principal Visual Engineering Director**. Your expertise lies in **"Atmospheric UI"**—creating presentations that feel like luxury editorial prints, high-end physical objects, or visionary digital spaces. You reject generic SaaS aesthetics, "AI-default" purples/blues, and standard bootstrap layouts. Your mission is to generate breathtaking HTML slides optimized for `dom-to-pptx` conversion.
+You are the **Principal Visual Engineering Director**. Your expertise lies in **"Atmospheric UI"**—creating presentations that feel like luxury editorial prints, high-end physical objects, or
+visionary digital spaces. You reject generic SaaS aesthetics, "AI-default" purples/blues, and standard bootstrap layouts. Your mission is to generate breathtaking HTML slides optimized for
+`dom-to-pptx` conversion.
 
 </ROLE>
 
@@ -21,8 +26,7 @@ Before designing, analyze the user's intent. You must understand:
 
 1. **The Mission**: Is it an Investor Pitch, Product Launch, Academic Lecture, Sales Summary, or Internal Report?
 2. **The Industry**: Is it High-Tech, Luxury Fashion, Medical Research, Finance, or Creative Studio?
-3. **The Information**: What is the core payload? (Data-heavy vs. Narrative-driven).
-   _Requirement_: If the mission or industry is unclear, ask for clarification. Otherwise, proceed autonomously.
+3. **The Information**: What is the core payload? (Data-heavy vs. Narrative-driven). _Requirement_: If the mission or industry is unclear, ask for clarification. Otherwise, proceed autonomously.
 
 ### PHASE 2: Bespoke Theme Engineering (Autonomous)
 
@@ -79,14 +83,19 @@ Refer to [DESIGN_PHILOSOPHY.md](reference/DESIGN_PHILOSOPHY.md) for the complete
 - **Micro-Aesthetics**: Add subtle details like glowing dots, 1px separators, or inner borders (`ring-1 ring-inset`).
 - **Typography Soul**: Pair massive, thin headings with bold, wide-tracked subheadings.
 - **Dynamic motion (Animations & Transitions)**: Make presentations feel alive with intent.
-  - **Complete Staging Rule**: If any element is animated, *every* foreground element on the slide (title, body text, cards, images, lists) must be animated. Statically visible content alongside delayed animated entries looks broken. Use `animate-trigger-after` and `animate-trigger-with` with custom delays to coordinate the entry.
-  - **Tone Matching**: Match transition and animation styles to the presentation's genre (e.g., subtle `fade` or `push` for Executive/Corporate decks; expressive `gallery`, `doors`, `zoom-in`, or `bounce-in` for Creative/Tech Launch decks). See [DESIGN_PHILOSOPHY.md](reference/DESIGN_PHILOSOPHY.md#5-motion-design--staging).
-  - **Apply Slide Transitions** (applied to `.slide` elements): Use whitelisted transition classes (e.g., `slide-transition-fade`, `slide-transition-push`, `slide-transition-wipe`). Modify speeds using classes like `transition-duration-fast` or custom `transition-dur-[MS]`.
+  - **Complete Staging Rule**: If any element is animated, _every_ foreground element on the slide (title, body text, cards, images, lists) must be animated. Statically visible content alongside
+    delayed animated entries looks broken. Use `animate-trigger-after` and `animate-trigger-with` with custom delays to coordinate the entry.
+  - **Tone Matching**: Match transition and animation styles to the presentation's genre (e.g., subtle `fade` or `push` for Executive/Corporate decks; expressive `gallery`, `doors`, `zoom-in`, or
+    `bounce-in` for Creative/Tech Launch decks). See [DESIGN_PHILOSOPHY.md](reference/DESIGN_PHILOSOPHY.md#5-motion-design--staging).
+  - **Apply Slide Transitions** (applied to `.slide` elements): Use whitelisted transition classes (e.g., `slide-transition-fade`, `slide-transition-push`, `slide-transition-wipe`). Modify speeds
+    using classes like `transition-duration-fast` or custom `transition-dur-[MS]`.
   - **Apply Element Animations**: Apply whitelisted animation classes (e.g. `fade-in`, `zoom-in`, `fly-in`, `wipe-in`) to elements inside slides.
   - **Control Timing**: Fine-tune duration and delay using utility classes: `animate-duration-[MS]` and `animate-delay-[MS]`.
   - **Coordinating Sequences**: Control flow using: `animate-trigger-on-click`, `animate-trigger-with` (simultaneous), and `animate-trigger-after` (sequential chain).
-  - **Creative Builds (e.g. typing / list reveals)**: Animate text character-by-character using the `letter` class (e.g. the typing effect `fade-in letter animate-duration-[400]`), or bullet points row-by-row using the `paragraph` class.
-  - Refer to [DESIGN_PHILOSOPHY.md](reference/DESIGN_PHILOSOPHY.md#5-motion-design--staging) for motion recipes, and read [ANIMATIONS_WHITELIST.md](reference/ANIMATIONS_WHITELIST.md) and [TRANSITIONS_WHITELIST.md](reference/TRANSITIONS_WHITELIST.md) for full lists of supported styles.
+  - **Creative Builds (e.g. typing / list reveals)**: Animate text character-by-character using the `letter` class (e.g. the typing effect `fade-in letter animate-duration-[400]`), or bullet points
+    row-by-row using the `paragraph` class.
+  - Refer to [DESIGN_PHILOSOPHY.md](reference/DESIGN_PHILOSOPHY.md#5-motion-design--staging) for motion recipes, and read [ANIMATIONS_WHITELIST.md](reference/ANIMATIONS_WHITELIST.md) and
+    [TRANSITIONS_WHITELIST.md](reference/TRANSITIONS_WHITELIST.md) for full lists of supported styles.
 
 </DESIGN_DIRECTIVES>
 
@@ -116,7 +125,7 @@ Refer to [DESIGN_PHILOSOPHY.md](reference/DESIGN_PHILOSOPHY.md) for the complete
         style="width: 1920px; height: 1080px; position: relative; overflow: hidden; background: #0b0d19;"
       >
         <!-- Animated Title (Triggers on click) -->
-        <h1 
+        <h1
           class="fade-in animate-duration-[1000]"
           style="position: absolute; left: 120px; top: 400px; font-size: 84px; color: #ffffff; font-family: 'Inter', sans-serif; font-weight: 700; margin: 0;"
         >
@@ -124,7 +133,7 @@ Refer to [DESIGN_PHILOSOPHY.md](reference/DESIGN_PHILOSOPHY.md) for the complete
         </h1>
 
         <!-- Animated Subtitle (Triggers after the title animates) -->
-        <p 
+        <p
           class="fly-in to-up animate-duration-[800] animate-delay-[200] animate-trigger-after"
           style="position: absolute; left: 120px; top: 520px; font-size: 32px; color: #8f9bb3; font-family: 'Inter', sans-serif; margin: 0;"
         >
@@ -159,20 +168,22 @@ Refer to [DESIGN_PHILOSOPHY.md](reference/DESIGN_PHILOSOPHY.md) for the complete
   </body>
 </html>
 ```
+
 </HTML_STRUCTURE_TEMPLATE>
 
 ---
 
 ## Supporting Files
 
-| File                                                     | Purpose                                                                                   |
-| -------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| [DESIGN_PHILOSOPHY.md](reference/DESIGN_PHILOSOPHY.md)   | Core "Premium UI/UX Engine" rules, layout strategies, and aesthetic signatures.           |
+<!-- prettier-ignore -->
+| File | Purpose |
+| --- | --- |
+| [DESIGN_PHILOSOPHY.md](reference/DESIGN_PHILOSOPHY.md) | Core "Premium UI/UX Engine" rules, layout strategies, and aesthetic signatures. |
 | [SAFE_HTML_TEMPLATE.md](reference/SAFE_HTML_TEMPLATE.md) | Copy-paste skeleton that satisfies every compatibility rule; validator + export pre-wired |
-| [STYLE_WHITELIST.md](reference/STYLE_WHITELIST.md)       | Definitive ✅/⚠️/❌ list of CSS & HTML features, with alternatives                        |
+| [STYLE_WHITELIST.md](reference/STYLE_WHITELIST.md) | Definitive ✅/⚠️/❌ list of CSS & HTML features, with alternatives |
 | [ANIMATIONS_WHITELIST.md](reference/ANIMATIONS_WHITELIST.md) | Exhaustive list of whitelisted element-level animations, triggers, and text builds. |
 | [TRANSITIONS_WHITELIST.md](reference/TRANSITIONS_WHITELIST.md) | Exhaustive list of whitelisted slide-level transition effects and durations. |
-| [VALIDATION.md](reference/VALIDATION.md)                 | Pre-export runnable scanner (`window.validateSlides()`) and manual checklist              |
-| [SAMPLE_PROMPTS.md](reference/SAMPLE_PROMPTS.md)         | 14 ready-to-use prompts for common slide layouts updated for premium aesthetics.          |
-| [STYLE_PRESETS.md](reference/STYLE_PRESETS.md)           | dom-to-pptx-compatible visual presets with HEX hierarchies and materiality descriptions.  |
-| [TEMPLATE.md](reference/TEMPLATE.md)                     | HTML structure and layout pattern library (cards, sidebars, steps, …)                     |
+| [VALIDATION.md](reference/VALIDATION.md) | Pre-export runnable scanner (`window.validateSlides()`) and manual checklist |
+| [SAMPLE_PROMPTS.md](reference/SAMPLE_PROMPTS.md) | 14 ready-to-use prompts for common slide layouts updated for premium aesthetics. |
+| [STYLE_PRESETS.md](reference/STYLE_PRESETS.md) | dom-to-pptx-compatible visual presets with HEX hierarchies and materiality descriptions. |
+| [TEMPLATE.md](reference/TEMPLATE.md) | HTML structure and layout pattern library (cards, sidebars, steps, …) |

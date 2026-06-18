@@ -375,10 +375,8 @@ function buildMotionAxisExit(spid, duration, attr, fromVal, toVal, paragraphInde
 /** Zoom anim: animates ppt_w and ppt_h */
 function buildZoomAxis(spid, duration, attr, fromVal, toVal, paragraphIndex, build) {
   const id = nextId();
-  const fromNode =
-    typeof fromVal === 'number' ? `<p:fltVal val="${fromVal}"/>` : `<p:strVal val="${fromVal}"/>`;
-  const toNode =
-    typeof toVal === 'number' ? `<p:fltVal val="${toVal}"/>` : `<p:strVal val="${toVal}"/>`;
+  const fromNode = typeof fromVal === 'number' ? `<p:fltVal val="${fromVal}"/>` : `<p:strVal val="${fromVal}"/>`;
+  const toNode = typeof toVal === 'number' ? `<p:fltVal val="${toVal}"/>` : `<p:strVal val="${toVal}"/>`;
   const targetEl = buildTargetEl(spid, paragraphIndex, build);
   return (
     `<p:anim calcMode="lin" valueType="num">` +

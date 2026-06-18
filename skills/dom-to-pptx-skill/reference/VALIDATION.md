@@ -1,6 +1,7 @@
 # Validation before Export
 
-Before calling `domToPptx.exportToPptx(…)`, run a preflight scan of the DOM. This catches the 10 most common failure modes **while the user is still in the browser** rather than after PowerPoint opens a half-broken deck.
+Before calling `domToPptx.exportToPptx(…)`, run a preflight scan of the DOM. This catches the 10 most common failure modes **while the user is still in the browser** rather than after PowerPoint opens
+a half-broken deck.
 
 The rules mirror [STYLE_WHITELIST.md](STYLE_WHITELIST.md).
 
@@ -53,8 +54,7 @@ Paste this script **above** your export script in the HTML. It exposes `window.v
     const BAD_TRANSFORM =
       /\b(?:translate|translateX|translateY|translate3d|scale|scaleX|scaleY|scale3d|skew|skewX|skewY|matrix|matrix3d)\s*\(/;
     const BAD_BACKGROUND = /\b(?:radial-gradient|conic-gradient)\s*\(/;
-    const BAD_FILTER =
-      /\b(?:brightness|contrast|saturate|hue-rotate|grayscale|sepia|invert|drop-shadow)\s*\(/;
+    const BAD_FILTER = /\b(?:brightness|contrast|saturate|hue-rotate|grayscale|sepia|invert|drop-shadow)\s*\(/;
     const VIEWPORT_UNITS = /\b\d*\.?\d+(?:vh|vw|vmin|vmax)\b/;
 
     // Inline style sniffers (computed styles normalize away some features,
@@ -96,20 +96,16 @@ Paste this script **above** your export script in the HTML. It exposes `window.v
 
       // Check: at least one slide
       if (slides.length === 0) {
-        issues.push(
-          'No elements match "' + SLIDE_SELECTOR + '". Add class="slide" to slide roots.'
-        );
+        issues.push('No elements match "' + SLIDE_SELECTOR + '". Add class="slide" to slide roots.');
         return issues;
       }
 
       // Check: Google Fonts links carry crossorigin
-      document
-        .querySelectorAll('link[rel="stylesheet"][href*="fonts.googleapis.com"]')
-        .forEach((link) => {
-          if (link.getAttribute('crossorigin') !== 'anonymous') {
-            issues.push('Google Fonts link missing crossorigin="anonymous": ' + link.href);
-          }
-        });
+      document.querySelectorAll('link[rel="stylesheet"][href*="fonts.googleapis.com"]').forEach((link) => {
+        if (link.getAttribute('crossorigin') !== 'anonymous') {
+          issues.push('Google Fonts link missing crossorigin="anonymous": ' + link.href);
+        }
+      });
 
       slides.forEach((slide, idx) => {
         const cs = getComputedStyle(slide);
@@ -119,14 +115,10 @@ Paste this script **above** your export script in the HTML. It exposes `window.v
         const h = parseFloat(cs.height);
         if (!w || !h) issues.push(locate(slide, idx) + ' — slide has no resolved width/height');
         if (cs.position !== 'relative' && cs.position !== 'absolute') {
-          issues.push(
-            locate(slide, idx) + ' — slide position is "' + cs.position + '", expected "relative"'
-          );
+          issues.push(locate(slide, idx) + ' — slide position is "' + cs.position + '", expected "relative"');
         }
         if (cs.overflow !== 'hidden') {
-          issues.push(
-            locate(slide, idx) + ' — slide overflow is "' + cs.overflow + '", expected "hidden"'
-          );
+          issues.push(locate(slide, idx) + ' — slide overflow is "' + cs.overflow + '", expected "hidden"');
         }
         const ratio = w && h ? w / h : 0;
         if (
@@ -147,10 +139,7 @@ Paste this script **above** your export script in the HTML. It exposes `window.v
         const ancestor = hasTransformedAncestor(slide);
         if (ancestor) {
           issues.push(
-            locate(slide, idx) +
-              ' — has a transformed ancestor (' +
-              describe(ancestor) +
-              '); move slide out of it'
+            locate(slide, idx) + ' — has a transformed ancestor (' + describe(ancestor) + '); move slide out of it'
           );
         }
 
@@ -163,12 +152,7 @@ Paste this script **above** your export script in the HTML. It exposes `window.v
           if (s.transform && s.transform !== 'none') {
             const inlineXform = (inline.match(/transform\s*:\s*([^;]+)/i) || [])[1] || '';
             if (BAD_TRANSFORM.test(inlineXform)) {
-              issues.push(
-                locate(el, idx) +
-                  ' — uses transform: ' +
-                  inlineXform.trim() +
-                  ' (only rotate is supported)'
-              );
+              issues.push(locate(el, idx) + ' — uses transform: ' + inlineXform.trim() + ' (only rotate is supported)');
             }
           }
 
@@ -182,9 +166,7 @@ Paste this script **above** your export script in the HTML. It exposes `window.v
           // filter (blur ok)
           const filt = s.filter || '';
           if (filt && filt !== 'none' && !/^\s*blur\(/.test(filt) && BAD_FILTER.test(filt)) {
-            issues.push(
-              locate(el, idx) + ' — filter "' + filt + '" not supported (only filter: blur() works)'
-            );
+            issues.push(locate(el, idx) + ' — filter "' + filt + '" not supported (only filter: blur() works)');
           }
 
           // inline-only blockers
@@ -214,19 +196,14 @@ Paste this script **above** your export script in the HTML. It exposes `window.v
               issues.push(locate(el, idx) + ' — <img> not yet loaded: ' + src);
             }
             if (el.getAttribute('loading') === 'lazy') {
-              issues.push(
-                locate(el, idx) + ' — <img loading="lazy"> can race the export; remove it'
-              );
+              issues.push(locate(el, idx) + ' — <img loading="lazy"> can race the export; remove it');
             }
           }
 
           // lazy-loaded iframes / videos etc. we simply flag
           if (['VIDEO', 'AUDIO', 'IFRAME', 'CANVAS'].includes(el.tagName)) {
             issues.push(
-              locate(el, idx) +
-                ' — <' +
-                el.tagName.toLowerCase() +
-                '> is not captured; screenshot to <img> first'
+              locate(el, idx) + ' — <' + el.tagName.toLowerCase() + '> is not captured; screenshot to <img> first'
             );
           }
         });
@@ -240,10 +217,7 @@ Paste this script **above** your export script in the HTML. It exposes `window.v
       window.addEventListener('load', () => {
         const issues = window.validateSlides();
         if (issues.length) {
-          console.group(
-            '%cdom-to-pptx validator: ' + issues.length + ' issue(s)',
-            'color:#c00;font-weight:bold'
-          );
+          console.group('%cdom-to-pptx validator: ' + issues.length + ' issue(s)', 'color:#c00;font-weight:bold');
           issues.forEach((i) => console.warn(i));
           console.groupEnd();
         } else {
@@ -296,25 +270,27 @@ It's a static sniffer — it can miss a few things. Manual spot-checks to do aft
 1. **Visual overflow.** The validator confirms `overflow: hidden` but doesn't know if text ran out of its box. Scroll every slide in the browser at 100% zoom.
 2. **Font fallback.** If the embedded font doesn't cover a glyph (e.g. CJK in a Latin-only font), PowerPoint will substitute silently. Check any non-ASCII text in the exported deck.
 3. **Z-index order for layered elements.** The exporter respects DOM order. If something looks wrong, check the source order, not just `z-index`.
-4. **Image CORS headers.** An image can load in the browser (good `complete && naturalWidth>0`) but still fail the canvas-tainting check during export. If a rounded image exports as a hard rectangle, that's the cause — swap to Unsplash-style hosting or base64.
+4. **Image CORS headers.** An image can load in the browser (good `complete && naturalWidth>0`) but still fail the canvas-tainting check during export. If a rounded image exports as a hard rectangle,
+   that's the cause — swap to Unsplash-style hosting or base64.
 5. **Content generated by JS after load.** If you populate slides dynamically, call `validateSlides()` _after_ the data arrives.
 
 ---
 
 ## Troubleshooting validator complaints
 
-| Validator says…                                  | Fix                                                                            |
-| ------------------------------------------------ | ------------------------------------------------------------------------------ |
-| `slide position is "static"`                     | Add `position: relative` on the `.slide` element.                              |
-| `slide overflow is "visible"`                    | Add `overflow: hidden` on the `.slide` element.                                |
-| `uses transform: translate(...)`                 | Replace with `left/top` pixel values, or flex centering on the parent.         |
-| `uses radial-gradient`                           | Swap for `linear-gradient` or stack a second element.                          |
-| `uses backdrop-filter`                           | Replace with a semi-transparent overlay (`background: rgba(255,255,255,0.1)`). |
-| `<img> must be https:// or data:`                | Move the image to a CORS-enabled host or embed as base64.                      |
-| `<img> failed to load`                           | Check the console for a 404/CORS error.                                        |
-| `aspect ratio … isn't 16:9 / 4:3 / 16:10 / 9:16` | Resize the slide, or pass `{width, height, layout}` to `exportToPptx`.         |
-| `has a transformed ancestor`                     | Move the `.slide` outside the transformed wrapper, or drop the transform.      |
-| `Google Fonts link missing crossorigin`          | Add `crossorigin="anonymous"` to the `<link>` tag.                             |
+<!-- prettier-ignore -->
+| Validator says… | Fix |
+| --- | --- |
+| `slide position is "static"` | Add `position: relative` on the `.slide` element. |
+| `slide overflow is "visible"` | Add `overflow: hidden` on the `.slide` element. |
+| `uses transform: translate(...)` | Replace with `left/top` pixel values, or flex centering on the parent. |
+| `uses radial-gradient` | Swap for `linear-gradient` or stack a second element. |
+| `uses backdrop-filter` | Replace with a semi-transparent overlay (`background: rgba(255,255,255,0.1)`). |
+| `<img> must be https:// or data:` | Move the image to a CORS-enabled host or embed as base64. |
+| `<img> failed to load` | Check the console for a 404/CORS error. |
+| `aspect ratio … isn't 16:9 / 4:3 / 16:10 / 9:16` | Resize the slide, or pass `{width, height, layout}` to `exportToPptx`. |
+| `has a transformed ancestor` | Move the `.slide` outside the transformed wrapper, or drop the transform. |
+| `Google Fonts link missing crossorigin` | Add `crossorigin="anonymous"` to the `<link>` tag. |
 
 ---
 

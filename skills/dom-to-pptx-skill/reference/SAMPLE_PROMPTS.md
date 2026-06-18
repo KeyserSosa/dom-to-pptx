@@ -1,8 +1,10 @@
 # Sample Prompts for Common Slide Layouts
 
-Copy-paste prompts that produce dom-to-pptx-safe HTML for the layouts people ask for most. Each prompt is self-contained — drop in your content, adjust the style preset, and the result can go straight into the template from [SAFE_HTML_TEMPLATE.md](SAFE_HTML_TEMPLATE.md).
+Copy-paste prompts that produce dom-to-pptx-safe HTML for the layouts people ask for most. Each prompt is self-contained — drop in your content, adjust the style preset, and the result can go straight
+into the template from [SAFE_HTML_TEMPLATE.md](SAFE_HTML_TEMPLATE.md).
 
-Every prompt below already bakes in the constraints from [STYLE_WHITELIST.md](STYLE_WHITELIST.md): fixed 1920×1080, inline styles, absolute/flex layout, https images, slide transitions and element animations via whitelisted CSS classes, and no custom keyframes or blocked properties.
+Every prompt below already bakes in the constraints from [STYLE_WHITELIST.md](STYLE_WHITELIST.md): fixed 1920×1080, inline styles, absolute/flex layout, https images, slide transitions and element
+animations via whitelisted CSS classes, and no custom keyframes or blocked properties.
 
 ---
 
@@ -383,9 +385,12 @@ Return a single valid HTML file ready to open in a browser.
 
 - **Always specify 1920×1080** in the prompt — otherwise the model may default to responsive sizing, which breaks the exporter.
 - **Mention "inline styles only"** — otherwise `<style>` tags with classes tend to appear, which works but is harder to debug.
-- **Name the blocked and allowed motion properties explicitly** ("no transforms except rotate; slide transitions and element animations only via whitelisted classes; no backdrop-filter, radial-gradient") — vague guidance like "be compatible" isn't enough.
-- **Instruct the AI to apply the "Complete Staging Rule" for motion**: If any element is animated, *all* foreground elements on the slide must be animated in a coordinated chain or stagger. Ensure there are no static foreground elements showing before their containing slides/headers animate in.
-- **Specify the Motion Tone & Pacing**: Explicitly prompt for the transition style (e.g. subtle `fade`/`push` for professional decks, or expressive `gallery`/`doors` for creative launches) and specify normal/fast speeds.
+- **Name the blocked and allowed motion properties explicitly** ("no transforms except rotate; slide transitions and element animations only via whitelisted classes; no backdrop-filter,
+  radial-gradient") — vague guidance like "be compatible" isn't enough.
+- **Instruct the AI to apply the "Complete Staging Rule" for motion**: If any element is animated, _all_ foreground elements on the slide must be animated in a coordinated chain or stagger. Ensure
+  there are no static foreground elements showing before their containing slides/headers animate in.
+- **Specify the Motion Tone & Pacing**: Explicitly prompt for the transition style (e.g. subtle `fade`/`push` for professional decks, or expressive `gallery`/`doors` for creative launches) and specify
+  normal/fast speeds.
 - **Request specific motion recipes**: Ask the model to use the typing reveal effect (`fade-in letter animate-duration-[400]`) on titles, or staggered parallel entry on card grids.
 - **Pin image sources** — give a fallback Unsplash URL in the prompt so the model doesn't invent unreachable URLs.
 - **Append the validator** — every prompt above assumes the output will be dropped into the safe template, which already runs `window.validateSlides()` before export.

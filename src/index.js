@@ -56,8 +56,7 @@ export async function exportToPptx(target, options = {}) {
     if (typeof pkg === 'function') return pkg;
     if (pkg && typeof pkg.default === 'function') return pkg.default;
     if (pkg && typeof pkg.PptxGenJS === 'function') return pkg.PptxGenJS;
-    if (pkg && pkg.PptxGenJS && typeof pkg.PptxGenJS.default === 'function')
-      return pkg.PptxGenJS.default;
+    if (pkg && pkg.PptxGenJS && typeof pkg.PptxGenJS.default === 'function') return pkg.PptxGenJS.default;
     return null;
   };
 
@@ -147,7 +146,7 @@ export async function exportToPptx(target, options = {}) {
   // 3. Font Embedding Logic
   let finalBlob;
   let rawFonts = options.fonts || [];
-  let fontsToEmbed = [];
+  let fontsToEmbed;
 
   // Group by name
   const uniqueFonts = new Map();
@@ -357,11 +356,7 @@ async function processSlide(root, slide, pptx, globalOptions = {}) {
       }
 
       // Optimization: Skip completely hidden elements immediately
-      if (
-        nodeStyle.display === 'none' ||
-        nodeStyle.visibility === 'hidden' ||
-        currentOpacity === 0
-      ) {
+      if (nodeStyle.display === 'none' || nodeStyle.visibility === 'hidden' || currentOpacity === 0) {
         return;
       }
       let zVal = 0;
@@ -375,19 +370,11 @@ async function processSlide(root, slide, pptx, globalOptions = {}) {
     }
 
     // Prepare the item. If it needs async work, it returns a 'job'
-    const result = prepareRenderItem(
-      node,
-      { ...layoutConfig, root },
-      order,
-      pptx,
-      currentSortKey,
-      nodeStyle,
-      {
-        ...globalOptions,
-        _inheritedOpacity: parentOpacity,
-        _inheritedAnimation: inheritedAnimation,
-      }
-    );
+    const result = prepareRenderItem(node, { ...layoutConfig, root }, order, pptx, currentSortKey, nodeStyle, {
+      ...globalOptions,
+      _inheritedOpacity: parentOpacity,
+      _inheritedAnimation: inheritedAnimation,
+    });
 
     if (result) {
       if (result.items) {
@@ -428,9 +415,7 @@ async function processSlide(root, slide, pptx, globalOptions = {}) {
 
   // 3. Cleanup and Sort
   // Remove items that failed to generate data (marked with skip)
-  const finalQueue = renderQueue.filter(
-    (item) => !item.skip && (item.type !== 'image' || item.options.data)
-  );
+  const finalQueue = renderQueue.filter((item) => !item.skip && (item.type !== 'image' || item.options.data));
 
   finalQueue.sort((a, b) => {
     return compareKeys(a.zIndex, b.zIndex);
@@ -611,15 +596,7 @@ function isIconElement(node) {
   const tag = node.tagName.toUpperCase();
   if (
     tag.includes('-') ||
-    [
-      'MATERIAL-ICON',
-      'ICONIFY-ICON',
-      'REMIX-ICON',
-      'ION-ICON',
-      'EVA-ICON',
-      'BOX-ICON',
-      'FA-ICON',
-    ].includes(tag)
+    ['MATERIAL-ICON', 'ICONIFY-ICON', 'REMIX-ICON', 'ION-ICON', 'EVA-ICON', 'BOX-ICON', 'FA-ICON'].includes(tag)
   ) {
     return true;
   }
@@ -672,36 +649,28 @@ function getPseudoElementRect(hostRect, pseudoStyle) {
     let hasLeft = false;
     if (leftStr && leftStr !== 'auto') {
       hasLeft = true;
-      left = leftStr.endsWith('%')
-        ? (parseFloat(leftStr) / 100) * hostRect.width
-        : parseFloat(leftStr);
+      left = leftStr.endsWith('%') ? (parseFloat(leftStr) / 100) * hostRect.width : parseFloat(leftStr);
     }
 
     let top = 0;
     let hasTop = false;
     if (topStr && topStr !== 'auto') {
       hasTop = true;
-      top = topStr.endsWith('%')
-        ? (parseFloat(topStr) / 100) * hostRect.height
-        : parseFloat(topStr);
+      top = topStr.endsWith('%') ? (parseFloat(topStr) / 100) * hostRect.height : parseFloat(topStr);
     }
 
     let right = 0;
     let hasRight = false;
     if (rightStr && rightStr !== 'auto') {
       hasRight = true;
-      right = rightStr.endsWith('%')
-        ? (parseFloat(rightStr) / 100) * hostRect.width
-        : parseFloat(rightStr);
+      right = rightStr.endsWith('%') ? (parseFloat(rightStr) / 100) * hostRect.width : parseFloat(rightStr);
     }
 
     let bottom = 0;
     let hasBottom = false;
     if (bottomStr && bottomStr !== 'auto') {
       hasBottom = true;
-      bottom = bottomStr.endsWith('%')
-        ? (parseFloat(bottomStr) / 100) * hostRect.height
-        : parseFloat(bottomStr);
+      bottom = bottomStr.endsWith('%') ? (parseFloat(bottomStr) / 100) * hostRect.height : parseFloat(bottomStr);
     }
 
     if (hasLeft) {
@@ -849,15 +818,7 @@ function countParagraphs(node, scale) {
   return count;
 }
 
-function prepareRenderItem(
-  node,
-  config,
-  domOrder,
-  pptx,
-  effectiveZIndex,
-  computedStyle,
-  globalOptions = {}
-) {
+function prepareRenderItem(node, config, domOrder, pptx, effectiveZIndex, computedStyle, globalOptions = {}) {
   // 1. Text Node Handling
   if (node.nodeType === 3) {
     const textContent = node.nodeValue.trim();
@@ -929,10 +890,7 @@ function prepareRenderItem(
   // Use the node's own animation, or fall back to the inherited one from an ancestor.
   // Inherited animations use start='with' so children animate simultaneously with the parent.
   const effectiveAnim =
-    anim ||
-    (globalOptions._inheritedAnimation
-      ? { ...globalOptions._inheritedAnimation, start: 'with' }
-      : null);
+    anim || (globalOptions._inheritedAnimation ? { ...globalOptions._inheritedAnimation, start: 'with' } : null);
   if (effectiveAnim) {
     let numParagraphs = 1;
     if (isTextContainer(node)) {
@@ -961,8 +919,7 @@ function prepareRenderItem(
   // offsetWidth/offsetHeight being integer-rounded. When the element is rotated
   // we must fall back to offset* because rect.* describes the rotated bounding box.
   const widthPx = rotation === 0 ? rect.width || node.offsetWidth : node.offsetWidth || rect.width;
-  const heightPx =
-    rotation === 0 ? rect.height || node.offsetHeight : node.offsetHeight || rect.height;
+  const heightPx = rotation === 0 ? rect.height || node.offsetHeight : node.offsetHeight || rect.height;
   const unrotatedW = widthPx * PX_TO_INCH * config.scale;
   const unrotatedH = heightPx * PX_TO_INCH * config.scale;
   const centerX = rect.left + rect.width / 2;
@@ -1275,14 +1232,7 @@ function prepareRenderItem(
     };
 
     const job = async () => {
-      const processed = await getProcessedImage(
-        node.src,
-        widthPx,
-        heightPx,
-        radii,
-        objectFit,
-        objectPosition
-      );
+      const processed = await getProcessedImage(node.src, widthPx, heightPx, radii, objectFit, objectPosition);
       if (processed) item.options.data = processed;
       else item.skip = true;
     };
@@ -1369,8 +1319,7 @@ function prepareRenderItem(
   const isBgClipText = bgClip === 'text';
   const bgImgStr = style.backgroundImage;
   const hasGradient = !isBgClipText && bgImgStr && bgImgStr.includes('linear-gradient');
-  const urlMatch =
-    !isBgClipText && !hasGradient && bgImgStr ? bgImgStr.match(/url\(['"]?(.*?)['"]?\)/) : null;
+  const urlMatch = !isBgClipText && !hasGradient && bgImgStr ? bgImgStr.match(/url\(['"]?(.*?)['"]?\)/) : null;
   const hasBgImgUrl = !!urlMatch;
 
   const borderColorObj = parseColor(style.borderColor);
@@ -1415,8 +1364,7 @@ function prepareRenderItem(
         if (style.alignItems === 'flex-end' || style.alignItems === 'end') align = 'right';
 
         if (style.justifyContent === 'center' && style.display.includes('flex')) valign = 'middle';
-        if (style.justifyContent === 'flex-end' && style.display.includes('flex'))
-          valign = 'bottom';
+        if (style.justifyContent === 'flex-end' && style.display.includes('flex')) valign = 'bottom';
       } else {
         if (style.alignItems === 'center') valign = 'middle';
         if (style.alignItems === 'flex-end' || style.alignItems === 'end') valign = 'bottom';
@@ -1479,13 +1427,7 @@ function prepareRenderItem(
       let bgData;
       let padIn = 0;
       if (softEdge) {
-        const svgInfo = generateBlurredSVG(
-          widthPx,
-          heightPx,
-          bgColorObj.hex,
-          borderRadiusValue,
-          softEdge
-        );
+        const svgInfo = generateBlurredSVG(widthPx, heightPx, bgColorObj.hex, borderRadiusValue, softEdge);
         bgData = svgInfo.data;
         padIn = svgInfo.padding * PX_TO_INCH * config.scale;
       } else {
@@ -1569,18 +1511,12 @@ function prepareRenderItem(
     const useSolidFill = (bgColorObj.hex && !isImageWrapper) || customShapeName;
 
     if (hasPartialBorderRadius && useSolidFill && !textPayload && !customShapeName) {
-      const shapeSvg = generateCustomShapeSVG(
-        widthPx,
-        heightPx,
-        bgColorObj.hex,
-        bgColorObj.opacity,
-        {
-          tl: parseFloat(style.borderTopLeftRadius) || 0,
-          tr: parseFloat(style.borderTopRightRadius) || 0,
-          br: parseFloat(style.borderBottomRightRadius) || 0,
-          bl: parseFloat(style.borderBottomLeftRadius) || 0,
-        }
-      );
+      const shapeSvg = generateCustomShapeSVG(widthPx, heightPx, bgColorObj.hex, bgColorObj.opacity, {
+        tl: parseFloat(style.borderTopLeftRadius) || 0,
+        tr: parseFloat(style.borderTopRightRadius) || 0,
+        br: parseFloat(style.borderBottomRightRadius) || 0,
+        bl: parseFloat(style.borderBottomLeftRadius) || 0,
+      });
 
       items.push({
         type: 'image',
@@ -1661,12 +1597,7 @@ function prepareRenderItem(
     }
 
     if (hasCompositeBorder) {
-      const borderSvgData = generateCompositeBorderSVG(
-        widthPx,
-        heightPx,
-        borderRadiusValue,
-        borderInfo.sides
-      );
+      const borderSvgData = generateCompositeBorderSVG(widthPx, heightPx, borderRadiusValue, borderInfo.sides);
       if (borderSvgData) {
         items.push({
           type: 'image',

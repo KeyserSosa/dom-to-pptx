@@ -1,10 +1,12 @@
 # Safe HTML Template for dom-to-pptx
 
-A minimal, copy-paste starting template that respects **every** dom-to-pptx compatibility constraint. Use this as the skeleton for any new deck — every rule below is enforced by the scanner in [VALIDATION.md](VALIDATION.md).
+A minimal, copy-paste starting template that respects **every** dom-to-pptx compatibility constraint. Use this as the skeleton for any new deck — every rule below is enforced by the scanner in
+[VALIDATION.md](VALIDATION.md).
 
 ## Why "safe"?
 
-dom-to-pptx converts DOM → native PPTX shapes by reading `getBoundingClientRect()` and computed styles. It ignores animations, fails silently on non-CORS images, and has partial support for a handful of CSS properties (see [STYLE_WHITELIST.md](STYLE_WHITELIST.md)). This template sticks to the **intersection** of what dom-to-pptx reliably converts and what looks good in PowerPoint after export.
+dom-to-pptx converts DOM → native PPTX shapes by reading `getBoundingClientRect()` and computed styles. It ignores animations, fails silently on non-CORS images, and has partial support for a handful
+of CSS properties (see [STYLE_WHITELIST.md](STYLE_WHITELIST.md)). This template sticks to the **intersection** of what dom-to-pptx reliably converts and what looks good in PowerPoint after export.
 
 ## The template
 
@@ -174,9 +176,7 @@ dom-to-pptx converts DOM → native PPTX shapes by reading `getBoundingClientRec
           <li style="font-size: 30px; color: #333333; line-height: 1.5; margin-bottom: 24px;">
             Third point supporting the argument.
           </li>
-          <li style="font-size: 30px; color: #333333; line-height: 1.5;">
-            Closing thought or takeaway.
-          </li>
+          <li style="font-size: 30px; color: #333333; line-height: 1.5;">Closing thought or takeaway.</li>
         </ul>
       </div>
 
@@ -191,14 +191,11 @@ dom-to-pptx converts DOM → native PPTX shapes by reading `getBoundingClientRec
       >
         <!-- Left column -->
         <div style="position: absolute; left: 120px; top: 160px; width: 720px;">
-          <h2
-            style="margin: 0; font-size: 52px; font-weight: 700; color: #1a1a1a; line-height: 1.1;"
-          >
+          <h2 style="margin: 0; font-size: 52px; font-weight: 700; color: #1a1a1a; line-height: 1.1;">
             Why this matters
           </h2>
           <p style="margin: 32px 0 0 0; font-size: 26px; line-height: 1.6; color: #555555;">
-            A short paragraph explaining the idea. Keep it tight — one clear thought, two or three
-            sentences maximum.
+            A short paragraph explaining the idea. Keep it tight — one clear thought, two or three sentences maximum.
           </p>
         </div>
         <!-- Right column: image -->
@@ -270,6 +267,7 @@ dom-to-pptx converts DOM → native PPTX shapes by reading `getBoundingClientRec
     </script>
   </body>
 </html>
+```
 
 ## Using the template
 
@@ -282,14 +280,15 @@ dom-to-pptx converts DOM → native PPTX shapes by reading `getBoundingClientRec
 
 ## What NOT to add to this template
 
-| Don't                                                                 | Why                                                                                                                                                                                                  |
-| --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Tailwind / Bootstrap CDN                                              | Classes are fine (computed styles are read), but it encourages utilities that translate poorly (`backdrop-blur`). If you want Tailwind, keep it to layout/color utilities. For motion, use whitelisted transition/animation classes. |
-| `<style>` blocks for slide content                                    | dom-to-pptx reads computed styles so it _works_, but inline styles are the safest round-trip and make debugging layouts trivial.                                                                     |
-| `transform: translate(-50%, -50%)` centering tricks                   | `transform: translate` isn't respected by the converter. Use `left:` + `width:` math, or `display: flex; justify-content: center; align-items: center;` on the parent.                               |
-| `vh`, `vw`, `rem`, `em`, `clamp()` on slide content                   | Fixed `px` is the only unit that round-trips predictably.                                                                                                                                            |
-| Lazy-loaded images (`loading="lazy"`)                                 | The DOM is measured synchronously — a lazy image may not have loaded when export fires.                                                                                                              |
-| Fonts loaded via `@font-face` pointing at relative `url(./fonts/...)` | Relative font paths won't embed. Use a CORS-serving CDN or Google Fonts.                                                                                                                             |
+<!-- prettier-ignore -->
+| Don't | Why |
+| --- | --- |
+| Tailwind / Bootstrap CDN | Classes are fine (computed styles are read), but it encourages utilities that translate poorly (`backdrop-blur`). If you want Tailwind, keep it to layout/color utilities. For motion, use whitelisted transition/animation classes. |
+| `<style>` blocks for slide content | dom-to-pptx reads computed styles so it _works_, but inline styles are the safest round-trip and make debugging layouts trivial. |
+| `transform: translate(-50%, -50%)` centering tricks | `transform: translate` isn't respected by the converter. Use `left:` + `width:` math, or `display: flex; justify-content: center; align-items: center;` on the parent. |
+| `vh`, `vw`, `rem`, `em`, `clamp()` on slide content | Fixed `px` is the only unit that round-trips predictably. |
+| Lazy-loaded images (`loading="lazy"`) | The DOM is measured synchronously — a lazy image may not have loaded when export fires. |
+| Fonts loaded via `@font-face` pointing at relative `url(./fonts/...)` | Relative font paths won't embed. Use a CORS-serving CDN or Google Fonts. |
 
 ## See also
 
