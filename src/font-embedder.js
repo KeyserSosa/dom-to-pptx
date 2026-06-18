@@ -36,9 +36,14 @@ export class PPTXEmbedFonts {
     }
   }
 
-  async addFont(fontFace, fontBuffer, type) {
+  async addFont(fontFace, source, typeOrWasmUrl, wasmUrl) {
     // Convert to EOT/fntdata for PPTX compatibility
-    const eotData = await fontToEot(type, fontBuffer);
+    let eotData;
+    if (Array.isArray(source)) {
+      eotData = await fontToEot(source, typeOrWasmUrl);
+    } else {
+      eotData = await fontToEot(typeOrWasmUrl, source, wasmUrl);
+    }
     const rid = this.rId++;
     this.fonts.push({ name: fontFace, data: eotData, rid });
   }

@@ -146,7 +146,25 @@ export async function exportToPptx(target, options = {}) {
 
   // 3. Font Embedding Logic
   let finalBlob;
-  let fontsToEmbed = options.fonts || [];
+  let rawFonts = options.fonts || [];
+  let fontsToEmbed = [];
+
+  // Group by name
+  const uniqueFonts = new Map();
+
+  for (const f of rawFonts) {
+    if (!uniqueFonts.has(f.name)) {
+      uniqueFonts.set(f.name, new Set());
+    }
+    if (f.url) {
+      uniqueFonts.get(f.name).add(f.url);
+    }
+    if (f.urls) {
+      for (const url of f.urls) {
+        uniqueFonts.get(f.name).add(url);
+      }
+    }
+  }
 
   if (options.autoEmbedFonts) {
     // A. Scan DOM for used font families
@@ -155,12 +173,12 @@ export async function exportToPptx(target, options = {}) {
     // B. Scan CSS for URLs matches
     const detectedFonts = await getAutoDetectedFonts(usedFamilies);
 
-    // C. Merge (Avoid duplicates)
-    const explicitNames = new Set(fontsToEmbed.map((f) => f.name));
+    // C. Merge (collect all URLs for each font name)
     for (const autoFont of detectedFonts) {
-      if (!explicitNames.has(autoFont.name)) {
-        fontsToEmbed.push(autoFont);
+      if (!uniqueFonts.has(autoFont.name)) {
+        uniqueFonts.set(autoFont.name, new Set());
       }
+      uniqueFonts.get(autoFont.name).add(autoFont.url);
     }
 
     if (detectedFonts.length > 0) {
@@ -169,6 +187,18 @@ export async function exportToPptx(target, options = {}) {
         detectedFonts.map((f) => f.name)
       );
     }
+  }
+
+  fontsToEmbed = Array.from(uniqueFonts.entries()).map(([name, urlSet]) => ({
+    name,
+    urls: Array.from(urlSet),
+  }));
+
+  if (fontsToEmbed.length > 0) {
+    console.log(
+      'Fonts to embed after deduplication and subset gathering:',
+      fontsToEmbed.map((f) => `${f.name} (${f.urls.length} subsets)`)
+    );
   }
 
   if (fontsToEmbed.length > 0) {
@@ -180,23 +210,36 @@ export async function exportToPptx(target, options = {}) {
     const embedder = new PPTXEmbedFonts();
     await embedder.loadZip(zip);
 
-    // Fetch and Embed
-    for (const fontCfg of fontsToEmbed) {
-      try {
-        const response = await fetch(fontCfg.url);
-        if (!response.ok) throw new Error(`Failed to fetch ${fontCfg.url}`);
-        const buffer = await response.arrayBuffer();
+    // Fetch and Embed Concurrently
+    await Promise.all(
+      fontsToEmbed.map(async (fontCfg) => {
+        try {
+          if (fontCfg.urls.length === 0) {
+            throw new Error(`No URLs found for font family ${fontCfg.name}`);
+          }
 
-        // Infer type
-        const ext = fontCfg.url.split('.').pop().split(/[?#]/)[0].toLowerCase();
-        let type = 'ttf';
-        if (['woff', 'otf'].includes(ext)) type = ext;
+          // Fetch all subsets in parallel
+          const subsets = await Promise.all(
+            fontCfg.urls.map(async (url) => {
+              const response = await fetch(url);
+              if (!response.ok) throw new Error(`Failed to fetch ${url}`);
+              const buffer = await response.arrayBuffer();
 
-        await embedder.addFont(fontCfg.name, buffer, type);
-      } catch (e) {
-        console.warn(`Failed to embed font: ${fontCfg.name} (${fontCfg.url})`, e);
-      }
-    }
+              // Infer type
+              const ext = url.split('.').pop().split(/[?#]/)[0].toLowerCase();
+              let type = 'ttf';
+              if (['woff', 'woff2', 'otf'].includes(ext)) type = ext;
+
+              return { buffer, type };
+            })
+          );
+
+          await embedder.addFont(fontCfg.name, subsets, options.woff2WasmUrl);
+        } catch (e) {
+          console.warn(`Failed to embed font family: ${fontCfg.name}`, e);
+        }
+      })
+    );
 
     await embedder.updateFiles();
     if (options.skipNormalize !== true) {
