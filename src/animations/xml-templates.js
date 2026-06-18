@@ -827,6 +827,8 @@ export function buildTimingXml(animations, domToSpIdMap, textBoxSpIds) {
             if (buildType === 'p') {
               return `<p:bldP spid="${s}" grpId="0" build="p" animBg="1"/>`;
             }
+            // animBg="1" is required for all animated textboxes in bldLst —
+            // this matches how PowerPoint's own export always formats bldP entries.
             return `<p:bldP spid="${s}" grpId="0" animBg="1"/>`;
           })
           .join('')}</p:bldLst>`

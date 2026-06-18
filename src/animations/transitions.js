@@ -241,6 +241,23 @@ export function extractTransitionFromElement(el) {
   return transitionName ? { name: transitionName, ...options } : null;
 }
 
+function getAttributeDefault(attrName, tag) {
+  if (attrName === 'dir') {
+    if (tag === 'p:split') return 'out';
+    if (tag === 'p:strips') return 'ld';
+    if (['p:zoom', 'p14:warp', 'p14:flythrough'].includes(tag)) return 'in';
+    if (['p:blinds', 'p:checker', 'p:comb', 'p:randomBar', 'p14:doors', 'p14:window'].includes(tag)) return 'horz';
+    return 'l';
+  }
+  if (attrName === 'orient') return 'horz';
+  if (attrName === 'pattern') {
+    if (tag === 'p14:shred') return 'strip';
+    return 'hexagon';
+  }
+  if (attrName === 'spokes') return '4';
+  return null;
+}
+
 /**
  * Generates the <p:transition> XML string for a given transition data object.
  */
@@ -255,10 +272,15 @@ export function getTransitionXml(transitionData) {
 
   // Build inner element attributes
   const innerAttrs = { ...bakedAttrs };
-  if (dynamic.includes('dir') && dir) innerAttrs.dir = dir;
-  if (dynamic.includes('orient') && orient) innerAttrs.orient = orient;
-  if (dynamic.includes('pattern') && pattern) innerAttrs.pattern = pattern;
-  if (dynamic.includes('spokes') && spokes) innerAttrs.spokes = spokes;
+  
+  for (const attrName of dynamic) {
+    const val = transitionData[attrName] !== undefined && transitionData[attrName] !== null
+      ? transitionData[attrName]
+      : getAttributeDefault(attrName, tag);
+    if (val !== null && val !== undefined) {
+      innerAttrs[attrName] = val;
+    }
+  }
 
   // Serialize inner attributes as XML
   const innerAttrStr = Object.entries(innerAttrs)

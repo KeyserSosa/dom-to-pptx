@@ -997,6 +997,20 @@ function prepareRenderItem(node, config, domOrder, pptx, effectiveZIndex, comput
     const listItems = [];
     const liChildren = Array.from(node.children).filter((c) => c.tagName === 'LI');
 
+    // --- Extract UL/OL container CSS for proper rendering ---
+    const ulPaddingTop = parseFloat(style.paddingTop) || 0;
+    const ulPaddingRight = parseFloat(style.paddingRight) || 0;
+    const ulPaddingBottom = parseFloat(style.paddingBottom) || 0;
+    const ulPaddingLeft = parseFloat(style.paddingLeft) || 0;
+
+    // Convert to inches for PPTX margin array: [top, right, bottom, left]
+    const listMargin = [
+      ulPaddingTop * PX_TO_INCH * config.scale * 72,
+      ulPaddingRight * PX_TO_INCH * config.scale * 72,
+      ulPaddingBottom * PX_TO_INCH * config.scale * 72,
+      ulPaddingLeft * PX_TO_INCH * config.scale * 72,
+    ];
+
     liChildren.forEach((child, index) => {
       const liStyle = window.getComputedStyle(child);
       const liRect = child.getBoundingClientRect();
@@ -1049,12 +1063,18 @@ function prepareRenderItem(node, config, domOrder, pptx, effectiveZIndex, comput
         }
       }
 
-      // 2. Calculate Dynamic Indent (Respects padding-left)
+      // 2. Calculate Bullet Indent
+      // visualIndentPx = total horizontal offset from UL left edge to where the LI text starts.
+      // ulPaddingLeft = UL's own left padding; it's already accounted for by the text box margin.
+      // bullet.indent = gap between bullet glyph and text content, in points.
+      // This equals the distance the LI content is shifted past the UL padding boundary.
       const visualIndentPx = liRect.left - parentRect.left;
-      const computedIndentPt = visualIndentPx * 0.75 * config.scale;
+      // Bullet indent = visual indent minus the UL's own padding-left (which is in margin),
+      // clamped to 0. Convert px -> pt.
+      const bulletIndentPt = Math.max(0, (visualIndentPx - ulPaddingLeft) * 0.75 * config.scale);
 
-      if (bullet && computedIndentPt > 0) {
-        bullet.indent = computedIndentPt;
+      if (bullet && bulletIndentPt > 0) {
+        bullet.indent = bulletIndentPt;
       }
 
       // 3. Extract Text Parts
@@ -1116,15 +1136,49 @@ function prepareRenderItem(node, config, domOrder, pptx, effectiveZIndex, comput
     });
 
     if (listItems.length > 0) {
-      // Add background if exists
+      // Build background/border/shadow shape for the list container
       const bgColorObj = parseColor(style.backgroundColor);
-      if (bgColorObj.hex && bgColorObj.opacity > 0) {
+      const hasBg = bgColorObj.hex && bgColorObj.opacity > 0;
+      const borderColorObj = parseColor(style.borderColor);
+      const borderWidth = parseFloat(style.borderWidth);
+      const hasBorder = borderWidth > 0 && borderColorObj.hex;
+      const shadowStr = style.boxShadow;
+      const hasShadow = shadowStr && shadowStr !== 'none';
+
+      // Resolve border-radius for the list container
+      const listBorderRadius = parseFloat(style.borderRadius) || 0;
+      const listMinDim = Math.min(widthPx, heightPx);
+      const listIsPercent = style.borderRadius && style.borderRadius.toString().includes('%');
+      let listRadiusPx = listBorderRadius;
+      if (listIsPercent) listRadiusPx = (listBorderRadius / 100) * listMinDim;
+
+      if (hasBg || hasBorder || hasShadow) {
+        let listShapeType = pptx.ShapeType.rect;
+        const listShapeOpts = {
+          x, y, w, h,
+          ...(hasBg && { fill: { color: bgColorObj.hex, transparency: (1 - bgColorObj.opacity) * 100 } }),
+          ...(hasBorder && { line: { color: borderColorObj.hex, width: borderWidth * 0.75 * config.scale } }),
+        };
+
+        if (hasShadow) listShapeOpts.shadow = getVisibleShadow(shadowStr, config.scale);
+
+        if (listRadiusPx > 0) {
+          const isFullRound = listRadiusPx >= listMinDim / 2;
+          const isSquare = Math.abs(widthPx - heightPx) < 1;
+          if (isFullRound && (listIsPercent || isSquare)) {
+            listShapeType = pptx.ShapeType.ellipse;
+          } else {
+            listShapeType = pptx.ShapeType.roundRect;
+            listShapeOpts.rectRadius = Math.min(listRadiusPx, listMinDim / 2) * PX_TO_INCH * config.scale;
+          }
+        }
+
         items.push({
           type: 'shape',
           zIndex: parentSortKey.concat([-Infinity]),
           domOrder,
-          shapeType: 'rect',
-          options: { x, y, w, h, fill: { color: bgColorObj.hex } },
+          shapeType: listShapeType,
+          options: listShapeOpts,
         });
       }
 
@@ -1140,7 +1194,8 @@ function prepareRenderItem(node, config, domOrder, pptx, effectiveZIndex, comput
           h,
           align: 'left',
           valign: 'top',
-          margin: 0,
+          // Apply CSS padding as PPTX text box inset margin [top, right, bottom, left] in points
+          margin: listMargin,
           autoFit: true,
           wrap: !(style.whiteSpace === 'nowrap' || style.whiteSpace === 'pre'),
           vert: writingModeVert,

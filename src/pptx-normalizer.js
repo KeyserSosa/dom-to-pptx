@@ -197,6 +197,20 @@ function cleanParagraphProperties(doc) {
         }
       }
 
+      // Ensure mutual exclusivity of bullet elements (buNone, buChar, buAutoNum, buBlip)
+      const hasActiveBullet = Array.from(targetPPr.childNodes).some(
+        (node) => node.nodeType === 1 && ['buChar', 'buAutoNum', 'buBlip'].includes(node.localName)
+      );
+      if (hasActiveBullet) {
+        const buNones = Array.from(targetPPr.childNodes).filter(
+          (node) => node.nodeType === 1 && node.localName === 'buNone'
+        );
+        for (const buNone of buNones) {
+          targetPPr.removeChild(buNone);
+          mutated = true;
+        }
+      }
+
       // Sort children of targetPPr
       const finalChildren = Array.from(targetPPr.childNodes).filter((node) => node.nodeType === 1);
       const sortedChildren = [...finalChildren].sort((a, b) => {
@@ -513,19 +527,55 @@ function applySlideTransitions(doc, slideIndex, options) {
 
   const importedNode = doc.importNode(transitionNode, true);
 
-  // Add required namespaces if they aren't on the root
-  if (transitionXml.includes('p14:')) {
-    if (!sldNode.getAttribute('xmlns:p14')) {
-      sldNode.setAttribute('xmlns:p14', 'http://schemas.microsoft.com/office/powerpoint/2010/main');
+  const isP14 = transitionXml.includes('p14:');
+  const isP15 = transitionXml.includes('p15:');
+  let finalNode;
+
+  if (isP14 || isP15) {
+    const prefix = isP15 ? 'p15' : 'p14';
+    const nsPrefixUri = prefix === 'p14' ? 'http://schemas.microsoft.com/office/powerpoint/2010/main' : 'http://schemas.microsoft.com/office/powerpoint/2012/main';
+    const spd = transitionNode.getAttribute('spd') || transitionData.spd || 'med';
+
+    const altXml = `
+      <mc:AlternateContent xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main">
+        <mc:Choice xmlns:${prefix}="${nsPrefixUri}" Requires="${prefix}">
+          ${transitionXml}
+        </mc:Choice>
+        <mc:Fallback>
+          <p:transition xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main" spd="${spd}">
+            <p:fade/>
+          </p:transition>
+        </mc:Fallback>
+      </mc:AlternateContent>
+    `.trim();
+
+    const altDoc = new DOMParser().parseFromString(altXml, 'text/xml');
+    const altParserError = altDoc.getElementsByTagName('parsererror')[0];
+    if (altParserError) {
+      console.warn('[pptx-normalizer] AlternateContent XML parsing failed:', altParserError.textContent);
+      return false;
     }
-  }
-  if (transitionXml.includes('p15:')) {
-    if (!sldNode.getAttribute('xmlns:p15')) {
-      sldNode.setAttribute('xmlns:p15', 'http://schemas.microsoft.com/office/powerpoint/2012/main');
+
+    finalNode = doc.importNode(altDoc.documentElement, true);
+
+    // Add required namespaces to slide root if they aren't on the root
+    if (!sldNode.getAttribute('xmlns:mc')) {
+      sldNode.setAttribute('xmlns:mc', 'http://schemas.openxmlformats.org/markup-compatibility/2006');
     }
+    if (!sldNode.getAttribute(`xmlns:${prefix}`)) {
+      sldNode.setAttribute(`xmlns:${prefix}`, nsPrefixUri);
+    }
+    const currentIgnorable = sldNode.getAttribute('mc:Ignorable') || '';
+    const existingIgnorables = currentIgnorable.split(/\s+/).filter(Boolean);
+    if (!existingIgnorables.includes(prefix)) {
+      existingIgnorables.push(prefix);
+      sldNode.setAttribute('mc:Ignorable', existingIgnorables.join(' '));
+    }
+  } else {
+    finalNode = importedNode;
   }
 
-  // The <p:transition> node must be inserted in the correct OOXML schema order:
+  // The transition node (or mc:AlternateContent) must be inserted in the correct OOXML schema order:
   // p:cSld, p:clrMapOvr, p:transition, p:timing, p:extLst
   // So we insert it before p:timing, p:hf, or p:extLst. If none exist, we append it.
   const insertBeforeTags = ['p:timing', 'p:hf', 'p:extLst'];
@@ -539,9 +589,9 @@ function applySlideTransitions(doc, slideIndex, options) {
   }
 
   if (insertRef) {
-    sldNode.insertBefore(importedNode, insertRef);
+    sldNode.insertBefore(finalNode, insertRef);
   } else {
-    sldNode.appendChild(importedNode);
+    sldNode.appendChild(finalNode);
   }
 
   return true;
