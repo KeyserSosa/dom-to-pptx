@@ -2,6 +2,11 @@
 
 **The High-Fidelity HTML to PowerPoint Converter (v1.1.10)**
 
+[![npm version](https://img.shields.io/npm/v/dom-to-pptx.svg?style=flat-square)](https://www.npmjs.com/package/dom-to-pptx)
+[![npm downloads](https://img.shields.io/npm/dm/dom-to-pptx.svg?style=flat-square)](https://www.npmjs.com/package/dom-to-pptx)
+[![](https://data.jsdelivr.com/v1/package/npm/dom-to-pptx/badge?style=rounded)](https://www.jsdelivr.com/package/npm/dom-to-pptx)
+[![license](https://img.shields.io/npm/l/dom-to-pptx.svg?style=flat-square)](https://github.com/atharva9167j/dom-to-pptx/blob/master/LICENSE)
+
 > [!TIP]
 > **Quick Start for AI Agents (Claude Code, Gemini, Windsurf):**
 > Run `npx dom-to-pptx-skills` to automatically install professional PPT creation skills into your agent's toolkit.
@@ -359,6 +364,12 @@ listConfig: {
 2.  **Layout System:** The library does not "read" Flexbox or Grid definitions directly. It measures the final `x, y, width, height` of every element relative to the slide root and places them absolutely. This ensures 100% visual accuracy regardless of the CSS layout method used.
 
 3.  **CORS Images:** External images (`<img>` tags) must also be served with `Access-Control-Allow-Origin: *` headers to be processed by the rounding/masking engine.
+
+## Contributors
+
+A huge thank you to everyone who has helped improve `dom-to-pptx`!
+
+Please see [CONTRIBUTORS.md](file:///i:/Contributions/dom-to-pptx/CONTRIBUTORS.md) for the full list of our amazing contributors.
 
 ## License
 

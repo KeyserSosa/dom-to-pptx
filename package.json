@@ -22,6 +22,7 @@
     "bin",
     "skills",
     "Readme.md",
+    "CONTRIBUTORS.md",
     "CHANGELOG.md",
     "LICENSE"
   ],
@@ -72,7 +73,52 @@
     "dom-to-pptx-skills",
     "powerpoint-skills"
   ],
-  "author": "Atharva Dharmendra Jagtap <atharvaj321@gmail.com>",
+  "author": {
+    "name": "Atharva Dharmendra Jagtap",
+    "url": "https://github.com/atharva9167j"
+  },
+  "contributors": [
+    {
+      "name": "Adriano Meligrana",
+      "url": "https://github.com/ameligrana"
+    },
+    {
+      "name": "Andrea Giannangelo",
+      "url": "https://github.com/Facens"
+    },
+    {
+      "name": "Claude",
+      "url": "https://github.com/claude"
+    },
+    {
+      "name": "Constantin Budin",
+      "url": "https://github.com/mymro"
+    },
+    {
+      "name": "cwjcharles",
+      "url": "https://github.com/cwjcharles"
+    },
+    {
+      "name": "Dave Ingram",
+      "url": "https://github.com/dingram"
+    },
+    {
+      "name": "Kaka-cheaper",
+      "url": "https://github.com/Kaka-cheaper"
+    },
+    {
+      "name": "rain2bow",
+      "url": "https://github.com/rain2bow"
+    },
+    {
+      "name": "Sergey Subbotin",
+      "url": "https://github.com/ssubbotin"
+    },
+    {
+      "name": "Sian George",
+      "url": "https://github.com/SGcpu"
+    }
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/atharva9167j/dom-to-pptx/issues"
