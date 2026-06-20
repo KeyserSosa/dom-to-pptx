@@ -345,8 +345,6 @@ background: linear-gradient(180deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 
 
 ---
 
-## Export Integration
-
 ### Complete Export Snippet
 
 ```html
@@ -365,23 +363,6 @@ background: linear-gradient(180deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 
         padding: 0;
         background: #333;
       }
-      .export-btn {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 16px 32px;
-        background: #4361ee;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 16px;
-        z-index: 10000;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      }
-      .export-btn:hover {
-        background: #3451d1;
-      }
       .slide {
         display: block;
       }
@@ -389,34 +370,32 @@ background: linear-gradient(180deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 
   </head>
   <body>
     <!-- Slides go here -->
+    <div class="slide" id="slide-1" style="width: 1920px; height: 1080px; position: relative; background: #ffffff;">
+      <h1 style="position: absolute; left: 100px; top: 100px; font-size: 54px; margin: 0;">Slide 1</h1>
+    </div>
 
-    <button class="export-btn" onclick="exportPptx()">Export PPTX</button>
-
+    <!-- Preview/animation script (Optional: for browser previewing only) -->
     <script src="https://cdn.jsdelivr.net/npm/dom-to-pptx@latest/dist/dom-to-pptx.bundle.js"></script>
     <script>
-      async function exportPptx() {
-        const btn = document.querySelector('.export-btn');
-        btn.textContent = 'Exporting...';
-        btn.disabled = true;
-        try {
-          const slides = document.querySelectorAll('.slide');
-          await domToPptx.exportToPptx(Array.from(slides), {
-            fileName: 'presentation.pptx',
-          });
-          btn.textContent = 'Downloaded!';
-        } catch (err) {
-          console.error(err);
-          btn.textContent = 'Error - Check Console';
-        }
-        setTimeout(() => {
-          btn.textContent = 'Export PPTX';
-          btn.disabled = false;
-        }, 3000);
+      if (window.domToPptx && window.domToPptx.applyBrowserAnimations) {
+        window.domToPptx.applyBrowserAnimations(document.body);
       }
     </script>
   </body>
 </html>
 ```
+
+### Headless Compilation Instructions
+To convert this presentation to a PowerPoint file, run the exporter utility on the command line:
+
+```bash
+# Compile all elements with the class '.slide' (default)
+npx dom-to-pptx-export presentation.html -o presentation.pptx
+
+# Compile a specific slide only
+npx dom-to-pptx-export presentation.html -s "#slide-1" -o slide1-only.pptx
+```
+
 
 ### Slide with Transitions & Animations
 

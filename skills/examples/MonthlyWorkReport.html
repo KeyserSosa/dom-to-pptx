@@ -992,33 +992,12 @@
       </div>
     </div>
 
-    <button class="export-btn" id="exportBtn">Export PPTX</button>
-
+    <!-- Preview/animation script (Optional: for browser previewing only) -->
     <script src="https://cdn.jsdelivr.net/npm/dom-to-pptx@latest/dist/dom-to-pptx.bundle.js"></script>
     <script>
-      (function () {
-        const btn = document.getElementById('exportBtn');
-        btn.addEventListener('click', async () => {
-          btn.disabled = true;
-          btn.textContent = 'Exporting…';
-          try {
-            const slides = document.querySelectorAll('.slide');
-            await domToPptx.exportToPptx(Array.from(slides), {
-              fileName: 'MonthlyWorkReport_April2026.pptx',
-              autoEmbedFonts: true,
-            });
-            btn.textContent = 'Downloaded ✓';
-          } catch (err) {
-            console.error(err);
-            btn.textContent = 'Error — see console';
-          } finally {
-            setTimeout(() => {
-              btn.disabled = false;
-              btn.textContent = 'Export PPTX';
-            }, 2500);
-          }
-        });
-      })();
+      if (window.domToPptx && window.domToPptx.applyBrowserAnimations) {
+        window.domToPptx.applyBrowserAnimations(document.body);
+      }
     </script>
   </body>
 </html>

@@ -47,26 +47,6 @@ of CSS properties (see [STYLE_WHITELIST.md](STYLE_WHITELIST.md)). This template 
         gap: 24px;
         padding: 40px 0;
       }
-
-      /* Export button — NOT a .slide, will not be captured */
-      .export-btn {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        z-index: 9999;
-        padding: 14px 28px;
-        border: none;
-        border-radius: 8px;
-        background: #4361ee;
-        color: #fff;
-        font-size: 16px;
-        cursor: pointer;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      }
-      .export-btn:disabled {
-        opacity: 0.6;
-        cursor: wait;
-      }
     </style>
   </head>
   <body>
@@ -213,57 +193,13 @@ of CSS properties (see [STYLE_WHITELIST.md](STYLE_WHITELIST.md)). This template 
       </div>
     </div>
 
-    <!-- Export button -->
-    <button class="export-btn" id="exportBtn">Export PPTX</button>
-
+    <!-- Preview/animation script (Optional: for browser previewing only) -->
     <script src="https://cdn.jsdelivr.net/npm/dom-to-pptx@latest/dist/dom-to-pptx.bundle.js"></script>
     <script>
       // Apply browser preview properties on load
       if (window.domToPptx && window.domToPptx.applyBrowserAnimations) {
         window.domToPptx.applyBrowserAnimations(document.body);
       }
-
-      const btn = document.getElementById('exportBtn');
-
-      btn.addEventListener('click', async () => {
-        // 1. Pre-flight validation (see VALIDATION.md)
-        const issues = window.validateSlides ? window.validateSlides() : [];
-        if (issues.length) {
-          const proceed = confirm(
-            'Validator found ' +
-              issues.length +
-              ' issue(s):\n\n' +
-              issues
-                .slice(0, 10)
-                .map((i) => '• ' + i)
-                .join('\n') +
-              (issues.length > 10 ? '\n...(' + (issues.length - 10) + ' more in console)' : '') +
-              '\n\nExport anyway?'
-          );
-          console.table(issues);
-          if (!proceed) return;
-        }
-
-        // 2. Export
-        btn.disabled = true;
-        btn.textContent = 'Exporting…';
-        try {
-          const slides = document.querySelectorAll('.slide');
-          await domToPptx.exportToPptx(Array.from(slides), {
-            fileName: 'presentation.pptx',
-            autoEmbedFonts: true,
-          });
-          btn.textContent = 'Downloaded ✓';
-        } catch (err) {
-          console.error(err);
-          btn.textContent = 'Error — see console';
-        } finally {
-          setTimeout(() => {
-            btn.disabled = false;
-            btn.textContent = 'Export PPTX';
-          }, 2500);
-        }
-      });
     </script>
   </body>
 </html>
@@ -275,8 +211,16 @@ of CSS properties (see [STYLE_WHITELIST.md](STYLE_WHITELIST.md)). This template 
 2. **Duplicate** the `<!-- ┌─ SLIDE N ─┐ -->` block for each new slide.
 3. **Keep edits inline** — don't move layout styles into a `<style>` block or external CSS.
 4. **Swap the font** by changing the `<link>` href AND the `font-family` on each slide root. Always keep `crossorigin="anonymous"`.
-5. **Load the validator** (copy the snippet from [VALIDATION.md](VALIDATION.md) into a second `<script>` tag above the export script) so the pre-flight check is real, not a no-op.
-6. **Open in Chrome/Edge** — Firefox has stricter CORS behavior that sometimes breaks Unsplash images.
+5. **Compile to PowerPoint**:
+   Run the headless exporter directly from your command line:
+   ```bash
+   # Compile all slides in the deck
+   npx dom-to-pptx-export presentation.html -o presentation.pptx
+
+   # Compile a single slide only (e.g., Slide 2)
+   npx dom-to-pptx-export presentation.html -s "#slide-2" -o slide2-only.pptx
+   ```
+6. **Preview in browser**: Open `presentation.html` in Chrome/Edge. Firefox has stricter CORS behavior that sometimes breaks Unsplash images.
 
 ## What NOT to add to this template
 

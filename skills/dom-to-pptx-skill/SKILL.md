@@ -65,13 +65,23 @@ Execute the HTML. Follow these **Non-Negotiable Directives**:
 
 Before delivery, run the `window.validateSlides()` checklist from `VALIDATION.md`.
 
-### PHASE 6: Deployment & Export
+### PHASE 6: Headless Slide Export (Command-line)
 
-1. **Launch Server**: Start a local development server in the project root using `npx serve` or a similar command to host the HTML and local `images/`.
-2. **User Guidance**:
-   - Provide the local URL (e.g., `http://localhost:3000/filename.html`) to the user.
-   - Instruct the user to open this URL in their browser and click the **"Export PPTX"** button.
-   - If you are able to use the `open_browser_url` tool, do so; otherwise, explicitly tell the user to perform the manual export.
+Instead of requiring manual browser interactions or click buttons on the page, convert the generated HTML file into PowerPoint slides directly using the command-line exporter utility.
+
+1. **Determine Export Scope**:
+   - **Multi-Slide Export**: To compile all elements representing slides in the presentation deck, pass the HTML file. It will automatically match all elements matching `.slide` (or your custom selector):
+     ```bash
+     npx dom-to-pptx-export presentation.html -o presentation.pptx
+     ```
+   - **Single-Slide Export**: To compile a single slide from the presentation (useful for drafts, testing specific layouts, or incremental builds), pass the slide element selector directly:
+     ```bash
+     npx dom-to-pptx-export presentation.html -s "#slide-2" -o slide2-only.pptx
+     ```
+2. **Customize Layout Options**:
+   - You can pass custom size settings directly using CLI arguments (e.g., `--width 10 --height 5.625`) to override slide sizes.
+   - Set metadata title and author flags (e.g., `--title "Q3 Review" --author "Principal Visual Director"`).
+3. **Execution**: Run the command directly in your environment and provide the output file to the user. You do not need to instruct the user to click any buttons.
 
 </WORKFLOW>
 
@@ -144,28 +154,13 @@ Refer to [DESIGN_PHILOSOPHY.md](reference/DESIGN_PHILOSOPHY.md) for the complete
       </div>
     </div>
 
-    <!-- Export Logic (Pre-wired) -->
+    <!-- Preview/animation script (Optional: for browser previewing only) -->
     <script src="https://cdn.jsdelivr.net/npm/dom-to-pptx@latest/dist/dom-to-pptx.bundle.js"></script>
-    <button
-      id="export-btn"
-      style="position: fixed; bottom: 20px; right: 20px; z-index: 1000; padding: 12px 24px; background: #4F46E5; color: white; border-radius: 8px; font-weight: bold; cursor: pointer;"
-    >
-      Export PPTX
-    </button>
-
     <script>
       // Apply browser animation inline properties before load
       if (window.domToPptx && window.domToPptx.applyBrowserAnimations) {
         window.domToPptx.applyBrowserAnimations(document.body);
       }
-
-      document.getElementById('export-btn').onclick = async () => {
-        const slides = document.querySelectorAll('.slide');
-        await domToPptx.exportToPptx(Array.from(slides), {
-          fileName: 'Presentation.pptx',
-          autoEmbedFonts: true,
-        });
-      };
     </script>
   </body>
 </html>
