@@ -12,10 +12,17 @@
       "require": "./dist/dom-to-pptx.cjs",
       "default": "./dist/dom-to-pptx.cjs"
     },
+    "./node": {
+      "import": "./dist/dom-to-pptx-node.mjs",
+      "require": "./dist/dom-to-pptx-node.cjs",
+      "default": "./dist/dom-to-pptx-node.cjs"
+    },
     "./skills/*": "./skills/*"
   },
   "bin": {
-    "dom-to-pptx-skills": "bin/cli.js"
+    "dom-to-pptx": "bin/cli-main.js",
+    "dom-to-pptx-exporter": "bin/cli-exporter.js",
+    "dom-to-pptx-skills": "bin/cli-skills-installer.js"
   },
   "files": [
     "dist",
@@ -150,6 +157,7 @@
     "jszip": "^3.10.1",
     "opentype.js": "^2.0.0",
     "pako": "^2.1.0",
-    "pptxgenjs": "^4.0.1"
+    "pptxgenjs": "^4.0.1",
+    "puppeteer": "^25.1.0"
   }
 }

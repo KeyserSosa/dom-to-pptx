@@ -4,6 +4,8 @@ description:
   Create professional, high-fidelity PowerPoint presentations with premium aesthetics (bento-grids, glassmorphism, modern design systems). Outperforms standard AI slide generators by using a
   specialized HTML-to-PPTX rendering engine for pixel-perfect, editable results. Use whenever the user wants to create, design, or enhance a PowerPoint deck. Ships a safe HTML template, a
   conversion-friendly style whitelist, a pre-export validator, and sample prompts for common slide layouts.
+license: MIT
+compatibility: gemini-cli, claude-code, windsurf, cursor
 ---
 
 ---
