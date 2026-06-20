@@ -21,6 +21,7 @@ const ENTRANCE_NAMES = new Set([
   'fly-in-left',
   'fly-in-right',
   'fly-in-top',
+  'fly-in-bottom',
 ]);
 
 const EXIT_NAMES = new Set([
@@ -36,6 +37,10 @@ const EXIT_NAMES = new Set([
   'random-bars-out',
   'swivel-out',
   'drop-out',
+  'fly-out-left',
+  'fly-out-right',
+  'fly-out-top',
+  'fly-out-bottom',
 ]);
 
 /**
@@ -251,13 +256,37 @@ export function parseAnimation(node, style) {
 
   if (!direction) {
     const classSet = new Set(classList);
-    if (classSet.has('to-up')) {
+    if (
+      classSet.has('to-up') ||
+      classSet.has('fly-in-bottom') ||
+      classSet.has('fly-out-top') ||
+      name === 'fly-in-bottom' ||
+      name === 'fly-out-top'
+    ) {
       direction = 'up';
-    } else if (classSet.has('to-down')) {
+    } else if (
+      classSet.has('to-down') ||
+      classSet.has('fly-in-top') ||
+      classSet.has('fly-out-bottom') ||
+      name === 'fly-in-top' ||
+      name === 'fly-out-bottom'
+    ) {
       direction = 'down';
-    } else if (classSet.has('to-left')) {
+    } else if (
+      classSet.has('to-left') ||
+      classSet.has('fly-in-left') ||
+      classSet.has('fly-out-left') ||
+      name === 'fly-in-left' ||
+      name === 'fly-out-left'
+    ) {
       direction = 'left';
-    } else if (classSet.has('to-right')) {
+    } else if (
+      classSet.has('to-right') ||
+      classSet.has('fly-in-right') ||
+      classSet.has('fly-out-right') ||
+      name === 'fly-in-right' ||
+      name === 'fly-out-right'
+    ) {
       direction = 'right';
     } else {
       direction = null;

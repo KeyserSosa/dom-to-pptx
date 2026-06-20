@@ -56,7 +56,7 @@ async function multiselect(questionText, options) {
         const isSelected = opt.selected;
         const prefix = isHover ? '\x1b[36m❯\x1b[0m' : ' ';
         const checkbox = isSelected ? '\x1b[32m●\x1b[0m' : '\x1b[90m○\x1b[0m';
-        const labelColor = isSelected ? '\x1b[32m' : (isHover ? '\x1b[36m' : '\x1b[0m');
+        const labelColor = isSelected ? '\x1b[32m' : isHover ? '\x1b[36m' : '\x1b[0m';
 
         output += `  ${prefix} ${checkbox} ${labelColor}${opt.name}\x1b[0m`;
         output += '\n';
@@ -74,19 +74,24 @@ async function multiselect(questionText, options) {
     const handleInput = (data) => {
       const key = data.toString();
 
-      if (key === '\u0003') { // Ctrl+C
+      if (key === '\u0003') {
+        // Ctrl+C
         cleanup();
         process.exit(0);
-      } else if (key === '\r' || key === '\n') { // Enter
+      } else if (key === '\r' || key === '\n') {
+        // Enter
         cleanup();
         resolve(options.filter((o) => o.selected));
-      } else if (key === ' ') { // Space
+      } else if (key === ' ') {
+        // Space
         options[cursor].selected = !options[cursor].selected;
         render();
-      } else if (key === '\u001b[A' || key === 'k') { // Up arrow / vim 'k'
+      } else if (key === '\u001b[A' || key === 'k') {
+        // Up arrow / vim 'k'
         cursor = cursor > 0 ? cursor - 1 : options.length - 1;
         render();
-      } else if (key === '\u001b[B' || key === 'j') { // Down arrow / vim 'j'
+      } else if (key === '\u001b[B' || key === 'j') {
+        // Down arrow / vim 'j'
         cursor = cursor < options.length - 1 ? cursor + 1 : 0;
         render();
       }
@@ -119,14 +124,16 @@ async function confirm(questionText) {
     const handleInput = (data) => {
       const key = data.toString().toLowerCase();
 
-      if (key === '\u0003') { // Ctrl+C
+      if (key === '\u0003') {
+        // Ctrl+C
         cleanup();
         process.exit(0);
       } else if (key === 'n') {
         process.stdout.write('n');
         cleanup();
         resolve(false);
-      } else if (key === 'y' || key === '\r' || key === '\n') { // Default to Yes on Enter
+      } else if (key === 'y' || key === '\r' || key === '\n') {
+        // Default to Yes on Enter
         process.stdout.write('Y');
         cleanup();
         resolve(true);
@@ -203,7 +210,9 @@ async function main() {
   });
 
   if (detectedAgents.length === 0) {
-    console.log('\n\x1b[33m⚠️  No global AI agent directories detected on your system (e.g. Claude Code, Gemini CLI, Cursor, Windsurf).\x1b[0m');
+    console.log(
+      '\n\x1b[33m⚠️  No global AI agent directories detected on your system (e.g. Claude Code, Gemini CLI, Cursor, Windsurf).\x1b[0m'
+    );
     console.log('\x1b[36m💡  Try:\x1b[0m');
     console.log('  1. Select "Project Local" to install the skill to this project\'s workspace.');
     console.log('  2. Check if your AI agent is installed and configured in your user home folder.');
@@ -222,7 +231,9 @@ async function main() {
 
     // Confirm installation targets
     console.log('\n\x1b[1mInstalling to the following target(s):\x1b[0m');
-    targetsToInstall.forEach((t) => console.log(`  \x1b[36m❯\x1b[0m \x1b[32m${path.join(t, 'dom-to-pptx-skill')}\x1b[0m`));
+    targetsToInstall.forEach((t) =>
+      console.log(`  \x1b[36m❯\x1b[0m \x1b[32m${path.join(t, 'dom-to-pptx-skill')}\x1b[0m`)
+    );
     console.log();
 
     const proceed = await confirm('Proceed with installation?');
@@ -246,7 +257,6 @@ async function main() {
     console.log('\n\x1b[32m%s\x1b[0m', '✅ Success! dom-to-pptx "Atmospheric UI" skills installed.');
     console.log('\x1b[90mYour agent(s) are now equipped with the Premium Presentation Engineering framework.\x1b[0m');
     console.log('\x1b[33mNote: You may need to restart your AI agent to see the new skill.\x1b[0m\n');
-
   } catch (err) {
     // Failsafe cursor restore
     if (process.stdin.isTTY && typeof process.stdin.setRawMode === 'function') {
@@ -262,7 +272,9 @@ async function main() {
       console.log('  - Ensure you are running the installation script from the root of the "dom-to-pptx" package.');
       console.log('  - Verify that the "skills/dom-to-pptx-skill" directory exists in the package folder.');
     } else if (err.code === 'EACCES' || err.code === 'EPERM') {
-      console.log('  - This looks like a permission issue. Try running the command with administrator/sudo privileges.');
+      console.log(
+        '  - This looks like a permission issue. Try running the command with administrator/sudo privileges.'
+      );
       console.log('  - Check write access to your target directories.');
     } else {
       console.log('  - Verify that the target directories exist and are writable.');
@@ -275,14 +287,16 @@ async function main() {
 export { main as runSkillsInstaller };
 
 // Auto-run only when this file is executed directly (not imported)
-const isMain = process.argv[1] && (
-  process.argv[1].endsWith('cli-skills-installer.js') ||
-  process.argv[1].endsWith('cli.js') ||
-  process.argv[1].endsWith('dom-to-pptx-skills')
-);
+const isMain =
+  process.argv[1] &&
+  (process.argv[1].endsWith('cli-skills-installer.js') ||
+    process.argv[1].endsWith('cli.js') ||
+    process.argv[1].endsWith('dom-to-pptx-skills'));
 if (isMain) {
-  main().then(() => process.exit(0)).catch((err) => {
-    console.error(err);
-    process.exit(1);
-  });
+  main()
+    .then(() => process.exit(0))
+    .catch((err) => {
+      console.error(err);
+      process.exit(1);
+    });
 }

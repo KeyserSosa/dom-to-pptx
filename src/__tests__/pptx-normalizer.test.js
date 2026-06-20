@@ -424,8 +424,8 @@ describe('normalizePptxZip', () => {
 
       const options = {
         _slideTransitions: {
-          0: { name: 'push', dir: 'l' }
-        }
+          0: { name: 'push', dir: 'l' },
+        },
       };
 
       await normalizePptxZip(zip, options);
@@ -449,15 +449,17 @@ describe('normalizePptxZip', () => {
 
       const options = {
         _slideTransitions: {
-          0: { name: 'gallery', dir: 'l' }
-        }
+          0: { name: 'gallery', dir: 'l' },
+        },
       };
 
       await normalizePptxZip(zip, options);
 
       const resultXml = await zip.file('ppt/slides/slide1.xml').async('string');
       expect(resultXml).toContain('<mc:AlternateContent');
-      expect(resultXml).toContain('<mc:Choice xmlns:p14="http://schemas.microsoft.com/office/powerpoint/2010/main" Requires="p14">');
+      expect(resultXml).toContain(
+        '<mc:Choice xmlns:p14="http://schemas.microsoft.com/office/powerpoint/2010/main" Requires="p14">'
+      );
       expect(resultXml).toContain('<p14:gallery dir="l"/>');
       expect(resultXml).toContain('<mc:Fallback>');
       expect(resultXml).toContain('<p:transition spd="slow">');

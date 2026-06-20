@@ -386,6 +386,7 @@ background: linear-gradient(180deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 
 ```
 
 ### Headless Compilation Instructions
+
 To convert this presentation to a PowerPoint file, run the exporter utility on the command line:
 
 ```bash
@@ -395,7 +396,6 @@ npx dom-to-pptx-export presentation.html -o presentation.pptx
 # Compile a specific slide only
 npx dom-to-pptx-export presentation.html -s "#slide-1" -o slide1-only.pptx
 ```
-
 
 ### Slide with Transitions & Animations
 

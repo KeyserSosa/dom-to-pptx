@@ -133,11 +133,7 @@ const configNode = {
       exports: 'named',
     },
   ],
-  plugins: [
-    resolve({ preferBuiltins: true }),
-    commonjs(),
-    json(),
-  ],
+  plugins: [resolve({ preferBuiltins: true }), commonjs(), json()],
   // Externalize bare npm specifiers (e.g. 'fs', 'puppeteer', '@puppeteer/browsers').
   // Crucially we must NOT externalize the entry module 'src/node-exporter.js',
   // which Rollup passes through this function before resolving.
@@ -146,7 +142,7 @@ const configNode = {
   external: (id) => {
     if (id.startsWith('.') || id.startsWith('/') || id.startsWith('\\')) return false; // relative / absolute
     if (/^[A-Za-z]:\\/.test(id)) return false; // Windows absolute path (C:\...)
-    if (id.startsWith('@')) return true;  // scoped package: @scope/pkg
+    if (id.startsWith('@')) return true; // scoped package: @scope/pkg
     return !id.includes('/') && !id.includes('\\'); // plain package: fs, puppeteer, etc.
   },
   onwarn,

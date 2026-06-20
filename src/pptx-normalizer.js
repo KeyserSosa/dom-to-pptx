@@ -533,7 +533,10 @@ function applySlideTransitions(doc, slideIndex, options) {
 
   if (isP14 || isP15) {
     const prefix = isP15 ? 'p15' : 'p14';
-    const nsPrefixUri = prefix === 'p14' ? 'http://schemas.microsoft.com/office/powerpoint/2010/main' : 'http://schemas.microsoft.com/office/powerpoint/2012/main';
+    const nsPrefixUri =
+      prefix === 'p14'
+        ? 'http://schemas.microsoft.com/office/powerpoint/2010/main'
+        : 'http://schemas.microsoft.com/office/powerpoint/2012/main';
     const spd = transitionNode.getAttribute('spd') || transitionData.spd || 'med';
 
     const altXml = `

@@ -1155,7 +1155,10 @@ function prepareRenderItem(node, config, domOrder, pptx, effectiveZIndex, comput
       if (hasBg || hasBorder || hasShadow) {
         let listShapeType = pptx.ShapeType.rect;
         const listShapeOpts = {
-          x, y, w, h,
+          x,
+          y,
+          w,
+          h,
           ...(hasBg && { fill: { color: bgColorObj.hex, transparency: (1 - bgColorObj.opacity) * 100 } }),
           ...(hasBorder && { line: { color: borderColorObj.hex, width: borderWidth * 0.75 * config.scale } }),
         };
@@ -1767,25 +1770,217 @@ function createCompositeBorderItems(sides, x, y, w, h, scale, zIndex, domOrder) 
   return items;
 }
 
+function getBrowserAnimationName(name, direction, orientation) {
+  let animName = name.toLowerCase();
+
+  // Map compatibility aliases to base names
+  if (animName === 'rise-up' || animName === 'drop-in') animName = 'fade-in';
+  if (animName === 'drop-out') animName = 'fade-out';
+  if (animName.startsWith('swivel-in')) animName = 'fade-in';
+  if (animName.startsWith('swivel-out')) animName = 'fade-out';
+  if (animName.startsWith('fly-in-left')) {
+    animName = 'fly-in';
+    direction = 'left';
+  }
+  if (animName.startsWith('fly-in-right')) {
+    animName = 'fly-in';
+    direction = 'right';
+  }
+  if (animName.startsWith('fly-in-top')) {
+    animName = 'fly-in';
+    direction = 'down';
+  }
+  if (animName.startsWith('fly-in-bottom')) {
+    animName = 'fly-in';
+    direction = 'up';
+  }
+  if (animName.startsWith('fly-out-left')) {
+    animName = 'fly-out';
+    direction = 'left';
+  }
+  if (animName.startsWith('fly-out-right')) {
+    animName = 'fly-out';
+    direction = 'right';
+  }
+  if (animName.startsWith('fly-out-top')) {
+    animName = 'fly-out';
+    direction = 'up';
+  }
+  if (animName.startsWith('fly-out-bottom')) {
+    animName = 'fly-out';
+    direction = 'down';
+  }
+
+  if (animName.startsWith('fly-in')) {
+    const dir = direction || 'up';
+    animName = `fly-in-to-${dir}`;
+  } else if (animName.startsWith('fly-out')) {
+    const dir = direction || 'down';
+    animName = `fly-out-to-${dir}`;
+  } else if (animName.startsWith('wipe-in')) {
+    const dir = direction || 'down';
+    animName = `wipe-in-to-${dir}`;
+  } else if (animName.startsWith('wipe-out')) {
+    const dir = direction || 'down';
+    animName = `wipe-out-to-${dir}`;
+  } else if (animName.startsWith('split-in')) {
+    const orient = orientation || 'vertical';
+    animName = `split-in-${orient}`;
+  } else if (animName.startsWith('split-out')) {
+    const orient = orientation || 'vertical';
+    animName = `split-out-${orient}`;
+  } else if (animName.startsWith('random-bars-in') || animName.startsWith('randombar-in')) {
+    const orient = orientation || 'horizontal';
+    animName = `random-bars-in-${orient}`;
+  } else if (animName.startsWith('random-bars-out') || animName.startsWith('randombar-out')) {
+    const orient = orientation || 'horizontal';
+    animName = `random-bars-out-${orient}`;
+  }
+  return animName;
+}
+
+function makeParagraphBuild(el, anim, baseDelay, playState = 'running', triggerGap = 800) {
+  const children = Array.from(el.children);
+  if (children.length === 0) return [];
+
+  // Start child staggers after the parent container animation finishes
+  let currentDelay = baseDelay + anim.duration;
+  const childElements = [];
+
+  children.forEach((child, index) => {
+    child.style.animationName = getBrowserAnimationName(anim.name, anim.direction, anim.orientation);
+    child.style.animationDuration = `${anim.duration}ms`;
+    child.style.animationFillMode = 'both';
+    child.style.animationPlayState = playState;
+
+    if (index === 0) {
+      child.style.animationDelay = `${currentDelay}ms`;
+    } else {
+      currentDelay += anim.duration + triggerGap;
+      child.style.animationDelay = `${currentDelay}ms`;
+    }
+    childElements.push(child);
+  });
+
+  return childElements;
+}
+
+function makeLetterBuild(el, anim, baseDelay, playState = 'running') {
+  const spans = [];
+  const state = { charIndex: 0 };
+
+  // Start letter typing after the parent container animation finishes
+  const startDelay = baseDelay + anim.duration;
+
+  function splitTextNodeIntoSpans(textNode) {
+    const text = textNode.textContent;
+    const parent = textNode.parentNode;
+    const fragment = document.createDocumentFragment();
+
+    for (const char of text) {
+      const span = document.createElement('span');
+      if (char === ' ') {
+        span.innerHTML = '&nbsp;';
+      } else {
+        span.textContent = char;
+      }
+      span.style.display = 'inline-block';
+
+      const animName = getBrowserAnimationName(anim.name, anim.direction, anim.orientation);
+      span.style.animationName = animName;
+      span.style.animationDuration = `${anim.duration}ms`;
+      span.style.animationFillMode = 'both';
+      span.style.animationPlayState = playState;
+
+      // Stagger delay by 30ms per character
+      const letterDelay = startDelay + state.charIndex * 30;
+      span.style.animationDelay = `${letterDelay}ms`;
+
+      fragment.appendChild(span);
+      spans.push(span);
+      state.charIndex++;
+    }
+
+    parent.replaceChild(fragment, textNode);
+  }
+
+  function walkTextNodes(node) {
+    const children = Array.from(node.childNodes);
+    for (const child of children) {
+      if (child.nodeType === 3) {
+        // Text Node
+        if (child.textContent.trim().length > 0) {
+          splitTextNodeIntoSpans(child);
+        }
+      } else if (child.nodeType === 1) {
+        // Element Node
+        walkTextNodes(child);
+      }
+    }
+  }
+
+  walkTextNodes(el);
+
+  return spans;
+}
+
+function getActualEndTime(el, anim, baseDelay) {
+  if (anim.build === 'paragraph') {
+    const children = el.children ? Array.from(el.children) : [];
+    if (children.length > 0) {
+      const triggerGap = 800;
+      let currentDelay = baseDelay + anim.duration;
+      for (let i = 1; i < children.length; i++) {
+        currentDelay += anim.duration + triggerGap;
+      }
+      return currentDelay + anim.duration;
+    }
+  } else if (anim.build === 'letter') {
+    let charCount = 0;
+    function countChars(node) {
+      const children = Array.from(node.childNodes);
+      for (const child of children) {
+        if (child.nodeType === 3) {
+          if (child.textContent.trim().length > 0) {
+            charCount += child.textContent.length;
+          }
+        } else if (child.nodeType === 1) {
+          countChars(child);
+        }
+      }
+    }
+    countChars(el);
+    if (charCount > 0) {
+      const startDelay = baseDelay + anim.duration;
+      const lastCharDelay = startDelay + (charCount - 1) * 30;
+      return lastCharDelay + anim.duration;
+    }
+  }
+  return baseDelay + anim.duration;
+}
+
 /**
  * Applies browser animation inline styles by parsing animation class utilities.
  * This helper enables real-time browser previewing of custom slide animation speeds/delays.
  *
  * @param {HTMLElement} parentElement
+ * @param {Object} [options]
+ * @param {boolean} [options.enableClick=false] - If true, click-triggered builds require clicks to advance
  */
-export function applyBrowserAnimations(parentElement) {
+export function applyBrowserAnimations(parentElement, options = {}) {
   if (!parentElement) return;
-  const elements = parentElement.querySelectorAll('*');
+
+  const elements = parentElement.querySelectorAll ? parentElement.querySelectorAll('*') : [];
   const allElements = [parentElement, ...Array.from(elements)];
 
+  // 1. Apply basic utility classes for all elements (backward compatibility)
   for (const el of allElements) {
     if (el.nodeType !== 1) continue;
-
-    // Parse animation classes: e.g. animate-duration-[700]
     let duration = null;
     let delay = null;
+    const classList = el.classList ? Array.from(el.classList) : [];
 
-    for (const cls of Array.from(el.classList)) {
+    for (const cls of classList) {
       const durMatch = cls.match(/^animate-duration-\[(\d+)\]$/);
       if (durMatch) {
         duration = `${durMatch[1]}ms`;
@@ -1796,7 +1991,158 @@ export function applyBrowserAnimations(parentElement) {
       }
     }
 
-    if (duration) el.style.animationDuration = duration;
-    if (delay) el.style.animationDelay = delay;
+    if (duration && el.style) el.style.animationDuration = duration;
+    if (delay && el.style) el.style.animationDelay = delay;
+  }
+
+  // 2. Setup full timeline sequencer for elements with recognized slide animations
+  const slides = parentElement.querySelectorAll ? parentElement.querySelectorAll('.slide') : [];
+  const slidesList = slides.length > 0 ? Array.from(slides) : [parentElement];
+
+  for (const slide of slidesList) {
+    if (slide.__animationsApplied) continue;
+
+    const slideElements = slide.querySelectorAll ? slide.querySelectorAll('*') : [];
+    const allSlideElements = [slide, ...Array.from(slideElements)];
+    const animatedElements = [];
+
+    for (const el of allSlideElements) {
+      if (el.nodeType !== 1) continue;
+      let style;
+      try {
+        style = typeof window !== 'undefined' && window.getComputedStyle ? window.getComputedStyle(el) : null;
+      } catch (e) {
+        style = null;
+      }
+      if (!style) {
+        style = {
+          animationName: el.style?.animationName || 'none',
+          getPropertyValue: (prop) => el.style?.[prop] || '',
+        };
+      }
+
+      const anim = parseAnimation(el, style);
+      if (anim) {
+        animatedElements.push({ el, anim });
+      }
+    }
+
+    if (animatedElements.length === 0) continue;
+
+    slide.__animationsApplied = true;
+
+    // Group elements into sequential click-groups (steps)
+    const stepGroups = [];
+    let currentGroup = [];
+
+    animatedElements.forEach((item) => {
+      if (item.anim.start === 'click' && currentGroup.length > 0) {
+        stepGroups.push(currentGroup);
+        currentGroup = [];
+      }
+      currentGroup.push(item);
+    });
+    if (currentGroup.length > 0) {
+      stepGroups.push(currentGroup);
+    }
+
+    const enableClick = options?.enableClick === true;
+    let autoTimelineTime = 0;
+    const stepAdvanceActions = [];
+
+    stepGroups.forEach((group, groupIdx) => {
+      let groupLocalStart = 0;
+      let lastElementEndTime = 0;
+      const groupActions = [];
+
+      // Compute local delays relative to the step's start
+      group.forEach((item, itemIdx) => {
+        const { anim } = item;
+        let localDelay = 0;
+
+        if (itemIdx === 0) {
+          localDelay = anim.delay;
+          groupLocalStart = localDelay;
+          lastElementEndTime = getActualEndTime(item.el, anim, localDelay);
+        } else {
+          if (anim.start === 'with') {
+            localDelay = groupLocalStart + anim.delay;
+            const endTime = getActualEndTime(item.el, anim, localDelay);
+            if (endTime > lastElementEndTime) {
+              lastElementEndTime = endTime;
+            }
+          } else if (anim.start === 'after') {
+            localDelay = lastElementEndTime + anim.delay;
+            groupLocalStart = localDelay;
+            lastElementEndTime = getActualEndTime(item.el, anim, localDelay);
+          }
+        }
+        item.computedLocalDelay = localDelay;
+      });
+
+      // Apply animation styles and builds
+      const isPausedStep = enableClick && groupIdx > 0;
+      const playState = isPausedStep ? 'paused' : 'running';
+
+      group.forEach((item) => {
+        const { el, anim, computedLocalDelay } = item;
+
+        let finalDelay = computedLocalDelay;
+        if (!enableClick && groupIdx > 0) {
+          finalDelay += autoTimelineTime;
+        }
+
+        const resolvedAnimName = getBrowserAnimationName(anim.name, anim.direction, anim.orientation);
+        if (el.style) {
+          el.style.animationName = resolvedAnimName;
+          el.style.animationDuration = `${anim.duration}ms`;
+          el.style.animationDelay = `${finalDelay}ms`;
+          el.style.animationFillMode = 'both';
+          el.style.animationPlayState = playState;
+        }
+
+        let buildChildren = [];
+        if (anim.build === 'paragraph') {
+          buildChildren = makeParagraphBuild(el, anim, finalDelay, playState);
+        } else if (anim.build === 'letter') {
+          buildChildren = makeLetterBuild(el, anim, finalDelay, playState);
+        }
+
+        groupActions.push({ el, buildChildren });
+      });
+
+      stepAdvanceActions.push(groupActions);
+
+      if (!enableClick) {
+        // Advance automatic timeline by the maximum duration of this group plus a default gap
+        let groupMaxEnd = 0;
+        group.forEach((item) => {
+          const end = getActualEndTime(item.el, item.anim, item.computedLocalDelay);
+          if (end > groupMaxEnd) groupMaxEnd = end;
+        });
+        autoTimelineTime += groupMaxEnd + 800; // 800ms step delay
+      }
+    });
+
+    // Bind click listener for click-to-play sequencing
+    if (enableClick && stepAdvanceActions.length > 1 && slide.addEventListener) {
+      let currentStep = 0;
+      slide.addEventListener('click', (e) => {
+        if (e.target && e.target.closest && (e.target.closest('a') || e.target.closest('button'))) return;
+
+        if (currentStep < stepAdvanceActions.length - 1) {
+          currentStep++;
+          const actions = stepAdvanceActions[currentStep];
+          actions.forEach(({ el, buildChildren }) => {
+            if (el.style) el.style.animationPlayState = 'running';
+            if (buildChildren) {
+              buildChildren.forEach((child) => {
+                if (child.style) child.style.animationPlayState = 'running';
+              });
+            }
+          });
+        }
+      });
+    }
   }
 }

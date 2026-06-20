@@ -509,4 +509,344 @@ describe('applyBrowserAnimations', () => {
     expect(child.style.animationDuration).toBe('750ms');
     expect(child.style.animationDelay).toBe('250ms');
   });
+
+  it('staggers sequences with auto-advance when enableClick is false', () => {
+    const child1 = {
+      nodeType: 1,
+      className: 'fade-in animate-duration-[500]',
+      classList: ['fade-in', 'animate-duration-[500]'],
+      style: {},
+    };
+    const child2 = {
+      nodeType: 1,
+      className: 'fade-in animate-duration-[500] animate-trigger-after',
+      classList: ['fade-in', 'animate-duration-[500]', 'animate-trigger-after'],
+      style: {},
+    };
+
+    const slide = {
+      nodeType: 1,
+      classList: ['slide'],
+      style: {},
+      querySelectorAll: () => [child1, child2],
+    };
+
+    const parent = {
+      nodeType: 1,
+      classList: [],
+      style: {},
+      querySelectorAll: () => [slide],
+    };
+
+    applyBrowserAnimations(parent, { enableClick: false });
+
+    expect(child1.style.animationName).toBe('fade-in');
+    expect(child1.style.animationDelay).toBe('0ms');
+    expect(child1.style.animationPlayState).toBe('running');
+
+    expect(child2.style.animationDelay).toBe('500ms');
+  });
+
+  it('pauses and handles slide clicks when enableClick is true', () => {
+    const child1 = {
+      nodeType: 1,
+      className: 'fade-in animate-duration-[500]',
+      classList: ['fade-in', 'animate-duration-[500]'],
+      style: {},
+    };
+    const child2 = {
+      nodeType: 1,
+      className: 'fade-in animate-duration-[500] animate-trigger-on-click',
+      classList: ['fade-in', 'animate-duration-[500]', 'animate-trigger-on-click'],
+      style: {},
+    };
+
+    const clickListeners = [];
+    const slide = {
+      nodeType: 1,
+      classList: ['slide'],
+      style: {},
+      querySelectorAll: () => [child1, child2],
+      addEventListener: (evt, cb) => {
+        if (evt === 'click') clickListeners.push(cb);
+      },
+    };
+
+    const parent = {
+      nodeType: 1,
+      classList: [],
+      style: {},
+      querySelectorAll: () => [slide],
+    };
+
+    applyBrowserAnimations(parent, { enableClick: true });
+
+    expect(child1.style.animationPlayState).toBe('running');
+    expect(child2.style.animationPlayState).toBe('paused');
+
+    expect(clickListeners.length).toBe(1);
+    clickListeners[0]({ target: slide });
+
+    expect(child2.style.animationPlayState).toBe('running');
+  });
+
+  it('creates paragraph build staggering on child elements', () => {
+    const grandchild1 = { nodeType: 1, style: {} };
+    const grandchild2 = { nodeType: 1, style: {} };
+
+    const child = {
+      nodeType: 1,
+      className: 'fade-in paragraph animate-duration-[500]',
+      classList: ['fade-in', 'paragraph', 'animate-duration-[500]'],
+      style: {},
+      children: [grandchild1, grandchild2],
+    };
+
+    const slide = {
+      nodeType: 1,
+      classList: ['slide'],
+      style: {},
+      querySelectorAll: () => [child],
+    };
+
+    const parent = {
+      nodeType: 1,
+      classList: [],
+      style: {},
+      querySelectorAll: () => [slide],
+    };
+
+    applyBrowserAnimations(parent);
+
+    expect(child.style.animationName).toBe('fade-in');
+
+    expect(grandchild1.style.animationName).toBe('fade-in');
+    expect(grandchild1.style.animationDelay).toBe('500ms');
+
+    expect(grandchild2.style.animationDelay).toBe('1800ms');
+  });
+
+  it('resolves browser animation names for direction/orientation variants', () => {
+    const child1 = {
+      nodeType: 1,
+      className: 'fly-in to-left',
+      classList: ['fly-in', 'to-left'],
+      style: {},
+    };
+    const child2 = {
+      nodeType: 1,
+      className: 'split-out horizontal',
+      classList: ['split-out', 'horizontal'],
+      style: {},
+    };
+
+    const slide = {
+      nodeType: 1,
+      classList: ['slide'],
+      style: {},
+      querySelectorAll: () => [child1, child2],
+    };
+
+    const parent = {
+      nodeType: 1,
+      classList: [],
+      style: {},
+      querySelectorAll: () => [slide],
+    };
+
+    applyBrowserAnimations(parent);
+
+    expect(child1.style.animationName).toBe('fly-in-to-left');
+    expect(child2.style.animationName).toBe('split-out-horizontal');
+  });
+
+  it('creates letter build splitting and staggering on text content', () => {
+    const textNode = {
+      nodeType: 3,
+      textContent: 'AB',
+      parentNode: null,
+    };
+    const child = {
+      nodeType: 1,
+      className: 'fade-in letter animate-duration-[500]',
+      classList: ['fade-in', 'letter', 'animate-duration-[500]'],
+      style: {},
+      childNodes: [textNode],
+      children: [],
+      replaceChild: (newFragment, oldNode) => {
+        child.replacedNodes = Array.from(newFragment.childNodes);
+      },
+    };
+    textNode.parentNode = child;
+
+    const slide = {
+      nodeType: 1,
+      classList: ['slide'],
+      style: {},
+      querySelectorAll: () => [child],
+    };
+
+    const parent = {
+      nodeType: 1,
+      classList: [],
+      style: {},
+      querySelectorAll: () => [slide],
+    };
+
+    const originalCreateElement = globalThis.document?.createElement;
+    const originalCreateFragment = globalThis.document?.createDocumentFragment;
+
+    const createdSpans = [];
+    globalThis.document = {
+      createElement: (tag) => {
+        const el = { nodeType: 1, tagName: tag.toUpperCase(), style: {} };
+        if (tag === 'span') createdSpans.push(el);
+        return el;
+      },
+      createDocumentFragment: () => {
+        const frag = {
+          nodeType: 11,
+          childNodes: [],
+          appendChild: (node) => frag.childNodes.push(node),
+        };
+        return frag;
+      },
+    };
+
+    applyBrowserAnimations(parent);
+
+    expect(child.style.animationName).toBe('fade-in');
+
+    expect(createdSpans.length).toBe(2);
+    expect(createdSpans[0].textContent).toBe('A');
+    expect(createdSpans[0].style.animationName).toBe('fade-in');
+    expect(createdSpans[0].style.animationDelay).toBe('500ms');
+
+    expect(createdSpans[1].textContent).toBe('B');
+    expect(createdSpans[1].style.animationDelay).toBe('530ms');
+
+    if (originalCreateElement) {
+      globalThis.document.createElement = originalCreateElement;
+      globalThis.document.createDocumentFragment = originalCreateFragment;
+    } else {
+      delete globalThis.document;
+    }
+  });
+
+  it('correctly calculates the end time of a paragraph build and queues the next click-trigger group after it', () => {
+    const grandchild1 = { nodeType: 1, style: {} };
+    const grandchild2 = { nodeType: 1, style: {} };
+
+    const child1 = {
+      nodeType: 1,
+      className: 'fade-in paragraph animate-duration-[500]',
+      classList: ['fade-in', 'paragraph', 'animate-duration-[500]'],
+      style: {},
+      children: [grandchild1, grandchild2],
+    };
+
+    const child2 = {
+      nodeType: 1,
+      className: 'fade-in animate-duration-[500] animate-trigger-on-click',
+      classList: ['fade-in', 'animate-duration-[500]', 'animate-trigger-on-click'],
+      style: {},
+    };
+
+    const slide = {
+      nodeType: 1,
+      classList: ['slide'],
+      style: {},
+      querySelectorAll: () => [child1, child2],
+    };
+
+    const parent = {
+      nodeType: 1,
+      classList: [],
+      style: {},
+      querySelectorAll: () => [slide],
+    };
+
+    applyBrowserAnimations(parent, { enableClick: false });
+
+    expect(child1.style.animationDelay).toBe('0ms');
+    expect(grandchild1.style.animationDelay).toBe('500ms');
+    expect(grandchild2.style.animationDelay).toBe('1800ms');
+    expect(child2.style.animationDelay).toBe('3100ms');
+  });
+
+  it('correctly calculates the end time of a letter build and queues the next click-trigger group after it', () => {
+    const textNode = {
+      nodeType: 3,
+      textContent: 'AB',
+      parentNode: null,
+    };
+    const child1 = {
+      nodeType: 1,
+      className: 'fade-in letter animate-duration-[500]',
+      classList: ['fade-in', 'letter', 'animate-duration-[500]'],
+      style: {},
+      childNodes: [textNode],
+      children: [],
+      replaceChild: (newFragment, oldNode) => {
+        child1.replacedNodes = Array.from(newFragment.childNodes);
+      },
+    };
+    textNode.parentNode = child1;
+
+    const child2 = {
+      nodeType: 1,
+      className: 'fade-in animate-duration-[500] animate-trigger-on-click',
+      classList: ['fade-in', 'animate-duration-[500]', 'animate-trigger-on-click'],
+      style: {},
+    };
+
+    const slide = {
+      nodeType: 1,
+      classList: ['slide'],
+      style: {},
+      querySelectorAll: () => [child1, child2],
+    };
+
+    const parent = {
+      nodeType: 1,
+      classList: [],
+      style: {},
+      querySelectorAll: () => [slide],
+    };
+
+    const originalCreateElement = globalThis.document?.createElement;
+    const originalCreateFragment = globalThis.document?.createDocumentFragment;
+
+    const createdSpans = [];
+    globalThis.document = {
+      createElement: (tag) => {
+        const el = { nodeType: 1, tagName: tag.toUpperCase(), style: {} };
+        if (tag === 'span') createdSpans.push(el);
+        return el;
+      },
+      createDocumentFragment: () => {
+        const frag = {
+          nodeType: 11,
+          childNodes: [],
+          appendChild: (node) => frag.childNodes.push(node),
+        };
+        return frag;
+      },
+    };
+
+    applyBrowserAnimations(parent, { enableClick: false });
+
+    expect(child1.style.animationDelay).toBe('0ms');
+    expect(createdSpans.length).toBe(2);
+    expect(createdSpans[0].style.animationDelay).toBe('500ms');
+    expect(createdSpans[1].style.animationDelay).toBe('530ms');
+    expect(child2.style.animationDelay).toBe('1830ms');
+
+    if (originalCreateElement) {
+      globalThis.document.createElement = originalCreateElement;
+      globalThis.document.createDocumentFragment = originalCreateFragment;
+    } else {
+      delete globalThis.document;
+    }
+  });
 });

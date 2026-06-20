@@ -213,6 +213,7 @@ of CSS properties (see [STYLE_WHITELIST.md](STYLE_WHITELIST.md)). This template 
 4. **Swap the font** by changing the `<link>` href AND the `font-family` on each slide root. Always keep `crossorigin="anonymous"`.
 5. **Compile to PowerPoint**:
    Run the headless exporter directly from your command line:
+
    ```bash
    # Compile all slides in the deck
    npx dom-to-pptx-export presentation.html -o presentation.pptx
@@ -220,6 +221,7 @@ of CSS properties (see [STYLE_WHITELIST.md](STYLE_WHITELIST.md)). This template 
    # Compile a single slide only (e.g., Slide 2)
    npx dom-to-pptx-export presentation.html -s "#slide-2" -o slide2-only.pptx
    ```
+
 6. **Preview in browser**: Open `presentation.html` in Chrome/Edge. Firefox has stricter CORS behavior that sometimes breaks Unsplash images.
 
 ## What NOT to add to this template

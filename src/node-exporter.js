@@ -10,14 +10,16 @@ import { fileURLToPath } from 'url';
 const PLATFORM_BROWSERS = {
   win32: [
     {
-      name: 'Google Chrome', product: 'chrome',
+      name: 'Google Chrome',
+      product: 'chrome',
       paths: [
         'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
         'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
       ],
     },
     {
-      name: 'Microsoft Edge', product: 'chrome', // Edge is Chromium-based, uses same protocol
+      name: 'Microsoft Edge',
+      product: 'chrome', // Edge is Chromium-based, uses same protocol
       paths: [
         'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
         'C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe',
@@ -26,40 +28,33 @@ const PLATFORM_BROWSERS = {
   ],
   linux: [
     {
-      name: 'Google Chrome', product: 'chrome',
-      paths: [
-        '/usr/bin/google-chrome',
-        '/usr/bin/google-chrome-stable',
-        '/snap/bin/google-chrome',
-      ],
+      name: 'Google Chrome',
+      product: 'chrome',
+      paths: ['/usr/bin/google-chrome', '/usr/bin/google-chrome-stable', '/snap/bin/google-chrome'],
     },
     {
-      name: 'Chromium', product: 'chrome',
-      paths: [
-        '/usr/bin/chromium-browser',
-        '/usr/bin/chromium',
-        '/snap/bin/chromium',
-      ],
+      name: 'Chromium',
+      product: 'chrome',
+      paths: ['/usr/bin/chromium-browser', '/usr/bin/chromium', '/snap/bin/chromium'],
     },
     {
-      name: 'Firefox', product: 'firefox',   // Puppeteer supports Firefox via WebDriver BiDi (v21+)
-      paths: [
-        '/usr/bin/firefox',
-        '/snap/bin/firefox',
-        '/usr/lib/firefox/firefox',
-      ],
+      name: 'Firefox',
+      product: 'firefox', // Puppeteer supports Firefox via WebDriver BiDi (v21+)
+      paths: ['/usr/bin/firefox', '/snap/bin/firefox', '/usr/lib/firefox/firefox'],
     },
   ],
   darwin: [
     {
-      name: 'Google Chrome', product: 'chrome',
+      name: 'Google Chrome',
+      product: 'chrome',
       paths: [
         '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
         '/Applications/Google Chrome Canary.app/Contents/MacOS/Google Chrome Canary',
       ],
     },
     {
-      name: 'Chromium', product: 'chrome',
+      name: 'Chromium',
+      product: 'chrome',
       paths: ['/Applications/Chromium.app/Contents/MacOS/Chromium'],
     },
     // Safari excluded — does not implement Chrome DevTools Protocol
@@ -108,15 +103,15 @@ async function ensureBrowser(puppeteer) {
 
   const cacheDir = path.join(os.homedir(), '.cache', 'puppeteer');
   const detectedPlatform = detectBrowserPlatform();
-  
+
   let buildId;
   try {
     buildId = await resolveBuildId(Browser.CHROME, detectedPlatform, 'stable');
   } catch (err) {
     throw new Error(
       `Unable to resolve stable Chrome build via @puppeteer/browsers: ${err.message}.\n` +
-      `Ensure you have an active internet connection to download the headless browser automatically, ` +
-      `or install Chrome/Edge/Firefox locally on your system.`
+        `Ensure you have an active internet connection to download the headless browser automatically, ` +
+        `or install Chrome/Edge/Firefox locally on your system.`
     );
   }
 
@@ -135,15 +130,17 @@ async function ensureBrowser(puppeteer) {
           lastPercent = pct;
           const filled = Math.floor(pct / 5);
           const bar = '█'.repeat(filled) + '░'.repeat(20 - filled);
-          process.stdout.write(`\r  [${bar}] ${pct}%  (${(downloaded / 1e6).toFixed(1)} / ${(total / 1e6).toFixed(1)} MB)`);
+          process.stdout.write(
+            `\r  [${bar}] ${pct}%  (${(downloaded / 1e6).toFixed(1)} / ${(total / 1e6).toFixed(1)} MB)`
+          );
         }
       },
     });
   } catch (err) {
     throw new Error(
       `Headless Chrome installation failed: ${err.message}.\n` +
-      `Ensure you have an active internet connection and write permissions to ${cacheDir}, ` +
-      `or install Chrome/Edge/Firefox locally on your system.`
+        `Ensure you have an active internet connection and write permissions to ${cacheDir}, ` +
+        `or install Chrome/Edge/Firefox locally on your system.`
     );
   }
 
@@ -171,22 +168,23 @@ export async function exportHtmlToPptx(htmlSource, options = {}) {
   const { executablePath, product } = await ensureBrowser(puppeteer);
 
   // Firefox uses WebDriver BiDi — different launch args than Chrome/Edge
-  const launchArgs = product === 'firefox'
-    ? [] // Firefox manages sandboxing itself
-    : ['--no-sandbox', '--disable-setuid-sandbox'];
+  const launchArgs =
+    product === 'firefox'
+      ? [] // Firefox manages sandboxing itself
+      : ['--no-sandbox', '--disable-setuid-sandbox'];
 
   let browser;
   try {
     browser = await puppeteer.launch({
       headless: true,
       executablePath,
-      browser: product,   // 'chrome' | 'firefox'
+      browser: product, // 'chrome' | 'firefox'
       args: launchArgs,
     });
   } catch (err) {
     throw new Error(
       `Failed to launch headless browser (executable: ${executablePath}): ${err.message}.\n` +
-      `Make sure you have all system dependencies for Chrome/Chromium installed.`
+        `Make sure you have all system dependencies for Chrome/Chromium installed.`
     );
   }
 
@@ -239,9 +237,7 @@ export async function exportHtmlToPptx(htmlSource, options = {}) {
 
       const bundlePath = candidates.find((p) => fs.existsSync(p));
       if (!bundlePath) {
-        throw new Error(
-          `Browser bundle not found. Please compile the UMD bundle first by running 'pnpm run build'.`
-        );
+        throw new Error(`Browser bundle not found. Please compile the UMD bundle first by running 'pnpm run build'.`);
       }
 
       try {
@@ -264,28 +260,32 @@ export async function exportHtmlToPptx(htmlSource, options = {}) {
 
     let dataUrl;
     try {
-      dataUrl = await page.evaluate(async (sel, pptxOpts) => {
-        if (!window.domToPptx || !window.domToPptx.exportToPptx) {
-          throw new Error('dom-to-pptx library not found on the page context.');
-        }
+      dataUrl = await page.evaluate(
+        async (sel, pptxOpts) => {
+          if (!window.domToPptx || !window.domToPptx.exportToPptx) {
+            throw new Error('dom-to-pptx library not found on the page context.');
+          }
 
-        const targets = Array.from(document.querySelectorAll(sel));
-        if (targets.length === 0) {
-          throw new Error(`No elements matching slide selector "${sel}" found.`);
-        }
+          const targets = Array.from(document.querySelectorAll(sel));
+          if (targets.length === 0) {
+            throw new Error(`No elements matching slide selector "${sel}" found.`);
+          }
 
-        const blob = await window.domToPptx.exportToPptx(targets, {
-          ...pptxOpts,
-          skipDownload: true,
-        });
+          const blob = await window.domToPptx.exportToPptx(targets, {
+            ...pptxOpts,
+            skipDownload: true,
+          });
 
-        return new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result);
-          reader.onerror = reject;
-          reader.readAsDataURL(blob);
-        });
-      }, selector, options.pptxOptions || {});
+          return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+          });
+        },
+        selector,
+        options.pptxOptions || {}
+      );
     } catch (err) {
       throw new Error(`Programmatic export failed: ${err.message}`);
     }
@@ -298,4 +298,3 @@ export async function exportHtmlToPptx(htmlSource, options = {}) {
     }
   }
 }
-

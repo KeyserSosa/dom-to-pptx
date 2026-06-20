@@ -272,11 +272,12 @@ export function getTransitionXml(transitionData) {
 
   // Build inner element attributes
   const innerAttrs = { ...bakedAttrs };
-  
+
   for (const attrName of dynamic) {
-    const val = transitionData[attrName] !== undefined && transitionData[attrName] !== null
-      ? transitionData[attrName]
-      : getAttributeDefault(attrName, tag);
+    const val =
+      transitionData[attrName] !== undefined && transitionData[attrName] !== null
+        ? transitionData[attrName]
+        : getAttributeDefault(attrName, tag);
     if (val !== null && val !== undefined) {
       innerAttrs[attrName] = val;
     }

@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.2.0] - 2026-06-20
+## [2.0.0] - 2026-06-20
 
 ### Added
 
@@ -23,8 +23,7 @@ All notable changes to this project will be documented in this file.
 - **Formatting, Linting & Style Audit**: Added `.editorconfig`, `.vscode/settings.json`, and `.markdownlint.json`. Enhanced ESLint config to use `@eslint/markdown` for linting code blocks inside `.md` documentation.
 
 ### Fixed
-
-- **`white-space: pre` / `pre-wrap` / `pre-line` newline preservation**: Fixed a bug where newlines/tabs inside `<pre>` or custom preformatted containers collapsed into a single space. Indentation, tabs, and line breaks are now accurately preserved.
+- **`white-space: pre` / `pre-wrap` / `pre-line` newline preservation**: Fixed a bug where newlines/tabs inside `<pre>` or custom preformatted containers collapsed into a space. Indentation, tabs, and line breaks are now accurately preserved.
 - **PowerPoint XML Corruption & Warnings**: Resolved slide repair errors in PowerPoint by wrapping modern transitions in `AlternateContent` compatibility fallbacks, registering namespaces correctly, and enforcing bullet property exclusivity.
 
 ## [1.1.10] - 2026-06-01

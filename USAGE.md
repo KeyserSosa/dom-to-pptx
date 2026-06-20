@@ -41,6 +41,7 @@ await exportToPptx(Array.from(slides), {
 `dom-to-pptx` ships with a command-line interface suite offering both a unified entry point and specific commands for headless rendering and agent integration.
 
 ### 1. Unified Router (`dom-to-pptx`)
+
 `dom-to-pptx` is the generic, unified command that delegates work to specific CLI subcommands.
 
 ```bash
@@ -55,6 +56,7 @@ npx dom-to-pptx export slides.html [options]
 ```
 
 ### 2. Headless Exporter CLI (`dom-to-pptx-exporter`)
+
 `dom-to-pptx-exporter` is the specific command to headlessly render local HTML files or remote URLs into PowerPoint presentations. It uses Puppeteer to spin up a headless browser, injects the browser bundle if needed, traverses the DOM, and outputs the final `.pptx` file.
 
 ```bash
@@ -64,7 +66,9 @@ npx dom-to-pptx-exporter <htmlFileOrUrl> [options]
 # Example:
 npx dom-to-pptx-exporter slides.html --output output.pptx -s ".slide"
 ```
+
 **Options:**
+
 - `--output, -o <path>`: Set custom output path (defaults to same folder as input).
 - `--selector, -s <css>`: CSS selector for slide container elements (defaults to `.slide`).
 - `--inject`: Force-inject the local browser bundle into the page context (needed if the source HTML doesn't bundle `dom-to-pptx` itself).
@@ -74,6 +78,7 @@ npx dom-to-pptx-exporter slides.html --output output.pptx -s ".slide"
 - `--height <number>`: Set slide height in inches (default: `5.625`).
 
 ### 3. AI Skills Installer CLI (`dom-to-pptx-skills`)
+
 `dom-to-pptx-skills` is the specific interactive installer that sets up AI presentation engineering skills in your environment. It auto-detects installed coding agents like Claude Code, Gemini CLI, Cursor, and Windsurf, and configures the latest optimized templates and directives for them.
 
 ```bash
@@ -136,29 +141,29 @@ If using `<style>` tags, ensure styles are applied correctly during export:
 
 ### Fully Supported
 
-| Property                 | Example                                                                                                                      |
-| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
-| Background Color         | `background: #fff` / `background: rgba(0,0,0,0.5)`                                                                           |
-| Linear Gradients         | `background: linear-gradient(135deg, #667eea, #764ba2)`                                                                      |
-| Border Radius            | `border-radius: 16px` / `border-radius: 50%`                                                                                 |
-| Borders                  | `border: 1px solid #ccc`                                                                                                     |
-| Shadows                  | `box-shadow: 0 4px 20px rgba(0,0,0,0.2)`                                                                                     |
-| Font Styles              | `font-size`, `font-weight`, `font-family`, `color`                                                                           |
-| Text Transformations     | `text-transform: uppercase`                                                                                                  |
-| Letter Spacing           | `letter-spacing: 2px`                                                                                                        |
-| Padding                  | `padding: 20px`                                                                                                              |
-| Opacity                  | `opacity: 0.8`                                                                                                               |
-| Blur effects             | `filter: blur(10px)`                                                                                                         |
+| Property                 | Example                                                                                                                     |
+| ------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
+| Background Color         | `background: #fff` / `background: rgba(0,0,0,0.5)`                                                                          |
+| Linear Gradients         | `background: linear-gradient(135deg, #667eea, #764ba2)`                                                                     |
+| Border Radius            | `border-radius: 16px` / `border-radius: 50%`                                                                                |
+| Borders                  | `border: 1px solid #ccc`                                                                                                    |
+| Shadows                  | `box-shadow: 0 4px 20px rgba(0,0,0,0.2)`                                                                                    |
+| Font Styles              | `font-size`, `font-weight`, `font-family`, `color`                                                                          |
+| Text Transformations     | `text-transform: uppercase`                                                                                                 |
+| Letter Spacing           | `letter-spacing: 2px`                                                                                                       |
+| Padding                  | `padding: 20px`                                                                                                             |
+| Opacity                  | `opacity: 0.8`                                                                                                              |
+| Blur effects             | `filter: blur(10px)`                                                                                                        |
 | Animations & Transitions | CSS classes (e.g. `fade-in`, `slide-transition-fade`) with delay, duration, sequencing, and typing reveals (`letter` class) |
 
 ### Not Supported or Limited Support
 
-| Property                  | Status             | Alternative                           |
-| ------------------------- | ------------------ | ------------------------------------- |
+| Property                  | Status             | Alternative                          |
+| ------------------------- | ------------------ | ------------------------------------ |
 | `backdrop-filter: blur()` | ⚠️ Simulated       | Simulated in browser via html2canvas |
-| `transform: scale()`      | ❌ Not Supported   | Set element dimensions directly       |
-| Radial Gradients          | ⚠️ Limited Support | Recommended to use linear gradients   |
-| `text-shadow`             | ⚠️ Limited Support | Might not be fully rendered           |
+| `transform: scale()`      | ❌ Not Supported   | Set element dimensions directly      |
+| Radial Gradients          | ⚠️ Limited Support | Recommended to use linear gradients  |
+| `text-shadow`             | ⚠️ Limited Support | Might not be fully rendered          |
 
 ---
 

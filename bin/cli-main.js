@@ -7,13 +7,13 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const c = {
-  reset:  '\x1b[0m',
-  bold:   '\x1b[1m',
-  cyan:   '\x1b[36m',
-  green:  '\x1b[32m',
+  reset: '\x1b[0m',
+  bold: '\x1b[1m',
+  cyan: '\x1b[36m',
+  green: '\x1b[32m',
   yellow: '\x1b[33m',
-  red:    '\x1b[31m',
-  dim:    '\x1b[2m',
+  red: '\x1b[31m',
+  dim: '\x1b[2m',
 };
 
 function printHelp() {
@@ -28,8 +28,12 @@ ${c.cyan}|____/ \\___/|_|  |_|   |_| \\___/  |_|   |_|    |_|  ${c.reset}
        ${c.dim}--------------------------------------------------${c.reset}
 `);
   console.log(`${c.bold}Usage:${c.reset}`);
-  console.log(`  ${c.cyan}dom-to-pptx${c.reset} ${c.yellow}skills${c.reset}                          Launch interactive skills installer`);
-  console.log(`  ${c.cyan}dom-to-pptx${c.reset} ${c.yellow}export${c.reset} ${c.dim}<htmlFile>${c.reset} [options]   Export HTML to .pptx headlessly\n`);
+  console.log(
+    `  ${c.cyan}dom-to-pptx${c.reset} ${c.yellow}skills${c.reset}                          Launch interactive skills installer`
+  );
+  console.log(
+    `  ${c.cyan}dom-to-pptx${c.reset} ${c.yellow}export${c.reset} ${c.dim}<htmlFile>${c.reset} [options]   Export HTML to .pptx headlessly\n`
+  );
   console.log(`For detailed options on exporting, run:`);
   console.log(`  ${c.cyan}dom-to-pptx-exporter --help${c.reset}\n`);
 }
@@ -71,4 +75,3 @@ main().catch((err) => {
   console.error(`\n${c.red}Fatal error:${c.reset}`, err.message);
   process.exit(1);
 });
-
