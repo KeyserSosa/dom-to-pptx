@@ -35,13 +35,6 @@ This is the biggest release yet, bringing native motion to your exports:
 
 See [Animations & Transitions](#-animations--transitions-new-in-v120) below for full usage details.
 
-### 🛠️ Previous Release — v1.1.10
-
-- **CSS Pseudo-Element Text Content Support**: Added full support for extracting and rendering custom text content inside pseudo-elements (`::before` / `::after`), styled natively with background colors, borders, and margins.
-- **Canvas Rendering Bugfix**: Fixed a bug where clipped divs with partial border-radius were not being captured via canvas because the job promise was not correctly assigned to `bgJob`.
-- **Handled Known Limitations**: Resolved advanced scenarios like OOXML Schema Corrections, Missing OOXML Features, CSS-Only Visuals, Slide-Aspect Matching, and Layout Primitives.
-- **ESLint 9 Support & Lint Cleanup**: Restructured devDependencies to natively support ESLint 9 configs and cleaned up all static analysis issues in the source directories.
-
 ## Features
 
 ### 🎬 Animations & Transitions (New in v1.2.0)
@@ -91,21 +84,43 @@ See [Animations & Transitions](#-animations--transitions-new-in-v120) below for 
 npm install dom-to-pptx
 ```
 
-## 🤖 AI Skills Installation (New!)
+## 🖥️ Command Line Interface (CLI) & Agent Skills (New!)
 
-You can now install the **dom-to-pptx skills** directly into your favorite AI agent (Claude Code, Gemini CLI, Windsurf, etc.) to help it generate high-fidelity presentations.
+`dom-to-pptx` ships with a CLI suite to run headless PPTX exports or configure AI coding assistants:
 
-Run the following command to start the interactive installer:
+### 1. Unified CLI Router (`dom-to-pptx`)
+Run the unified command directly:
+```bash
+# General help
+npx dom-to-pptx --help
+
+# Run headless exporter (delegates to dom-to-pptx-exporter)
+npx dom-to-pptx export slides.html [options]
+
+# Run interactive skills installer (delegates to dom-to-pptx-skills)
+npx dom-to-pptx skills
+```
+
+### 2. Headless Exporter CLI (`dom-to-pptx-exporter`)
+A dedicated command to export local HTML files or remote URLs to PPTX files directly from the command line using a headless browser:
+
+```bash
+npx dom-to-pptx-exporter slides.html --output presentation.pptx
+```
+**Options:**
+- `--output, -o <path>`: Output `.pptx` file path (defaults to same folder as input).
+- `--selector, -s <css>`: CSS selector for slide container elements (defaults to `.slide`).
+- `--inject`: Force-inject the local browser bundle (useful if the HTML doesn't bundle `dom-to-pptx`).
+- `--title <text>` / `--author <text>`: Add presentation title / author metadata.
+- `--width <num>` / `--height <num>`: Set custom slide dimensions in inches.
+
+### 3. Agent Skills Installer CLI (`dom-to-pptx-skills`)
+An interactive installer to configure presentation engineering skills for coding agents (Claude Code, Gemini CLI, Windsurf, Cursor):
 
 ```bash
 npx dom-to-pptx-skills
 ```
-
-The installer will ask you:
-
-1. **Which AI Agent** you are using.
-2. **Installation scope** (Local `.agent/skills` for current project or Global for all projects).
-3. It will then automatically copy the latest optimized prompts and templates to your agent's directory.
+The installer scans for agent directories, lets you choose targeted locations, and configures the optimized prompt templates automatically.
 
 ---
 

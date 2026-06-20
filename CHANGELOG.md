@@ -2,11 +2,30 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## [1.2.0] - 2026-06-20
+
+### Added
+
+- **Native Animations & Transitions**: Natively translates CSS animation/transition classes directly into PowerPoint presentation motion assets:
+  - **20+ Element Animations**: Supports entrance and exit animations including `fade-in`, `zoom-in`, `fly-in`, and `wipe-in` with directional modifiers (`to-up`, `to-down`, `to-left`, `to-right`).
+  - **70+ Slide Transitions**: Seamless slide-to-slide transition support (fade, push, wipe, gallery, doors, zoom, bounce, and more).
+  - **Choreography & Triggers**: Control order and timing of animations via `animate-trigger-on-click`, `animate-trigger-with` (simultaneous), or `animate-trigger-after` (sequential chain), plus custom durations/delays.
+  - **Creative Builds**: Character-by-character reveals (`letter` mode) and paragraph-by-paragraph reveals (`paragraph` mode) for structured narrative presentation styles.
+  - **In-Browser Preview**: Real-time CSS files (`animations.css` and `transitions.css`) with a JS helper `domToPptx.applyBrowserAnimations()` to accurately preview animations in the browser prior to export.
+- **Unified & Specific CLI Binaries**: Adds a clean suite of CLI binaries under the main package execution options:
+  - `dom-to-pptx`: A unified entrypoint router allowing `dom-to-pptx export` or `dom-to-pptx skills`.
+  - `dom-to-pptx-exporter` / `dom-to-pptx export`: Headless CLI tool using a self-managing Puppeteer-based server exporter to convert HTML files or URLs directly to PPTX files from terminal.
+  - `dom-to-pptx-skills` / `dom-to-pptx skills`: Interactive installer to instantly configure optimized agent presentation engineering skills for Claude Code, Gemini CLI, Cursor, and Windsurf.
+- **Woff2 Font Format Support**: Natively parses and handles `.woff2` font resources:
+  - Resolves `NO GLYPH` and duplicate unicode index errors during font merging.
+  - Base64-inlines the underlying WASM decoder directly into the code distribution for a zero-dependency setup.
+- **Vertical Text & Rotation Support**: Implements support for vertical layout writing modes (`vertical-rl` / `vertical-lr`) and text rotation in cells, paragraphs, and list containers.
+- **Formatting, Linting & Style Audit**: Added `.editorconfig`, `.vscode/settings.json`, and `.markdownlint.json`. Enhanced ESLint config to use `@eslint/markdown` for linting code blocks inside `.md` documentation.
 
 ### Fixed
 
-- **`white-space: pre` / `pre-wrap` / `pre-line` now preserve line breaks**: text inside `<pre>` or elements with these `white-space` values previously had every newline, tab, and run of spaces collapsed to a single space (`collectTextParts`), so multi-line content (code blocks, ASCII art, formatted text) rendered as one line. Author newlines are now emitted as hard line breaks, and `pre`/`pre-wrap` preserve indentation/spaces (tabs become spaces, since PPTX text runs have no tab stops). `normal`/`nowrap` collapsing is unchanged.
+- **`white-space: pre` / `pre-wrap` / `pre-line` newline preservation**: Fixed a bug where newlines/tabs inside `<pre>` or custom preformatted containers collapsed into a single space. Indentation, tabs, and line breaks are now accurately preserved.
+- **PowerPoint XML Corruption & Warnings**: Resolved slide repair errors in PowerPoint by wrapping modern transitions in `AlternateContent` compatibility fallbacks, registering namespaces correctly, and enforcing bullet property exclusivity.
 
 ## [1.1.10] - 2026-06-01
 

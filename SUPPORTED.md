@@ -29,6 +29,7 @@ Note: The library measures computed layout from the browser (getBoundingClientRe
 - text-align, vertical-align, text-transform
 - white-space (`normal`/`nowrap` collapse whitespace; `pre`/`pre-wrap`/`pre-line` preserve author line breaks, and `pre`/`pre-wrap` also preserve indentation/spaces)
 - font-family, font-size, font-weight, font-style, line-height
+- animations & transitions (20+ entrance/exit animations like `fade-in`, `zoom-in`, `fly-in`, `wipe-in`; 70+ slide transitions; custom delays, durations, trigger sequencing, and character/paragraph reveals)
 
 ## Common utility/Tailwind-like classes (recognized by visual result)
 
@@ -41,10 +42,12 @@ These classes are examples; dom-to-pptx reads computed styles, so any combinatio
 - `p-4`, `px-6`, `py-2`, `m-4`
 - `w-*`, `h-*` (fixed pixel/percentage/wrappers — computed width/height are used)
 - `text-xs`, `text-sm`, `text-lg`, `font-bold`, `uppercase`, `italic`, `tracking-wide`
+- `fade-in`, `fly-in`, `wipe-out`, `animate-duration-[500]`, `animate-delay-[200]`, `animate-trigger-after` (animation utility classes)
+- `slide-transition-fade`, `slide-transition-push`, `transition-dur-[1000]` (transition utility classes)
 
 ## Limitations
 
-- Complex CSS animations/transitions are not exported — only the current computed visual state is captured.
+- Infinite-loop, interaction-triggered, or non-whitelisted CSS animations/transitions are not exported. Only the whitelisted 20+ slide element animations and 70+ slide transitions are translated into PowerPoint motion effects; all others will fallback to their static computed layout.
 - Some advanced CSS features (CSS variables used as colors, filters beyond blur) may not map 1:1.
 - For images to be processed via canvas (rounded images), the source must be CORS-accessible (`Access-Control-Allow-Origin` header) or the image will be skipped or rendered as-is.
 
