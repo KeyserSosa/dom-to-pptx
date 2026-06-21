@@ -100,7 +100,7 @@ Refer to [DESIGN_PHILOSOPHY.md](reference/DESIGN_PHILOSOPHY.md) for the complete
   - **Tone Matching**: Match transition and animation styles to the presentation's genre (e.g., subtle `fade` or `push` for Executive/Corporate decks; expressive `gallery`, `doors`, `zoom-in`, or
     `bounce-in` for Creative/Tech Launch decks). See [DESIGN_PHILOSOPHY.md](reference/DESIGN_PHILOSOPHY.md#5-motion-design--staging).
   - **Apply Slide Transitions** (applied to `.slide` elements): Use whitelisted transition classes (e.g., `slide-transition-fade`, `slide-transition-push`, `slide-transition-wipe`). Modify speeds
-    using classes like `transition-duration-fast` or custom `transition-dur-[MS]`.
+    using classes like `transition-duration-fast` or custom `transition-dur-[MS]`. (Note: Slide-to-slide transitions are not previewed in-browser, only element animations are, though both export correctly).
   - **Apply Element Animations**: Apply whitelisted animation classes (e.g. `fade-in`, `zoom-in`, `fly-in`, `wipe-in`) to elements inside slides.
   - **Control Timing**: Fine-tune duration and delay using utility classes: `animate-duration-[MS]` and `animate-delay-[MS]`.
   - **Coordinating Sequences**: Control flow using: `animate-trigger-on-click`, `animate-trigger-with` (simultaneous), and `animate-trigger-after` (sequential chain).
@@ -125,7 +125,7 @@ Refer to [DESIGN_PHILOSOPHY.md](reference/DESIGN_PHILOSOPHY.md) for the complete
       rel="stylesheet"
       crossorigin="anonymous"
     />
-    <!-- dom-to-pptx animation stylesheets (required for browser previews) -->
+    <!-- dom-to-pptx animation stylesheets (required for browser previews of element animations; note: slide transitions are not previewed in-browser) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/dom-to-pptx@latest/dist/animations.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/dom-to-pptx@latest/dist/transitions.css" />
   </head>

@@ -30,7 +30,7 @@ This is the biggest release yet, bringing native motion to your exports:
 - **70+ Slide Transitions**: A full library of slide-to-slide transitions, from subtle corporate styles (`slide-transition-fade`, `slide-transition-push`, `slide-transition-wipe`) to expressive creative styles (gallery, doors, zoom, bounce, and more).
 - **Animation Timing & Sequencing Controls**: Fine-grained `animate-duration-[MS]` and `animate-delay-[MS]` utility classes, plus trigger classes (`animate-trigger-on-click`, `animate-trigger-with`, `animate-trigger-after`) to choreograph click-driven or sequential builds.
 - **Creative Text Builds**: Character-by-character typing effects (`letter` class) and row-by-row bullet reveals (`paragraph` class).
-- **Browser Preview Support**: New `animations.css` / `transitions.css` stylesheets and a `domToPptx.applyBrowserAnimations()` helper so motion previews accurately in-browser before export.
+- **Browser Preview Support**: New `animations.css` stylesheet and a `domToPptx.applyBrowserAnimations()` helper to preview element animations in-browser before export (note: slide-to-slide transitions are not previewed in-browser, only element animations are, though both export correctly).
 
 See [Animations & Transitions](#-animations--transitions-new-in-v200) below for full usage details.
 
@@ -200,13 +200,13 @@ In PowerPoint, right-click the SVG image and select **"Convert to Shape"** (or *
 
 ### 5. Animated Slides & Transitions (New in v2.0.0)
 
-Animations and transitions are applied declaratively via CSS classes — no extra JavaScript options are needed. Just link the animation/transition stylesheets so motion previews correctly in the browser, then export as usual.
+Animations and transitions are applied declaratively via CSS classes — no extra JavaScript options are needed. Just link the animation stylesheet (note: slide-to-slide transitions are not previewed in the browser; only element animations are) so motion previews correctly in the browser, then export as usual.
 
 The `applyBrowserAnimations(parentElement, options)` helper configures the browser-side motion preview timeline. When `enableClick` is `false` (default automatic playback mode), the sequencer automatically schedules the slide's animations step-by-step. It accurately calculates the staggered duration of paragraph and letter builds, ensuring the next click-trigger step does not start until the previous build finishes. When `enableClick` is `true`, it binds a click listener to the `.slide` elements to advance the timeline manually on click.
 
 ```html
 <head>
-  <!-- Required for accurate in-browser preview of animations/transitions -->
+  <!-- Required for accurate in-browser preview of animations (note: slide transitions are not previewed in-browser) -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/dom-to-pptx@latest/dist/animations.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/dom-to-pptx@latest/dist/transitions.css" />
 </head>
@@ -470,7 +470,7 @@ Applies browser animation inline styles by parsing animation class utilities. Th
 
 3.  **CORS Images:** External images (`<img>` tags) must also be served with `Access-Control-Allow-Origin: *` headers to be processed by the rounding/masking engine.
 
-4.  **Animations & Transitions:** Link `animations.css` and `transitions.css` so motion previews correctly in your browser before export — the export engine reads the applied classes and converts them into native PowerPoint animation/transition effects regardless of whether the stylesheets are present at export time.
+4.  **Animations & Transitions:** Link `animations.css` and `transitions.css` (note: only slide element animations are previewed in the browser; slide-to-slide transitions are not previewed in-browser, though they are still exported correctly) so motion previews correctly in your browser before export — the export engine reads the applied classes and converts them into native PowerPoint animation/transition effects regardless of whether the stylesheets are present at export time.
 
 ## Contributors
 

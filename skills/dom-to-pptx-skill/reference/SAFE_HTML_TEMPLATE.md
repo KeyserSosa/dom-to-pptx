@@ -25,7 +25,7 @@ of CSS properties (see [STYLE_WHITELIST.md](STYLE_WHITELIST.md)). This template 
       rel="stylesheet"
       crossorigin="anonymous"
     />
-    <!-- Animations & transitions stylesheets (required for browser previews) -->
+    <!-- Animations & transitions stylesheets (required for browser previews of element animations; note: slide transitions are not previewed in-browser) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/dom-to-pptx@latest/dist/animations.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/dom-to-pptx@latest/dist/transitions.css" />
 
@@ -66,7 +66,7 @@ of CSS properties (see [STYLE_WHITELIST.md](STYLE_WHITELIST.md)). This template 
     6.  No: backdrop-filter, text-shadow, mix-blend-mode, filter (except
         filter: blur() — partial support).
     7.  Animations & Slide Transitions: Supported ONLY via whitelisted CSS
-        classes (e.g. fade-in, slide-transition-fade). No custom @keyframes.
+        classes (e.g. fade-in, slide-transition-fade). No custom @keyframes. Note: only slide element animations are previewed in-browser; slide-to-slide transitions are not previewed in-browser.
     8.  Fonts: px units only. Arial / Helvetica / Georgia / a CORS-loaded
         Google Font. No rem/em/vw on slide content.
     ========================================================================

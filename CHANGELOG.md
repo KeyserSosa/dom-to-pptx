@@ -11,7 +11,7 @@ All notable changes to this project will be documented in this file.
   - **70+ Slide Transitions**: Seamless slide-to-slide transition support (fade, push, wipe, gallery, doors, zoom, bounce, and more).
   - **Choreography & Triggers**: Control order and timing of animations via `animate-trigger-on-click`, `animate-trigger-with` (simultaneous), or `animate-trigger-after` (sequential chain), plus custom durations/delays.
   - **Creative Builds**: Character-by-character reveals (`letter` mode) and paragraph-by-paragraph reveals (`paragraph` mode) for structured narrative presentation styles.
-  - **In-Browser Preview**: Real-time CSS files (`animations.css` and `transitions.css`) with a JS helper `domToPptx.applyBrowserAnimations()` to accurately preview animations in the browser prior to export.
+  - **In-Browser Preview**: Real-time CSS files (`animations.css` and `transitions.css`) with a JS helper `domToPptx.applyBrowserAnimations()` to accurately preview element animations in the browser prior to export (note: slide-to-slide transitions are not previewed in-browser).
 - **Unified & Specific CLI Binaries**: Adds a clean suite of CLI binaries under the main package execution options:
   - `dom-to-pptx`: A unified entrypoint router allowing `dom-to-pptx export` or `dom-to-pptx skills`.
   - `dom-to-pptx-exporter` / `dom-to-pptx export`: Headless CLI tool using a self-managing Puppeteer-based server exporter to convert HTML files or URLs directly to PPTX files from terminal.
