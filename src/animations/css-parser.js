@@ -156,12 +156,12 @@ export function parseAnimation(node, style) {
 
   let duration;
   if (durationStr) {
-    duration = parseTimeMs(durationStr, 700);
+    duration = parseTimeMs(durationStr, 1000);
   } else if (utilDuration !== null) {
     duration = utilDuration; // already in ms from utility class
   } else {
     const cssDur = style?.animationDuration;
-    duration = cssDur ? parseTimeMs(cssDur, 700) : 700;
+    duration = cssDur ? parseTimeMs(cssDur, 1000) : 1000;
   }
 
   // ── 4. Resolve delay ─────────────────────────────────────────────────────

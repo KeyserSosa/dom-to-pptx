@@ -11,7 +11,7 @@
 
 .fade-in {
   animation-name: fade-in;
-  animation-duration: 0.7s;
+  animation-duration: 0.5s;
   animation-fill-mode: both;
 }
 @keyframes fade-in {
@@ -126,7 +126,7 @@
 
 .wipe-in {
   animation-name: wipe-in-to-down;
-  animation-duration: 0.6s;
+  animation-duration: 0.5s;
   animation-fill-mode: both;
 }
 .wipe-in.to-down {
@@ -184,7 +184,7 @@
 
 .split-in {
   animation-name: split-in-vertical;
-  animation-duration: 0.6s;
+  animation-duration: 0.5s;
   animation-fill-mode: both;
 }
 .split-in.vertical {
@@ -220,7 +220,7 @@
 
 .wheel {
   animation-name: wheel;
-  animation-duration: 0.8s;
+  animation-duration: 0.5s;
   animation-fill-mode: both;
 }
 @keyframes wheel {
@@ -236,7 +236,7 @@
 
 .bounce-in {
   animation-name: bounce-in;
-  animation-duration: 0.8s;
+  animation-duration: 0.5s;
   animation-fill-mode: both;
 }
 @keyframes bounce-in {
@@ -260,7 +260,7 @@
 
 .checkerboard-in {
   animation-name: checkerboard-in;
-  animation-duration: 0.6s;
+  animation-duration: 0.5s;
   animation-fill-mode: both;
 }
 @keyframes checkerboard-in {
@@ -274,7 +274,7 @@
 
 .random-bars-in {
   animation-name: random-bars-in-horizontal;
-  animation-duration: 0.6s;
+  animation-duration: 0.5s;
   animation-fill-mode: both;
 }
 .random-bars-in.horizontal {
@@ -316,7 +316,7 @@
 
 .fade-out {
   animation-name: fade-out;
-  animation-duration: 0.7s;
+  animation-duration: 0.5s;
   animation-fill-mode: backwards;
 }
 @keyframes fade-out {
@@ -431,7 +431,7 @@
 
 .wipe-out {
   animation-name: wipe-out-to-down;
-  animation-duration: 0.6s;
+  animation-duration: 0.5s;
   animation-fill-mode: backwards;
 }
 .wipe-out.to-down {
@@ -451,7 +451,7 @@
     clip-path: inset(0 0 0 0);
   }
   to {
-    clip-path: inset(0 0 100% 0);
+    clip-path: inset(100% 0 0 0);
   }
 }
 @keyframes wipe-out-to-down {
@@ -459,7 +459,7 @@
     clip-path: inset(0 0 0 0);
   }
   to {
-    clip-path: inset(0 0 100% 0);
+    clip-path: inset(100% 0 0 0);
   }
 }
 @keyframes wipe-out-to-up {
@@ -467,7 +467,7 @@
     clip-path: inset(0 0 0 0);
   }
   to {
-    clip-path: inset(100% 0 0 0);
+    clip-path: inset(0 0 100% 0);
   }
 }
 @keyframes wipe-out-to-left {
@@ -475,7 +475,7 @@
     clip-path: inset(0 0 0 0);
   }
   to {
-    clip-path: inset(0 0 0 100%);
+    clip-path: inset(0 100% 0 0);
   }
 }
 @keyframes wipe-out-to-right {
@@ -483,13 +483,13 @@
     clip-path: inset(0 0 0 0);
   }
   to {
-    clip-path: inset(0 100% 0 0);
+    clip-path: inset(0 0 0 100%);
   }
 }
 
 .split-out {
   animation-name: split-out-vertical;
-  animation-duration: 0.6s;
+  animation-duration: 0.5s;
   animation-fill-mode: backwards;
 }
 .split-out.vertical {
@@ -525,7 +525,7 @@
 
 .wheel-out {
   animation-name: wheel-out;
-  animation-duration: 0.8s;
+  animation-duration: 0.5s;
   animation-fill-mode: backwards;
 }
 @keyframes wheel-out {
@@ -541,7 +541,7 @@
 
 .bounce-out {
   animation-name: bounce-out;
-  animation-duration: 0.8s;
+  animation-duration: 0.5s;
   animation-fill-mode: backwards;
 }
 @keyframes bounce-out {
@@ -565,7 +565,7 @@
 
 .checkerboard-out {
   animation-name: checkerboard-out;
-  animation-duration: 0.6s;
+  animation-duration: 0.5s;
   animation-fill-mode: backwards;
 }
 @keyframes checkerboard-out {
@@ -579,7 +579,7 @@
 
 .random-bars-out {
   animation-name: random-bars-out-horizontal;
-  animation-duration: 0.6s;
+  animation-duration: 0.5s;
   animation-fill-mode: backwards;
 }
 .random-bars-out.horizontal {
