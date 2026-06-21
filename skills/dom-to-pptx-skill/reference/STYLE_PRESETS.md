@@ -27,9 +27,7 @@ Visual styles adapted for dom-to-pptx compatibility. Each preset provides inline
   <div
     style="position: absolute; left: 80px; top: 80px; width: 200px; height: 100px; background: #FF5722; border-radius: 12px;"
   ></div>
-  <h1
-    style="font-size: 80px; color: #ffffff; font-family: 'Arial Black', Arial, sans-serif; margin: 0;"
-  >
+  <h1 style="font-size: 80px; color: #ffffff; font-family: 'Arial Black', Arial, sans-serif; margin: 0;">
     Bold Statement
   </h1>
 </div>
@@ -61,17 +59,9 @@ Visual styles adapted for dom-to-pptx compatibility. Each preset provides inline
 
 ```html
 <div style="width: 1920px; height: 1080px; background: #ffffff; position: relative;">
-  <div
-    style="position: absolute; top: 0; left: 0; width: 1920px; height: 400px; background: #0a0a0a;"
-  ></div>
-  <h1
-    style="font-size: 64px; color: #ffffff; position: absolute; top: 120px; left: 100px; margin: 0;"
-  >
-    Clean & Bold
-  </h1>
-  <div
-    style="position: absolute; bottom: 100px; left: 100px; right: 100px; display: flex; gap: 40px;"
-  >
+  <div style="position: absolute; top: 0; left: 0; width: 1920px; height: 400px; background: #0a0a0a;"></div>
+  <h1 style="font-size: 64px; color: #ffffff; position: absolute; top: 120px; left: 100px; margin: 0;">Clean & Bold</h1>
+  <div style="position: absolute; bottom: 100px; left: 100px; right: 100px; display: flex; gap: 40px;">
     <div style="flex: 1; background: #f5f5f5; padding: 40px; border-radius: 16px;">
       <h3 style="font-size: 32px; color: #0a0a0a; margin: 0 0 20px 0;">Feature One</h3>
       <p style="font-size: 24px; color: #666666; margin: 0;">Description text here</p>
@@ -105,12 +95,8 @@ Visual styles adapted for dom-to-pptx compatibility. Each preset provides inline
 
 ```html
 <div style="width: 1920px; height: 1080px; background: #0066ff; position: relative;">
-  <div
-    style="position: absolute; left: 0; top: 0; width: 960px; height: 1080px; background: #1a1a2e;"
-  ></div>
-  <h1
-    style="font-size: 72px; color: #ffffff; position: absolute; left: 100px; top: 400px; margin: 0;"
-  >
+  <div style="position: absolute; left: 0; top: 0; width: 960px; height: 1080px; background: #1a1a2e;"></div>
+  <h1 style="font-size: 72px; color: #ffffff; position: absolute; left: 100px; top: 400px; margin: 0;">
     Creative Energy
   </h1>
   <div
@@ -145,9 +131,7 @@ Visual styles adapted for dom-to-pptx compatibility. Each preset provides inline
 **Usage:**
 
 ```html
-<div
-  style="width: 1920px; height: 1080px; background: #0f0f0f; position: relative; overflow: hidden;"
->
+<div style="width: 1920px; height: 1080px; background: #0f0f0f; position: relative; overflow: hidden;">
   <!-- Soft decorative blur (dom-to-pptx: filter: blur() is supported; radial-gradient is not) -->
   <div
     style="position: absolute; right: 100px; top: 100px; width: 600px; height: 600px; border-radius: 50%; background: #d4a574; opacity: 0.3; filter: blur(120px);"
@@ -157,9 +141,7 @@ Visual styles adapted for dom-to-pptx compatibility. Each preset provides inline
   >
     Elegant Design
   </h1>
-  <p
-    style="font-size: 28px; color: #9a9590; position: absolute; top: 500px; left: 100px; margin: 0;"
-  >
+  <p style="font-size: 28px; color: #9a9590; position: absolute; top: 500px; left: 100px; margin: 0;">
     Refined and sophisticated
   </p>
 </div>
@@ -192,9 +174,7 @@ Visual styles adapted for dom-to-pptx compatibility. Each preset provides inline
 
 ```html
 <div style="width: 1920px; height: 1080px; background: #f8f6f1; position: relative;">
-  <h1
-    style="font-size: 64px; color: #1a1a1a; position: absolute; top: 300px; left: 100px; margin: 0;"
-  >
+  <h1 style="font-size: 64px; color: #1a1a1a; position: absolute; top: 300px; left: 100px; margin: 0;">
     Friendly Design
   </h1>
   <div style="position: absolute; top: 500px; left: 100px; display: flex; gap: 30px;">
@@ -237,19 +217,13 @@ Visual styles adapted for dom-to-pptx compatibility. Each preset provides inline
 
 ```html
 <div style="width: 1920px; height: 1080px; background: #1e3a5f; position: relative;">
-  <h1
-    style="font-size: 72px; color: #ffffff; position: absolute; top: 350px; left: 100px; margin: 0;"
-  >
+  <h1 style="font-size: 72px; color: #ffffff; position: absolute; top: 350px; left: 100px; margin: 0;">
     Enterprise Solution
   </h1>
-  <p
-    style="font-size: 28px; color: #cccccc; position: absolute; top: 480px; left: 100px; margin: 0;"
-  >
+  <p style="font-size: 28px; color: #cccccc; position: absolute; top: 480px; left: 100px; margin: 0;">
     Professional • Reliable • Secure
   </p>
-  <div
-    style="position: absolute; bottom: 100px; left: 100px; right: 100px; display: flex; gap: 40px;"
-  >
+  <div style="position: absolute; bottom: 100px; left: 100px; right: 100px; display: flex; gap: 40px;">
     <div style="flex: 1; background: #ffffff; padding: 40px; border-radius: 12px;">
       <h3 style="font-size: 28px; color: #1a1a1a; margin: 0 0 16px 0;">Scale</h3>
       <p style="font-size: 20px; color: #666666; margin: 0;">Enterprise-grade reliability</p>
@@ -283,9 +257,7 @@ Visual styles adapted for dom-to-pptx compatibility. Each preset provides inline
 
 ```html
 <div style="width: 1920px; height: 1080px; background: #ffffff; position: relative;">
-  <div
-    style="position: absolute; top: 350px; left: 50%; transform: translateX(-50%); text-align: center;"
-  >
+  <div style="position: absolute; top: 350px; left: 50%; transform: translateX(-50%); text-align: center;">
     <h1 style="font-size: 80px; color: #1a1a1a; margin: 0 0 32px 0;">Minimal</h1>
     <p style="font-size: 32px; color: #666666; margin: 0;">Less is more</p>
   </div>
@@ -321,9 +293,7 @@ Visual styles adapted for dom-to-pptx compatibility. Each preset provides inline
 <div
   style="width: 1920px; height: 1080px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); position: relative; overflow: hidden;"
 >
-  <h1
-    style="font-size: 80px; color: #ffffff; position: absolute; top: 350px; left: 100px; margin: 0;"
-  >
+  <h1 style="font-size: 80px; color: #ffffff; position: absolute; top: 350px; left: 100px; margin: 0;">
     Modern Gradient
   </h1>
   <div style="position: absolute; bottom: 150px; left: 100px; display: flex; gap: 40px;">
@@ -366,9 +336,7 @@ Visual styles adapted for dom-to-pptx compatibility. Each preset provides inline
   <div
     style="position: absolute; left: 100px; top: 100px; width: 800px; padding: 60px; background: #FFFFFF; border: 4px solid #000000; box-shadow: 16px 16px 0px #000000;"
   >
-    <h1
-      style="font-size: 80px; color: #000000; font-family: monospace; margin: 0; text-transform: uppercase;"
-    >
+    <h1 style="font-size: 80px; color: #000000; font-family: monospace; margin: 0; text-transform: uppercase;">
       Raw Design
     </h1>
   </div>
@@ -440,9 +408,7 @@ Visual styles adapted for dom-to-pptx compatibility. Each preset provides inline
 
 ```html
 <div style="width: 1920px; height: 1080px; background: #FFFFFF; position: relative;">
-  <div
-    style="position: absolute; left: 120px; top: 80px; width: 80px; height: 8px; background: #DC2626;"
-  ></div>
+  <div style="position: absolute; left: 120px; top: 80px; width: 80px; height: 8px; background: #DC2626;"></div>
   <h1
     style="font-size: 110px; color: #000000; font-family: 'Inter', sans-serif; font-weight: 900; position: absolute; top: 140px; left: 120px; letter-spacing: -4px;"
   >
@@ -481,9 +447,7 @@ Visual styles adapted for dom-to-pptx compatibility. Each preset provides inline
   <div
     style="position: absolute; right: 0; top: 0; width: 800px; height: 1080px; background: #166534; border-top-left-radius: 500px; opacity: 0.1;"
   ></div>
-  <h1 style="font-size: 72px; color: #064E3B; position: absolute; top: 400px; left: 120px;">
-    Organic Growth
-  </h1>
+  <h1 style="font-size: 72px; color: #064E3B; position: absolute; top: 400px; left: 120px;">Organic Growth</h1>
 </div>
 ```
 
@@ -636,13 +600,14 @@ Visual styles adapted for dom-to-pptx compatibility. Each preset provides inline
 
 ## Color Palette Quick Reference (Updated)
 
-| Style            | Background | Surface | Accent  | Type 1  | Type 2  |
-| ---------------- | ---------- | ------- | ------- | ------- | ------- |
-| Swiss Foundry    | #F9F9F7    | #FFFFFF | #E63946 | #1A1A1A | #666666 |
-| Linen & Obsidian | #F2EDE4    | #E5DED1 | #2C2C2C | #121212 | #4A4A4A |
-| Veridian Studio  | #FBFBFA    | #F1F3F0 | #2D4C3E | #1A1C1B | #5C6360 |
-| Luxury Noir      | #0A0A0A    | #171717 | #D4AF37 | #FFFFFF | #A3A3A3 |
-| Swiss Minimalism | #FFFFFF    | #F4F4F5 | #DC2626 | #000000 | #3F3F46 |
+<!-- prettier-ignore -->
+| Style | Background | Surface | Accent | Type 1 | Type 2 |
+| --- | --- | --- | --- | --- | --- |
+| Swiss Foundry | #F9F9F7 | #FFFFFF | #E63946 | #1A1A1A | #666666 |
+| Linen & Obsidian | #F2EDE4 | #E5DED1 | #2C2C2C | #121212 | #4A4A4A |
+| Veridian Studio | #FBFBFA | #F1F3F0 | #2D4C3E | #1A1C1B | #5C6360 |
+| Luxury Noir | #0A0A0A | #171717 | #D4AF37 | #FFFFFF | #A3A3A3 |
+| Swiss Minimalism | #FFFFFF | #F4F4F5 | #DC2626 | #000000 | #3F3F46 |
 
 ---
 
@@ -650,13 +615,14 @@ Visual styles adapted for dom-to-pptx compatibility. Each preset provides inline
 
 Use these sizes for optimal PowerPoint rendering:
 
-| Element         | Size    |
-| --------------- | ------- |
-| Main Title      | 72-80px |
-| Section Title   | 48-56px |
+<!-- prettier-ignore -->
+| Element | Size |
+| --- | --- |
+| Main Title | 72-80px |
+| Section Title | 48-56px |
 | H3 / Card Title | 32-40px |
-| Body Text       | 24-28px |
+| Body Text | 24-28px |
 | Caption / Label | 18-20px |
-| Small Text      | 16px    |
+| Small Text | 16px |
 
 **Note:** Use px units (not rem/em). Arial and Helvetica are safest for cross-platform rendering. Georgia/Times work well for serif elegance.

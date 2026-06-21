@@ -72,21 +72,14 @@ export function extractTableData(node, scale) {
       const style = window.getComputedStyle(cell);
       const cellParts = collectTextParts(cell, style, scale);
       // Fallback to plain text if collectTextParts returns empty/invalid
-      const cellText =
-        cellParts && cellParts.length > 0
-          ? cellParts
-          : cell.innerText.replace(/[\n\r\t]+/g, ' ').trim();
+      const cellText = cellParts && cellParts.length > 0 ? cellParts : cell.innerText.replace(/[\n\r\t]+/g, ' ').trim();
 
       // A. Text Style
       const textStyle = getTextStyle(style, scale);
 
       // B. Cell Background
       let bg = parseColor(style.backgroundColor, style);
-      if (
-        (!bg.hex || bg.opacity === 0) &&
-        style.backgroundImage &&
-        style.backgroundImage !== 'none'
-      ) {
+      if ((!bg.hex || bg.opacity === 0) && style.backgroundImage && style.backgroundImage !== 'none') {
         const fallback = getGradientFallbackColor(style.backgroundImage, style);
         if (fallback) bg = parseColor(fallback, style);
       }
@@ -120,7 +113,11 @@ export function extractTableData(node, scale) {
       const borderBottom = getTableBorder(style, 'Bottom', scale);
       const borderLeft = getTableBorder(style, 'Left', scale);
 
-      // F. Construct Cell Object
+      // F. Text Direction
+      const writingModeVert = getWritingModeVert(style.writingMode, style.textOrientation);
+      const textDirection = mapVertToTextDirection(writingModeVert);
+
+      // G. Construct Cell Object
       rowData.push({
         text: cellText,
         options: {
@@ -140,6 +137,8 @@ export function extractTableData(node, scale) {
           colspan: parseInt(cell.getAttribute('colspan')) || null,
 
           border: [borderTop, borderRight, borderBottom, borderLeft],
+
+          ...(textDirection && { textDirection }),
         },
       });
     });
@@ -577,8 +576,7 @@ export function isTextContainer(node) {
     const display = style.display;
 
     // Reject block displays and flex/grid items
-    const isBlockDisplay =
-      display === 'block' || display === 'flex' || display === 'grid' || display === 'table';
+    const isBlockDisplay = display === 'block' || display === 'flex' || display === 'grid' || display === 'table';
     if (isBlockDisplay) return false;
 
     const parentStyle = el.parentElement ? window.getComputedStyle(el.parentElement) : null;
@@ -587,9 +585,7 @@ export function isTextContainer(node) {
     if (isFlexOrGridItem) return false;
 
     // 4. Standard Inline Tag Check
-    const isInlineTag = ['SPAN', 'B', 'STRONG', 'EM', 'I', 'A', 'SMALL', 'MARK'].includes(
-      el.tagName
-    );
+    const isInlineTag = ['SPAN', 'B', 'STRONG', 'EM', 'I', 'A', 'SMALL', 'MARK'].includes(el.tagName);
     const isInlineDisplay = display.includes('inline');
 
     if (!isInlineTag && !isInlineDisplay) return false;
@@ -598,8 +594,7 @@ export function isTextContainer(node) {
     // If a child has a background or border, it's a layout block, not a simple text span.
     const bgColor = parseColor(style.backgroundColor, style);
     const hasVisibleBg = bgColor.hex && bgColor.opacity > 0;
-    const hasBorder =
-      parseFloat(style.borderWidth) > 0 && parseColor(style.borderColor, style).opacity > 0;
+    const hasBorder = parseFloat(style.borderWidth) > 0 && parseColor(style.borderColor, style).opacity > 0;
 
     if (hasVisibleBg || hasBorder) {
       // Relaxed check: Allow inline elements with background/border to be treated as text.
@@ -644,6 +639,14 @@ export function getWritingModeVert(writingMode, textOrientation) {
     default:
       return null;
   }
+}
+
+export function mapVertToTextDirection(vertVal) {
+  if (!vertVal) return null;
+  if (vertVal === 'eaVert' || vertVal === 'mongolianVert') return 'vert';
+  if (vertVal === 'wordArtVertRtl') return 'wordArtVert';
+  if (['vert', 'vert270', 'wordArtVert', 'horz'].includes(vertVal)) return vertVal;
+  return null;
 }
 
 /**
@@ -754,9 +757,7 @@ export function getVisibleShadow(shadowStr, scale) {
   for (let s of shadows) {
     s = s.trim();
     if (s.startsWith('rgba(0, 0, 0, 0)')) continue;
-    const match = s.match(
-      /(rgba?\([^)]+\)|#[0-9a-fA-F]+)\s+(-?[\d.]+)px\s+(-?[\d.]+)px\s+([\d.]+)px/
-    );
+    const match = s.match(/(rgba?\([^)]+\)|#[0-9a-fA-F]+)\s+(-?[\d.]+)px\s+(-?[\d.]+)px\s+([\d.]+)px/);
     if (match) {
       const colorStr = match[1];
       const x = parseFloat(match[2]);
@@ -1098,12 +1099,7 @@ export async function getAutoDetectedFonts(usedFamilies) {
  *    is dropped, so `<pre>a\n</pre>` is one line, not one line + a blank one.
  */
 export function splitPreformattedText(value, whiteSpace, options = {}) {
-  const {
-    isFirstChild = false,
-    isLastChild = false,
-    isPre = false,
-    textTransform = 'none',
-  } = options;
+  const { isFirstChild = false, isLastChild = false, isPre = false, textTransform = 'none' } = options;
 
   let raw = String(value).replace(/\r\n?/g, '\n');
   if (isFirstChild && isPre && raw[0] === '\n') raw = raw.slice(1);
@@ -1264,14 +1260,7 @@ export function collectTextParts(
           parts.push({ text: '', options: { breakLine: true } });
         }
 
-        const childParts = collectTextParts(
-          child,
-          parentStyle,
-          scale,
-          hyperlink,
-          false,
-          inheritedOpacity
-        );
+        const childParts = collectTextParts(child, parentStyle, scale, hyperlink, false, inheritedOpacity);
         if (childParts.length > 0) parts.push(...childParts);
 
         if (isBlock) {
@@ -1301,8 +1290,7 @@ export function collectTextParts(
           }
         }
 
-        const leadSpace =
-          cleanContent.startsWith(' ') || cleanContent.startsWith('\xa0') ? '' : ' ';
+        const leadSpace = cleanContent.startsWith(' ') || cleanContent.startsWith('\xa0') ? '' : ' ';
         parts.push({
           text: leadSpace + cleanContent, // Add space before icon/content
           options: textOpts,
@@ -1312,11 +1300,7 @@ export function collectTextParts(
   }
 
   // Cleanup potential trailing empty breakLines
-  while (
-    parts.length > 0 &&
-    parts[parts.length - 1].options?.breakLine &&
-    parts[parts.length - 1].text === ''
-  ) {
+  while (parts.length > 0 && parts[parts.length - 1].options?.breakLine && parts[parts.length - 1].text === '') {
     parts.pop();
   }
 

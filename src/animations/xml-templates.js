@@ -44,109 +44,161 @@
 const PRESETS = {
   // ── Entrance (10) ──────────────────────────────────────────────────────────
   'fade-in': {
-    presetId: '10', presetSubtype: '0', class: 'entr',
-    type: 'filter', filter: 'fade',
+    presetId: '10',
+    presetSubtype: '0',
+    class: 'entr',
+    type: 'filter',
+    filter: 'fade',
   },
-  'appear': {
-    presetId: '1', presetSubtype: '0', class: 'entr',
+  appear: {
+    presetId: '1',
+    presetSubtype: '0',
+    class: 'entr',
     type: 'set',
   },
   'zoom-in': {
     // presetID=23 (Grow & Turn entrance), subtype=16
     // Animates ppt_w/ppt_h from 0 → #ppt_w/#ppt_h
-    presetId: '23', presetSubtype: '16', class: 'entr',
+    presetId: '23',
+    presetSubtype: '16',
+    class: 'entr',
     type: 'zoom',
   },
   'fly-in': {
     // presetID=2 (Fly In), subtype=4 (from bottom)
     // Entrance uses #ppt_x / #ppt_y (with # prefix)
-    presetId: '2', presetSubtype: '4', class: 'entr',
+    presetId: '2',
+    presetSubtype: '4',
+    class: 'entr',
     type: 'fly-entr',
   },
   'wipe-in': {
-    presetId: '22', presetSubtype: '4', class: 'entr',
-    type: 'filter', filter: 'wipe(down)',
+    presetId: '22',
+    presetSubtype: '4',
+    class: 'entr',
+    type: 'filter',
+    filter: 'wipe(down)',
   },
   'split-in': {
-    presetId: '16', presetSubtype: '21', class: 'entr',
-    type: 'filter', filter: 'barn(inVertical)',
+    presetId: '16',
+    presetSubtype: '21',
+    class: 'entr',
+    type: 'filter',
+    filter: 'barn(inVertical)',
   },
-  'wheel': {
-    presetId: '21', presetSubtype: '4', class: 'entr',
-    type: 'filter', filter: 'wheel(4)',
+  wheel: {
+    presetId: '21',
+    presetSubtype: '4',
+    class: 'entr',
+    type: 'filter',
+    filter: 'wheel(4)',
   },
   'bounce-in': {
     // presetID=26, subtype=0. Complex multi-keyframe y + animScale (bounce effect).
-    presetId: '26', presetSubtype: '0', class: 'entr',
+    presetId: '26',
+    presetSubtype: '0',
+    class: 'entr',
     type: 'bounce',
   },
   'checkerboard-in': {
-    presetId: '7', presetSubtype: '0', class: 'entr',
-    type: 'filter', filter: 'checkerboard(across)',
+    presetId: '7',
+    presetSubtype: '0',
+    class: 'entr',
+    type: 'filter',
+    filter: 'checkerboard(across)',
   },
   'random-bars-in': {
     // presetID=14, subtype=10. Filter is "randombar(horizontal)" NOT "randombar(horz)".
-    presetId: '14', presetSubtype: '10', class: 'entr',
-    type: 'filter', filter: 'randombar(horizontal)',
+    presetId: '14',
+    presetSubtype: '10',
+    class: 'entr',
+    type: 'filter',
+    filter: 'randombar(horizontal)',
   },
 
   // ── Exit (10) ──────────────────────────────────────────────────────────────
   'fade-out': {
-    presetId: '10', presetSubtype: '0', class: 'exit',
-    type: 'filter', filter: 'fade',
+    presetId: '10',
+    presetSubtype: '0',
+    class: 'exit',
+    type: 'filter',
+    filter: 'fade',
   },
-  'disappear': {
-    presetId: '1', presetSubtype: '0', class: 'exit',
+  disappear: {
+    presetId: '1',
+    presetSubtype: '0',
+    class: 'exit',
     type: 'set',
   },
   'zoom-out': {
     // presetID=53, subtype=32. Animates ppt_w/ppt_h from ppt_w/ppt_h → 0 + fade filter.
-    presetId: '53', presetSubtype: '32', class: 'exit',
+    presetId: '53',
+    presetSubtype: '32',
+    class: 'exit',
     type: 'zoom',
   },
   'fly-out': {
     // Exit uses plain ppt_x / ppt_y (NO # prefix)
-    presetId: '2', presetSubtype: '4', class: 'exit',
+    presetId: '2',
+    presetSubtype: '4',
+    class: 'exit',
     type: 'fly-exit',
   },
   'wipe-out': {
-    presetId: '22', presetSubtype: '4', class: 'exit',
-    type: 'filter', filter: 'wipe(down)',
+    presetId: '22',
+    presetSubtype: '4',
+    class: 'exit',
+    type: 'filter',
+    filter: 'wipe(down)',
   },
   'split-out': {
-    presetId: '16', presetSubtype: '21', class: 'exit',
-    type: 'filter', filter: 'barn(outVertical)',
+    presetId: '16',
+    presetSubtype: '21',
+    class: 'exit',
+    type: 'filter',
+    filter: 'barn(outVertical)',
   },
   'wheel-out': {
-    presetId: '21', presetSubtype: '4', class: 'exit',
-    type: 'filter', filter: 'wheel(4)',
+    presetId: '21',
+    presetSubtype: '4',
+    class: 'exit',
+    type: 'filter',
+    filter: 'wheel(4)',
   },
   'bounce-out': {
     // presetID=26, subtype=0. Complex multi-keyframe bounce exit.
-    presetId: '26', presetSubtype: '0', class: 'exit',
+    presetId: '26',
+    presetSubtype: '0',
+    class: 'exit',
     type: 'bounce',
   },
   'checkerboard-out': {
     // presetID=5 (NOT 7), subtype=10.
-    presetId: '5', presetSubtype: '10', class: 'exit',
-    type: 'filter', filter: 'checkerboard(across)',
+    presetId: '5',
+    presetSubtype: '10',
+    class: 'exit',
+    type: 'filter',
+    filter: 'checkerboard(across)',
   },
   'random-bars-out': {
     // presetID=14, subtype=10.
-    presetId: '14', presetSubtype: '10', class: 'exit',
-    type: 'filter', filter: 'randombar(horizontal)',
+    presetId: '14',
+    presetSubtype: '10',
+    class: 'exit',
+    type: 'filter',
+    filter: 'randombar(horizontal)',
   },
 };
 
 export function getPreset(name, animClass, options = {}) {
   const cls = animClass === 'exit' ? 'exit' : 'entr';
-  let n   = name.toLowerCase().replace(/^ppt-/, '');
+  let n = name.toLowerCase().replace(/^ppt-/, '');
 
   // Map known aliases to base 10+10 presets
-  if (n.startsWith('fly-in'))   n = 'fly-in';
-  if (n.startsWith('fly-out'))  n = 'fly-out';
+  if (n.startsWith('fly-in')) n = 'fly-in';
+  if (n.startsWith('fly-out')) n = 'fly-out';
 
-  let presetObj = null;
+  let presetObj;
   if (PRESETS[n]) {
     presetObj = { ...PRESETS[n], class: cls };
   } else {
@@ -154,7 +206,7 @@ export function getPreset(name, animClass, options = {}) {
     if (PRESETS[withSuffix]) {
       presetObj = { ...PRESETS[withSuffix], class: cls };
     } else {
-      const base      = n.replace(/-in$|-out$/, '');
+      const base = n.replace(/-in$|-out$/, '');
       const targetKey = cls === 'exit' ? `${base}-out` : `${base}-in`;
       if (PRESETS[targetKey]) {
         presetObj = { ...PRESETS[targetKey], class: cls };
@@ -170,24 +222,39 @@ export function getPreset(name, animClass, options = {}) {
     presetObj.direction = direction || (cls === 'exit' ? 'down' : 'up');
     if (cls === 'exit') {
       presetObj.presetSubtype =
-        presetObj.direction === 'up'    ? '8' :
-        presetObj.direction === 'down'  ? '4' :
-        presetObj.direction === 'left'  ? '1' :
-        presetObj.direction === 'right' ? '2' : '4';
+        presetObj.direction === 'up'
+          ? '8'
+          : presetObj.direction === 'down'
+            ? '4'
+            : presetObj.direction === 'left'
+              ? '1'
+              : presetObj.direction === 'right'
+                ? '2'
+                : '4';
     } else {
       presetObj.presetSubtype =
-        presetObj.direction === 'up'    ? '4' :
-        presetObj.direction === 'down'  ? '8' :
-        presetObj.direction === 'left'  ? '2' :
-        presetObj.direction === 'right' ? '1' : '4';
+        presetObj.direction === 'up'
+          ? '4'
+          : presetObj.direction === 'down'
+            ? '8'
+            : presetObj.direction === 'left'
+              ? '2'
+              : presetObj.direction === 'right'
+                ? '1'
+                : '4';
     }
   } else if (n.includes('wipe')) {
     presetObj.direction = direction || 'down';
     presetObj.presetSubtype =
-      presetObj.direction === 'left'  ? '1' :
-      presetObj.direction === 'right' ? '2' :
-      presetObj.direction === 'down'  ? '4' :
-      presetObj.direction === 'up'    ? '8' : '4';
+      presetObj.direction === 'left'
+        ? '1'
+        : presetObj.direction === 'right'
+          ? '2'
+          : presetObj.direction === 'down'
+            ? '4'
+            : presetObj.direction === 'up'
+              ? '8'
+              : '4';
     presetObj.filter = `wipe(${presetObj.direction})`;
   } else if (n.includes('split')) {
     presetObj.orientation = orientation || 'vertical';
@@ -228,7 +295,10 @@ const nextId = () => _id++;
 // ─────────────────────────────────────────────────────────────────────────────
 
 function buildTargetEl(spid, paragraphIndex, build) {
-  if ((build === 'paragraph' || build === 'letter') && paragraphIndex != null) {
+  if (build === 'paragraph' && paragraphIndex === 'bg') {
+    return `<p:tgtEl><p:spTgt spid="${spid}"><p:bg/></p:spTgt></p:tgtEl>`;
+  }
+  if (build === 'paragraph' && typeof paragraphIndex === 'number') {
     return `<p:tgtEl><p:spTgt spid="${spid}"><p:txEl><p:pRg st="${paragraphIndex}" end="${paragraphIndex}"/></p:txEl></p:spTgt></p:tgtEl>`;
   }
   return `<p:tgtEl><p:spTgt spid="${spid}"/></p:tgtEl>`;
@@ -236,18 +306,18 @@ function buildTargetEl(spid, paragraphIndex, build) {
 
 /** Visibility set — entrance: sets visible at start; exit: sets hidden at end */
 function buildVisibilitySet(spid, animClass, delay, paragraphIndex, build) {
-  const id  = nextId();
+  const id = nextId();
   const val = animClass === 'exit' ? 'hidden' : 'visible';
   const delayAttr = delay != null ? ` delay="${delay}"` : '';
   const targetEl = buildTargetEl(spid, paragraphIndex, build);
   return (
     '<p:set>' +
-      '<p:cBhvr>' +
-        `<p:cTn id="${id}" dur="1" fill="hold"><p:stCondLst><p:cond${delayAttr}/></p:stCondLst></p:cTn>` +
-        targetEl +
-        '<p:attrNameLst><p:attrName>style.visibility</p:attrName></p:attrNameLst>' +
-      '</p:cBhvr>' +
-      `<p:to><p:strVal val="${val}"/></p:to>` +
+    '<p:cBhvr>' +
+    `<p:cTn id="${id}" dur="1" fill="hold"><p:stCondLst><p:cond${delayAttr}/></p:stCondLst></p:cTn>` +
+    targetEl +
+    '<p:attrNameLst><p:attrName>style.visibility</p:attrName></p:attrNameLst>' +
+    '</p:cBhvr>' +
+    `<p:to><p:strVal val="${val}"/></p:to>` +
     '</p:set>'
   );
 }
@@ -257,9 +327,9 @@ function buildAnimEffect(spid, duration, transition, filter, paragraphIndex, bui
   const targetEl = buildTargetEl(spid, paragraphIndex, build);
   return (
     `<p:animEffect transition="${transition}" filter="${filter}">` +
-      `<p:cBhvr><p:cTn id="${id}" dur="${duration}"/>` +
-        targetEl +
-      '</p:cBhvr>' +
+    `<p:cBhvr><p:cTn id="${id}" dur="${duration}"/>` +
+    targetEl +
+    '</p:cBhvr>' +
     '</p:animEffect>'
   );
 }
@@ -269,16 +339,16 @@ function buildMotionAxisEntrance(spid, duration, attr, fromVal, toVal, paragraph
   const id = nextId();
   const targetEl = buildTargetEl(spid, paragraphIndex, build);
   return (
-    `<p:anim calcmode="lin" valueType="num">` +
-      `<p:cBhvr additive="base">` +
-        `<p:cTn id="${id}" dur="${duration}" fill="hold"/>` +
-        targetEl +
-        `<p:attrNameLst><p:attrName>${attr}</p:attrName></p:attrNameLst>` +
-      `</p:cBhvr>` +
-      `<p:tavLst>` +
-        `<p:tav tm="0"><p:val><p:strVal val="${fromVal}"/></p:val></p:tav>` +
-        `<p:tav tm="100000"><p:val><p:strVal val="${toVal}"/></p:val></p:tav>` +
-      `</p:tavLst>` +
+    `<p:anim calcMode="lin" valueType="num">` +
+    `<p:cBhvr additive="base">` +
+    `<p:cTn id="${id}" dur="${duration}" fill="hold"/>` +
+    targetEl +
+    `<p:attrNameLst><p:attrName>${attr}</p:attrName></p:attrNameLst>` +
+    `</p:cBhvr>` +
+    `<p:tavLst>` +
+    `<p:tav tm="0"><p:val><p:strVal val="${fromVal}"/></p:val></p:tav>` +
+    `<p:tav tm="100000"><p:val><p:strVal val="${toVal}"/></p:val></p:tav>` +
+    `</p:tavLst>` +
     `</p:anim>`
   );
 }
@@ -288,16 +358,16 @@ function buildMotionAxisExit(spid, duration, attr, fromVal, toVal, paragraphInde
   const id = nextId();
   const targetEl = buildTargetEl(spid, paragraphIndex, build);
   return (
-    `<p:anim calcmode="lin" valueType="num">` +
-      `<p:cBhvr additive="base">` +
-        `<p:cTn id="${id}" dur="${duration}"/>` +
-        targetEl +
-        `<p:attrNameLst><p:attrName>${attr}</p:attrName></p:attrNameLst>` +
-      `</p:cBhvr>` +
-      `<p:tavLst>` +
-        `<p:tav tm="0"><p:val><p:strVal val="${fromVal}"/></p:val></p:tav>` +
-        `<p:tav tm="100000"><p:val><p:strVal val="${toVal}"/></p:val></p:tav>` +
-      `</p:tavLst>` +
+    `<p:anim calcMode="lin" valueType="num">` +
+    `<p:cBhvr additive="base">` +
+    `<p:cTn id="${id}" dur="${duration}"/>` +
+    targetEl +
+    `<p:attrNameLst><p:attrName>${attr}</p:attrName></p:attrNameLst>` +
+    `</p:cBhvr>` +
+    `<p:tavLst>` +
+    `<p:tav tm="0"><p:val><p:strVal val="${fromVal}"/></p:val></p:tav>` +
+    `<p:tav tm="100000"><p:val><p:strVal val="${toVal}"/></p:val></p:tav>` +
+    `</p:tavLst>` +
     `</p:anim>`
   );
 }
@@ -305,24 +375,20 @@ function buildMotionAxisExit(spid, duration, attr, fromVal, toVal, paragraphInde
 /** Zoom anim: animates ppt_w and ppt_h */
 function buildZoomAxis(spid, duration, attr, fromVal, toVal, paragraphIndex, build) {
   const id = nextId();
-  const fromNode = typeof fromVal === 'number'
-    ? `<p:fltVal val="${fromVal}"/>`
-    : `<p:strVal val="${fromVal}"/>`;
-  const toNode = typeof toVal === 'number'
-    ? `<p:fltVal val="${toVal}"/>`
-    : `<p:strVal val="${toVal}"/>`;
+  const fromNode = typeof fromVal === 'number' ? `<p:fltVal val="${fromVal}"/>` : `<p:strVal val="${fromVal}"/>`;
+  const toNode = typeof toVal === 'number' ? `<p:fltVal val="${toVal}"/>` : `<p:strVal val="${toVal}"/>`;
   const targetEl = buildTargetEl(spid, paragraphIndex, build);
   return (
-    `<p:anim calcmode="lin" valueType="num">` +
-      `<p:cBhvr>` +
-        `<p:cTn id="${id}" dur="${duration}" fill="hold"/>` +
-        targetEl +
-        `<p:attrNameLst><p:attrName>${attr}</p:attrName></p:attrNameLst>` +
-      `</p:cBhvr>` +
-      `<p:tavLst>` +
-        `<p:tav tm="0"><p:val>${fromNode}</p:val></p:tav>` +
-        `<p:tav tm="100000"><p:val>${toNode}</p:val></p:tav>` +
-      `</p:tavLst>` +
+    `<p:anim calcMode="lin" valueType="num">` +
+    `<p:cBhvr>` +
+    `<p:cTn id="${id}" dur="${duration}" fill="hold"/>` +
+    targetEl +
+    `<p:attrNameLst><p:attrName>${attr}</p:attrName></p:attrNameLst>` +
+    `</p:cBhvr>` +
+    `<p:tavLst>` +
+    `<p:tav tm="0"><p:val>${fromNode}</p:val></p:tav>` +
+    `<p:tav tm="100000"><p:val>${toNode}</p:val></p:tav>` +
+    `</p:tavLst>` +
     `</p:anim>`
   );
 }
@@ -345,15 +411,15 @@ function buildBounceEntranceChildren(spid, duration, paragraphIndex, build) {
   const d4 = Math.round(332 * scale);
   const d5 = Math.round(164 * scale);
 
-  const id1  = nextId();
-  const id2  = nextId();
-  const id3  = nextId();
-  const id4  = nextId();
-  const id5  = nextId();
-  const id6  = nextId();
-  const id7  = nextId();
-  const id8  = nextId();
-  const id9  = nextId();
+  const id1 = nextId();
+  const id2 = nextId();
+  const id3 = nextId();
+  const id4 = nextId();
+  const id5 = nextId();
+  const id6 = nextId();
+  const id7 = nextId();
+  const id8 = nextId();
+  const id9 = nextId();
   const id10 = nextId();
   const id11 = nextId();
   const id12 = nextId();
@@ -369,9 +435,9 @@ function buildBounceEntranceChildren(spid, duration, paragraphIndex, build) {
   const aniScale6Delay = Math.round(1668 * scale);
   const aniScale7Delay = Math.round(1808 * scale);
   const aniScale8Delay = Math.round(1834 * scale);
-  const d2delay       = Math.round(664 * scale);
-  const d3delay       = Math.round(1324 * scale);
-  const d4delay       = Math.round(1656 * scale);
+  const d2delay = Math.round(664 * scale);
+  const d3delay = Math.round(1324 * scale);
+  const d4delay = Math.round(1656 * scale);
 
   const targetEl = buildTargetEl(spid, paragraphIndex, build);
 
@@ -379,12 +445,12 @@ function buildBounceEntranceChildren(spid, duration, paragraphIndex, build) {
     buildVisibilitySet(spid, 'entr', 0, paragraphIndex, build) +
     `<p:animEffect transition="in" filter="wipe(down)"><p:cBhvr><p:cTn id="${id1}" dur="${filterDur}"><p:stCondLst><p:cond delay="0"/></p:stCondLst></p:cTn>${targetEl}</p:cBhvr></p:animEffect>` +
     // ppt_x slide (bouncing in from left with deceleration)
-    `<p:anim calcmode="lin" valueType="num"><p:cBhvr><p:cTn id="${id2}" dur="${d1}" tmFilter="0,0; 0.14,0.36; 0.43,0.73; 0.71,0.91; 1.0,1.0"><p:stCondLst><p:cond delay="0"/></p:stCondLst></p:cTn>${targetEl}<p:attrNameLst><p:attrName>ppt_x</p:attrName></p:attrNameLst></p:cBhvr><p:tavLst><p:tav tm="0"><p:val><p:strVal val="#ppt_x-0.25"/></p:val></p:tav><p:tav tm="100000"><p:val><p:strVal val="#ppt_x"/></p:val></p:tav></p:tavLst></p:anim>` +
+    `<p:anim calcMode="lin" valueType="num"><p:cBhvr><p:cTn id="${id2}" dur="${d1}" tmFilter="0,0; 0.14,0.36; 0.43,0.73; 0.71,0.91; 1.0,1.0"><p:stCondLst><p:cond delay="0"/></p:stCondLst></p:cTn>${targetEl}<p:attrNameLst><p:attrName>ppt_x</p:attrName></p:attrNameLst></p:cBhvr><p:tavLst><p:tav tm="0"><p:val><p:strVal val="#ppt_x-0.25"/></p:val></p:tav><p:tav tm="100000"><p:val><p:strVal val="#ppt_x"/></p:val></p:tav></p:tavLst></p:anim>` +
     // ppt_y bounce phases
-    `<p:anim calcmode="lin" valueType="num"><p:cBhvr><p:cTn id="${id3}" dur="${d2}" tmFilter="0.0,0.0; 0.25,0.07; 0.50,0.2; 0.75,0.467; 1.0,1.0"><p:stCondLst><p:cond delay="0"/></p:stCondLst></p:cTn>${targetEl}<p:attrNameLst><p:attrName>ppt_y</p:attrName></p:attrNameLst></p:cBhvr><p:tavLst><p:tav tm="0" fmla="#ppt_y-sin(pi*$)/3"><p:val><p:fltVal val="0.5"/></p:val></p:tav><p:tav tm="100000"><p:val><p:fltVal val="1"/></p:val></p:tav></p:tavLst></p:anim>` +
-    `<p:anim calcmode="lin" valueType="num"><p:cBhvr><p:cTn id="${id4}" dur="${d3}" tmFilter="0, 0; 0.125,0.2665; 0.25,0.4; 0.375,0.465; 0.5,0.5;  0.625,0.535; 0.75,0.6; 0.875,0.7335; 1,1"><p:stCondLst><p:cond delay="${d2delay}"/></p:stCondLst></p:cTn>${targetEl}<p:attrNameLst><p:attrName>ppt_y</p:attrName></p:attrNameLst></p:cBhvr><p:tavLst><p:tav tm="0" fmla="#ppt_y-sin(pi*$)/9"><p:val><p:fltVal val="0"/></p:val></p:tav><p:tav tm="100000"><p:val><p:fltVal val="1"/></p:val></p:tav></p:tavLst></p:anim>` +
-    `<p:anim calcmode="lin" valueType="num"><p:cBhvr><p:cTn id="${id5}" dur="${d4}" tmFilter="0, 0; 0.125,0.2665; 0.25,0.4; 0.375,0.465; 0.5,0.5;  0.625,0.535; 0.75,0.6; 0.875,0.7335; 1,1"><p:stCondLst><p:cond delay="${d3delay}"/></p:stCondLst></p:cTn>${targetEl}<p:attrNameLst><p:attrName>ppt_y</p:attrName></p:attrNameLst></p:cBhvr><p:tavLst><p:tav tm="0" fmla="#ppt_y-sin(pi*$)/27"><p:val><p:fltVal val="0"/></p:val></p:tav><p:tav tm="100000"><p:val><p:fltVal val="1"/></p:val></p:tav></p:tavLst></p:anim>` +
-    `<p:anim calcmode="lin" valueType="num"><p:cBhvr><p:cTn id="${id6}" dur="${d5}" tmFilter="0, 0; 0.125,0.2665; 0.25,0.4; 0.375,0.465; 0.5,0.5;  0.625,0.535; 0.75,0.6; 0.875,0.7335; 1,1"><p:stCondLst><p:cond delay="${d4delay}"/></p:stCondLst></p:cTn>${targetEl}<p:attrNameLst><p:attrName>ppt_y</p:attrName></p:attrNameLst></p:cBhvr><p:tavLst><p:tav tm="0" fmla="#ppt_y-sin(pi*$)/81"><p:val><p:fltVal val="0"/></p:val></p:tav><p:tav tm="100000"><p:val><p:fltVal val="1"/></p:val></p:tav></p:tavLst></p:anim>` +
+    `<p:anim calcMode="lin" valueType="num"><p:cBhvr><p:cTn id="${id3}" dur="${d2}" tmFilter="0.0,0.0; 0.25,0.07; 0.50,0.2; 0.75,0.467; 1.0,1.0"><p:stCondLst><p:cond delay="0"/></p:stCondLst></p:cTn>${targetEl}<p:attrNameLst><p:attrName>ppt_y</p:attrName></p:attrNameLst></p:cBhvr><p:tavLst><p:tav tm="0" fmla="#ppt_y-sin(pi*$)/3"><p:val><p:fltVal val="0.5"/></p:val></p:tav><p:tav tm="100000"><p:val><p:fltVal val="1"/></p:val></p:tav></p:tavLst></p:anim>` +
+    `<p:anim calcMode="lin" valueType="num"><p:cBhvr><p:cTn id="${id4}" dur="${d3}" tmFilter="0, 0; 0.125,0.2665; 0.25,0.4; 0.375,0.465; 0.5,0.5;  0.625,0.535; 0.75,0.6; 0.875,0.7335; 1,1"><p:stCondLst><p:cond delay="${d2delay}"/></p:stCondLst></p:cTn>${targetEl}<p:attrNameLst><p:attrName>ppt_y</p:attrName></p:attrNameLst></p:cBhvr><p:tavLst><p:tav tm="0" fmla="#ppt_y-sin(pi*$)/9"><p:val><p:fltVal val="0"/></p:val></p:tav><p:tav tm="100000"><p:val><p:fltVal val="1"/></p:val></p:tav></p:tavLst></p:anim>` +
+    `<p:anim calcMode="lin" valueType="num"><p:cBhvr><p:cTn id="${id5}" dur="${d4}" tmFilter="0, 0; 0.125,0.2665; 0.25,0.4; 0.375,0.465; 0.5,0.5;  0.625,0.535; 0.75,0.6; 0.875,0.7335; 1,1"><p:stCondLst><p:cond delay="${d3delay}"/></p:stCondLst></p:cTn>${targetEl}<p:attrNameLst><p:attrName>ppt_y</p:attrName></p:attrNameLst></p:cBhvr><p:tavLst><p:tav tm="0" fmla="#ppt_y-sin(pi*$)/27"><p:val><p:fltVal val="0"/></p:val></p:tav><p:tav tm="100000"><p:val><p:fltVal val="1"/></p:val></p:tav></p:tavLst></p:anim>` +
+    `<p:anim calcMode="lin" valueType="num"><p:cBhvr><p:cTn id="${id6}" dur="${d5}" tmFilter="0, 0; 0.125,0.2665; 0.25,0.4; 0.375,0.465; 0.5,0.5;  0.625,0.535; 0.75,0.6; 0.875,0.7335; 1,1"><p:stCondLst><p:cond delay="${d4delay}"/></p:stCondLst></p:cTn>${targetEl}<p:attrNameLst><p:attrName>ppt_y</p:attrName></p:attrNameLst></p:cBhvr><p:tavLst><p:tav tm="0" fmla="#ppt_y-sin(pi*$)/81"><p:val><p:fltVal val="0"/></p:val></p:tav><p:tav tm="100000"><p:val><p:fltVal val="1"/></p:val></p:tav></p:tavLst></p:anim>` +
     // animScale blocks
     `<p:animScale><p:cBhvr><p:cTn id="${id7}" dur="26"><p:stCondLst><p:cond delay="${aniScale1Delay}"/></p:stCondLst></p:cTn>${targetEl}</p:cBhvr><p:to x="100000" y="60000"/></p:animScale>` +
     `<p:animScale><p:cBhvr><p:cTn id="${id8}" dur="166" decel="50000"><p:stCondLst><p:cond delay="${aniScale2Delay}"/></p:stCondLst></p:cTn>${targetEl}</p:cBhvr><p:to x="100000" y="100000"/></p:animScale>` +
@@ -413,16 +479,16 @@ function buildBounceExitChildren(spid, duration, paragraphIndex, build) {
   const d1 = Math.round(1822 * scale);
   const d2 = Math.round(664 * scale);
   const d3 = Math.round(664 * scale);
-  const d4 = Math.round(332 * scale);
+
   const d5 = Math.round(164 * scale);
   const wipeDelay = Math.round(1820 * scale);
-  const wipeDur   = Math.round(180 * scale);
-  const d2delay   = Math.round(664 * scale);
-  const d3delay   = Math.round(1324 * scale);
-  const d4delay   = Math.round(1656 * scale);
-  const xDur2     = Math.round(178 * scale);
-  const xDelay2   = Math.round(1822 * scale);
-  const hidDelay  = totalDur - 1;
+  const wipeDur = Math.round(180 * scale);
+  const d2delay = Math.round(664 * scale);
+  const d3delay = Math.round(1324 * scale);
+  const d4delay = Math.round(1656 * scale);
+  const xDur2 = Math.round(178 * scale);
+  const xDelay2 = Math.round(1822 * scale);
+  const hidDelay = totalDur - 1;
 
   const targetEl = buildTargetEl(spid, paragraphIndex, build);
 
@@ -430,15 +496,15 @@ function buildBounceExitChildren(spid, duration, paragraphIndex, build) {
     // wipe out at end (after bounces are done)
     `<p:animEffect transition="out" filter="wipe(down)"><p:cBhvr><p:cTn id="${ids[0]}" dur="${wipeDur}" accel="50000"><p:stCondLst><p:cond delay="${wipeDelay}"/></p:stCondLst></p:cTn>${targetEl}</p:cBhvr></p:animEffect>` +
     // ppt_x drift (element drifts to right while bouncing)
-    `<p:anim calcmode="lin" valueType="num"><p:cBhvr><p:cTn id="${ids[1]}" dur="${d1}" tmFilter="0,0; 0.14,0.31; 0.43,0.73; 0.71,0.91; 1.0,1.0"><p:stCondLst><p:cond delay="0"/></p:stCondLst></p:cTn>${targetEl}<p:attrNameLst><p:attrName>ppt_x</p:attrName></p:attrNameLst></p:cBhvr><p:tavLst><p:tav tm="0"><p:val><p:strVal val="ppt_x"/></p:val></p:tav><p:tav tm="100000"><p:val><p:strVal val="#ppt_x+0.25"/></p:val></p:tav></p:tavLst></p:anim>` +
-    `<p:anim calcmode="lin" valueType="num"><p:cBhvr><p:cTn id="${ids[2]}" dur="${xDur2}"><p:stCondLst><p:cond delay="${xDelay2}"/></p:stCondLst></p:cTn>${targetEl}<p:attrNameLst><p:attrName>ppt_x</p:attrName></p:attrNameLst></p:cBhvr><p:tavLst><p:tav tm="0"><p:val><p:strVal val="ppt_x"/></p:val></p:tav><p:tav tm="100000"><p:val><p:strVal val="ppt_x"/></p:val></p:tav></p:tavLst></p:anim>` +
+    `<p:anim calcMode="lin" valueType="num"><p:cBhvr><p:cTn id="${ids[1]}" dur="${d1}" tmFilter="0,0; 0.14,0.31; 0.43,0.73; 0.71,0.91; 1.0,1.0"><p:stCondLst><p:cond delay="0"/></p:stCondLst></p:cTn>${targetEl}<p:attrNameLst><p:attrName>ppt_x</p:attrName></p:attrNameLst></p:cBhvr><p:tavLst><p:tav tm="0"><p:val><p:strVal val="ppt_x"/></p:val></p:tav><p:tav tm="100000"><p:val><p:strVal val="#ppt_x+0.25"/></p:val></p:tav></p:tavLst></p:anim>` +
+    `<p:anim calcMode="lin" valueType="num"><p:cBhvr><p:cTn id="${ids[2]}" dur="${xDur2}"><p:stCondLst><p:cond delay="${xDelay2}"/></p:stCondLst></p:cTn>${targetEl}<p:attrNameLst><p:attrName>ppt_x</p:attrName></p:attrNameLst></p:cBhvr><p:tavLst><p:tav tm="0"><p:val><p:strVal val="ppt_x"/></p:val></p:tav><p:tav tm="100000"><p:val><p:strVal val="ppt_x"/></p:val></p:tav></p:tavLst></p:anim>` +
     // ppt_y bounce phases (downward bounces before flying off)
-    `<p:anim calcmode="lin" valueType="num"><p:cBhvr><p:cTn id="${ids[3]}" dur="${d2}" tmFilter="0.0,0.0;0.25,0.07;0.50,0.2;0.75,0.467;1.0,1.0"><p:stCondLst><p:cond delay="0"/></p:stCondLst></p:cTn>${targetEl}<p:attrNameLst><p:attrName>ppt_y</p:attrName></p:attrNameLst></p:cBhvr><p:tavLst><p:tav tm="0"><p:val><p:strVal val="ppt_y"/></p:val></p:tav><p:tav tm="5000"><p:val><p:strVal val="ppt_y+0.026"/></p:val></p:tav><p:tav tm="10000"><p:val><p:strVal val="ppt_y+0.052"/></p:val></p:tav><p:tav tm="15000"><p:val><p:strVal val="ppt_y+0.078"/></p:val></p:tav><p:tav tm="20000"><p:val><p:strVal val="ppt_y+0.103"/></p:val></p:tav><p:tav tm="30000"><p:val><p:strVal val="ppt_y+0.151"/></p:val></p:tav><p:tav tm="40000"><p:val><p:strVal val="ppt_y+0.196"/></p:val></p:tav><p:tav tm="50000"><p:val><p:strVal val="ppt_y+0.236"/></p:val></p:tav><p:tav tm="60000"><p:val><p:strVal val="ppt_y+0.270"/></p:val></p:tav><p:tav tm="70000"><p:val><p:strVal val="ppt_y+0.297"/></p:val></p:tav><p:tav tm="80000"><p:val><p:strVal val="ppt_y+0.317"/></p:val></p:tav><p:tav tm="90000"><p:val><p:strVal val="ppt_y+0.329"/></p:val></p:tav><p:tav tm="100000"><p:val><p:strVal val="ppt_y+0.333"/></p:val></p:tav></p:tavLst></p:anim>` +
-    `<p:anim calcmode="lin" valueType="num"><p:cBhvr><p:cTn id="${ids[4]}" dur="${d3}" tmFilter="0, 0; 0.125,0.2665; 0.25,0.4; 0.375,0.465; 0.5,0.5;  0.625,0.535; 0.75,0.6; 0.875,0.7335; 1,1"><p:stCondLst><p:cond delay="${d2delay}"/></p:stCondLst></p:cTn>${targetEl}<p:attrNameLst><p:attrName>ppt_y</p:attrName></p:attrNameLst></p:cBhvr><p:tavLst><p:tav tm="0"><p:val><p:strVal val="ppt_y"/></p:val></p:tav><p:tav tm="10000"><p:val><p:strVal val="ppt_y-0.034"/></p:val></p:tav><p:tav tm="20000"><p:val><p:strVal val="ppt_y-0.065"/></p:val></p:tav><p:tav tm="30000"><p:val><p:strVal val="ppt_y-0.090"/></p:val></p:tav><p:tav tm="40000"><p:val><p:strVal val="ppt_y-0.106"/></p:val></p:tav><p:tav tm="50000"><p:val><p:strVal val="ppt_y-0.111"/></p:val></p:tav><p:tav tm="60000"><p:val><p:strVal val="ppt_y-0.106"/></p:val></p:tav><p:tav tm="70000"><p:val><p:strVal val="ppt_y-0.090"/></p:val></p:tav><p:tav tm="80000"><p:val><p:strVal val="ppt_y-0.065"/></p:val></p:tav><p:tav tm="90000"><p:val><p:strVal val="ppt_y-0.034"/></p:val></p:tav><p:tav tm="100000"><p:val><p:strVal val="ppt_y"/></p:val></p:tav></p:tavLst></p:anim>` +
-    `<p:anim calcmode="lin" valueType="num"><p:cBhvr><p:cTn id="${ids[5]}" dur="${d5}" tmFilter="0, 0; 0.125,0.2665; 0.25,0.4; 0.375,0.465; 0.5,0.5;  0.625,0.535; 0.75,0.6; 0.875,0.7335; 1,1"><p:stCondLst><p:cond delay="${d3delay}"/></p:stCondLst></p:cTn>${targetEl}<p:attrNameLst><p:attrName>ppt_y</p:attrName></p:attrNameLst></p:cBhvr><p:tavLst><p:tav tm="0"><p:val><p:strVal val="ppt_y"/></p:val></p:tav><p:tav tm="10000"><p:val><p:strVal val="ppt_y-0.011"/></p:val></p:tav><p:tav tm="20000"><p:val><p:strVal val="ppt_y-0.022"/></p:val></p:tav><p:tav tm="30000"><p:val><p:strVal val="ppt_y-0.030"/></p:val></p:tav><p:tav tm="40000"><p:val><p:strVal val="ppt_y-0.035"/></p:val></p:tav><p:tav tm="50000"><p:val><p:strVal val="ppt_y-0.037"/></p:val></p:tav><p:tav tm="60000"><p:val><p:strVal val="ppt_y-0.035"/></p:val></p:tav><p:tav tm="70000"><p:val><p:strVal val="ppt_y-0.030"/></p:val></p:tav><p:tav tm="80000"><p:val><p:strVal val="ppt_y-0.022"/></p:val></p:tav><p:tav tm="90000"><p:val><p:strVal val="ppt_y-0.011"/></p:val></p:tav><p:tav tm="100000"><p:val><p:strVal val="ppt_y"/></p:val></p:tav></p:tavLst></p:anim>` +
-    `<p:anim calcmode="lin" valueType="num"><p:cBhvr><p:cTn id="${ids[6]}" dur="${d5}" tmFilter="0, 0; 0.125,0.2665; 0.25,0.4; 0.375,0.465; 0.5,0.5;  0.625,0.535; 0.75,0.6; 0.875,0.7335; 1,1"><p:stCondLst><p:cond delay="${d4delay}"/></p:stCondLst></p:cTn>${targetEl}<p:attrNameLst><p:attrName>ppt_y</p:attrName></p:attrNameLst></p:cBhvr><p:tavLst><p:tav tm="0"><p:val><p:strVal val="ppt_y"/></p:val></p:tav><p:tav tm="10000"><p:val><p:strVal val="ppt_y-0.004"/></p:val></p:tav><p:tav tm="20000"><p:val><p:strVal val="ppt_y-0.007"/></p:val></p:tav><p:tav tm="30000"><p:val><p:strVal val="ppt_y-0.010"/></p:val></p:tav><p:tav tm="40000"><p:val><p:strVal val="ppt_y-0.012"/></p:val></p:tav><p:tav tm="50000"><p:val><p:strVal val="ppt_y-0.0123"/></p:val></p:tav><p:tav tm="60000"><p:val><p:strVal val="ppt_y-0.012"/></p:val></p:tav><p:tav tm="70000"><p:val><p:strVal val="ppt_y-0.010"/></p:val></p:tav><p:tav tm="80000"><p:val><p:strVal val="ppt_y-0.007"/></p:val></p:tav><p:tav tm="90000"><p:val><p:strVal val="ppt_y-0.004"/></p:val></p:tav><p:tav tm="100000"><p:val><p:strVal val="ppt_y"/></p:val></p:tav></p:tavLst></p:anim>` +
+    `<p:anim calcMode="lin" valueType="num"><p:cBhvr><p:cTn id="${ids[3]}" dur="${d2}" tmFilter="0.0,0.0;0.25,0.07;0.50,0.2;0.75,0.467;1.0,1.0"><p:stCondLst><p:cond delay="0"/></p:stCondLst></p:cTn>${targetEl}<p:attrNameLst><p:attrName>ppt_y</p:attrName></p:attrNameLst></p:cBhvr><p:tavLst><p:tav tm="0"><p:val><p:strVal val="ppt_y"/></p:val></p:tav><p:tav tm="5000"><p:val><p:strVal val="ppt_y+0.026"/></p:val></p:tav><p:tav tm="10000"><p:val><p:strVal val="ppt_y+0.052"/></p:val></p:tav><p:tav tm="15000"><p:val><p:strVal val="ppt_y+0.078"/></p:val></p:tav><p:tav tm="20000"><p:val><p:strVal val="ppt_y+0.103"/></p:val></p:tav><p:tav tm="30000"><p:val><p:strVal val="ppt_y+0.151"/></p:val></p:tav><p:tav tm="40000"><p:val><p:strVal val="ppt_y+0.196"/></p:val></p:tav><p:tav tm="50000"><p:val><p:strVal val="ppt_y+0.236"/></p:val></p:tav><p:tav tm="60000"><p:val><p:strVal val="ppt_y+0.270"/></p:val></p:tav><p:tav tm="70000"><p:val><p:strVal val="ppt_y+0.297"/></p:val></p:tav><p:tav tm="80000"><p:val><p:strVal val="ppt_y+0.317"/></p:val></p:tav><p:tav tm="90000"><p:val><p:strVal val="ppt_y+0.329"/></p:val></p:tav><p:tav tm="100000"><p:val><p:strVal val="ppt_y+0.333"/></p:val></p:tav></p:tavLst></p:anim>` +
+    `<p:anim calcMode="lin" valueType="num"><p:cBhvr><p:cTn id="${ids[4]}" dur="${d3}" tmFilter="0, 0; 0.125,0.2665; 0.25,0.4; 0.375,0.465; 0.5,0.5;  0.625,0.535; 0.75,0.6; 0.875,0.7335; 1,1"><p:stCondLst><p:cond delay="${d2delay}"/></p:stCondLst></p:cTn>${targetEl}<p:attrNameLst><p:attrName>ppt_y</p:attrName></p:attrNameLst></p:cBhvr><p:tavLst><p:tav tm="0"><p:val><p:strVal val="ppt_y"/></p:val></p:tav><p:tav tm="10000"><p:val><p:strVal val="ppt_y-0.034"/></p:val></p:tav><p:tav tm="20000"><p:val><p:strVal val="ppt_y-0.065"/></p:val></p:tav><p:tav tm="30000"><p:val><p:strVal val="ppt_y-0.090"/></p:val></p:tav><p:tav tm="40000"><p:val><p:strVal val="ppt_y-0.106"/></p:val></p:tav><p:tav tm="50000"><p:val><p:strVal val="ppt_y-0.111"/></p:val></p:tav><p:tav tm="60000"><p:val><p:strVal val="ppt_y-0.106"/></p:val></p:tav><p:tav tm="70000"><p:val><p:strVal val="ppt_y-0.090"/></p:val></p:tav><p:tav tm="80000"><p:val><p:strVal val="ppt_y-0.065"/></p:val></p:tav><p:tav tm="90000"><p:val><p:strVal val="ppt_y-0.034"/></p:val></p:tav><p:tav tm="100000"><p:val><p:strVal val="ppt_y"/></p:val></p:tav></p:tavLst></p:anim>` +
+    `<p:anim calcMode="lin" valueType="num"><p:cBhvr><p:cTn id="${ids[5]}" dur="${d5}" tmFilter="0, 0; 0.125,0.2665; 0.25,0.4; 0.375,0.465; 0.5,0.5;  0.625,0.535; 0.75,0.6; 0.875,0.7335; 1,1"><p:stCondLst><p:cond delay="${d3delay}"/></p:stCondLst></p:cTn>${targetEl}<p:attrNameLst><p:attrName>ppt_y</p:attrName></p:attrNameLst></p:cBhvr><p:tavLst><p:tav tm="0"><p:val><p:strVal val="ppt_y"/></p:val></p:tav><p:tav tm="10000"><p:val><p:strVal val="ppt_y-0.011"/></p:val></p:tav><p:tav tm="20000"><p:val><p:strVal val="ppt_y-0.022"/></p:val></p:tav><p:tav tm="30000"><p:val><p:strVal val="ppt_y-0.030"/></p:val></p:tav><p:tav tm="40000"><p:val><p:strVal val="ppt_y-0.035"/></p:val></p:tav><p:tav tm="50000"><p:val><p:strVal val="ppt_y-0.037"/></p:val></p:tav><p:tav tm="60000"><p:val><p:strVal val="ppt_y-0.035"/></p:val></p:tav><p:tav tm="70000"><p:val><p:strVal val="ppt_y-0.030"/></p:val></p:tav><p:tav tm="80000"><p:val><p:strVal val="ppt_y-0.022"/></p:val></p:tav><p:tav tm="90000"><p:val><p:strVal val="ppt_y-0.011"/></p:val></p:tav><p:tav tm="100000"><p:val><p:strVal val="ppt_y"/></p:val></p:tav></p:tavLst></p:anim>` +
+    `<p:anim calcMode="lin" valueType="num"><p:cBhvr><p:cTn id="${ids[6]}" dur="${d5}" tmFilter="0, 0; 0.125,0.2665; 0.25,0.4; 0.375,0.465; 0.5,0.5;  0.625,0.535; 0.75,0.6; 0.875,0.7335; 1,1"><p:stCondLst><p:cond delay="${d4delay}"/></p:stCondLst></p:cTn>${targetEl}<p:attrNameLst><p:attrName>ppt_y</p:attrName></p:attrNameLst></p:cBhvr><p:tavLst><p:tav tm="0"><p:val><p:strVal val="ppt_y"/></p:val></p:tav><p:tav tm="10000"><p:val><p:strVal val="ppt_y-0.004"/></p:val></p:tav><p:tav tm="20000"><p:val><p:strVal val="ppt_y-0.007"/></p:val></p:tav><p:tav tm="30000"><p:val><p:strVal val="ppt_y-0.010"/></p:val></p:tav><p:tav tm="40000"><p:val><p:strVal val="ppt_y-0.012"/></p:val></p:tav><p:tav tm="50000"><p:val><p:strVal val="ppt_y-0.0123"/></p:val></p:tav><p:tav tm="60000"><p:val><p:strVal val="ppt_y-0.012"/></p:val></p:tav><p:tav tm="70000"><p:val><p:strVal val="ppt_y-0.010"/></p:val></p:tav><p:tav tm="80000"><p:val><p:strVal val="ppt_y-0.007"/></p:val></p:tav><p:tav tm="90000"><p:val><p:strVal val="ppt_y-0.004"/></p:val></p:tav><p:tav tm="100000"><p:val><p:strVal val="ppt_y"/></p:val></p:tav></p:tavLst></p:anim>` +
     // final acceleration y
-    `<p:anim calcmode="lin" valueType="num"><p:cBhvr><p:cTn id="${ids[7]}" dur="${wipeDur}" accel="50000"><p:stCondLst><p:cond delay="${wipeDelay}"/></p:stCondLst></p:cTn>${targetEl}<p:attrNameLst><p:attrName>ppt_y</p:attrName></p:attrNameLst></p:cBhvr><p:tavLst><p:tav tm="0"><p:val><p:strVal val="ppt_y"/></p:val></p:tav><p:tav tm="100000"><p:val><p:strVal val="1+ppt_h/2"/></p:val></p:tav></p:tavLst></p:anim>` +
+    `<p:anim calcMode="lin" valueType="num"><p:cBhvr><p:cTn id="${ids[7]}" dur="${wipeDur}" accel="50000"><p:stCondLst><p:cond delay="${wipeDelay}"/></p:stCondLst></p:cTn>${targetEl}<p:attrNameLst><p:attrName>ppt_y</p:attrName></p:attrNameLst></p:cBhvr><p:tavLst><p:tav tm="0"><p:val><p:strVal val="ppt_y"/></p:val></p:tav><p:tav tm="100000"><p:val><p:strVal val="1+ppt_h/2"/></p:val></p:tav></p:tavLst></p:anim>` +
     // visibility hide at the very end
     buildVisibilitySet(spid, 'exit', hidDelay, paragraphIndex, build)
   );
@@ -459,7 +525,7 @@ function buildEffectChildren(spid, preset, duration, animClass, paragraphIndex, 
 
   if (preset.type === 'bounce') {
     if (isExit) return buildBounceExitChildren(spid, duration, paragraphIndex, build);
-    else        return buildBounceEntranceChildren(spid, duration, paragraphIndex, build);
+    else return buildBounceEntranceChildren(spid, duration, paragraphIndex, build);
   }
 
   if (preset.type === 'filter') {
@@ -500,8 +566,10 @@ function buildEffectChildren(spid, preset, duration, animClass, paragraphIndex, 
 
   if (preset.type === 'fly-entr') {
     const dir = preset.direction || 'up';
-    let fromX = '#ppt_x', toX = '#ppt_x';
-    let fromY = '#ppt_y', toY = '#ppt_y';
+    let fromX = '#ppt_x',
+      toX = '#ppt_x';
+    let fromY = '#ppt_y',
+      toY = '#ppt_y';
 
     if (dir === 'up') {
       fromY = '1+#ppt_h/2';
@@ -522,8 +590,10 @@ function buildEffectChildren(spid, preset, duration, animClass, paragraphIndex, 
 
   if (preset.type === 'fly-exit') {
     const dir = preset.direction || 'down';
-    let fromX = 'ppt_x', toX = 'ppt_x';
-    let fromY = 'ppt_y', toY = 'ppt_y';
+    let fromX = 'ppt_x',
+      toX = 'ppt_x';
+    let fromY = 'ppt_y',
+      toY = 'ppt_y';
 
     if (dir === 'up') {
       toY = '-ppt_h/2';
@@ -545,7 +615,7 @@ function buildEffectChildren(spid, preset, duration, animClass, paragraphIndex, 
   // Default fallback for simple effects (fade, wipe, etc)
   const transition = animClass === 'entr' ? 'in' : 'out';
   const filter = preset.filter || 'fade';
-  
+
   if (animClass === 'exit') {
     return (
       buildAnimEffect(spid, duration, transition, filter, paragraphIndex, build) +
@@ -565,59 +635,28 @@ function buildEffectChildren(spid, preset, duration, animClass, paragraphIndex, 
  */
 function buildEffectPar(spid, preset, duration, animClass, nodeType, paragraphIndex, build) {
   const id = nextId();
-  
+
   // PowerPoint requires grpId="0" for all standard sequence animations to prevent the ⚡ trigger symbol
   const grpAttr = ' grpId="0"';
-  
+
   // For zero-duration effects (appear/disappear), PowerPoint expects an absolute delay between letters (tmAbs).
   // Using tmPct on a zero-duration effect causes PPTX corruption.
   const isZeroDuration = preset.type === 'set';
-  const iterateXml = (build === 'letter') 
-    ? (isZeroDuration ? '<p:iterate type="lt"><p:tmAbs val="500"/></p:iterate>' : '<p:iterate type="lt"><p:tmPct val="10000"/></p:iterate>') 
-    : '';
+  const iterateXml =
+    build === 'letter'
+      ? isZeroDuration
+        ? '<p:iterate type="lt"><p:tmAbs val="500"/></p:iterate>'
+        : '<p:iterate type="lt"><p:tmPct val="10000"/></p:iterate>'
+      : '';
 
   return (
     '<p:par>' +
-      `<p:cTn id="${id}" presetID="${preset.presetId}" presetClass="${animClass}" ` +
-      `presetSubtype="${preset.presetSubtype}" fill="hold"${grpAttr} nodeType="${nodeType}">` +
-        '<p:stCondLst><p:cond delay="0"/></p:stCondLst>' +
-        iterateXml +
-        `<p:childTnLst>${buildEffectChildren(spid, preset, duration, animClass, paragraphIndex, build)}</p:childTnLst>` +
-      '</p:cTn>' +
-    '</p:par>'
-  );
-}
-
-/**
- * Builds ONE inner <p:par> wrapper that holds one or more effect pars as siblings.
- * The delay goes on this wrapper's cTn (0 for click/with, cumulative ms for after).
- */
-function buildInnerWrapper(delay, effects) {
-  const id = nextId();
-  const effectParXml = effects.map(e => buildEffectPar(e)).join('');
-  return (
-    '<p:par>' +
-      `<p:cTn id="${id}" fill="hold">` +
-        `<p:stCondLst><p:cond delay="${delay}"/></p:stCondLst>` +
-        `<p:childTnLst>${effectParXml}</p:childTnLst>` +
-      '</p:cTn>' +
-    '</p:par>'
-  );
-}
-
-/**
- * Builds one outer click-group <p:par>.
- * delay="indefinite" → PowerPoint shows numbered animation (not ⚡).
- */
-function buildClickGroupPar(innerWrappers) {
-  const id = nextId();
-  const innerXml = innerWrappers.join('');
-  return (
-    '<p:par>' +
-      `<p:cTn id="${id}" fill="hold">` +
-        '<p:stCondLst><p:cond delay="indefinite"/></p:stCondLst>' +
-        `<p:childTnLst>${innerXml}</p:childTnLst>` +
-      '</p:cTn>' +
+    `<p:cTn id="${id}" presetID="${preset.presetId}" presetClass="${animClass}" ` +
+    `presetSubtype="${preset.presetSubtype}" fill="hold"${grpAttr} nodeType="${nodeType}">` +
+    '<p:stCondLst><p:cond delay="0"/></p:stCondLst>' +
+    iterateXml +
+    `<p:childTnLst>${buildEffectChildren(spid, preset, duration, animClass, paragraphIndex, build)}</p:childTnLst>` +
+    '</p:cTn>' +
     '</p:par>'
   );
 }
@@ -634,7 +673,7 @@ function buildClickGroupPar(innerWrappers) {
  * @param {Map<number,string[]>} domToSpIdMap
  * @returns {string}
  */
-export function buildTimingXml(animations, domToSpIdMap) {
+export function buildTimingXml(animations, domToSpIdMap, textBoxSpIds) {
   if (!animations || animations.length === 0) return '';
 
   // ── 1. Resolve animations to shape IDs ──────────────────────────────────
@@ -654,12 +693,29 @@ export function buildTimingXml(animations, domToSpIdMap) {
     const numParagraphs = anim.numParagraphs || 1;
 
     for (const spid of spIds) {
-      if (build === 'paragraph' || build === 'letter') {
+      // Non-textbox shapes (like pictures or empty shapes) cannot have paragraph/letter builds
+      const isTextBox = !textBoxSpIds || textBoxSpIds.has(spid);
+      const actualBuild = isTextBox ? build : 'all';
+
+      if (actualBuild === 'paragraph') {
         shapeBuilds.set(spid, 'p');
-        // Expand to one step per paragraph
+
+        // 1. Add background step (required by PowerPoint for timeline consistency when animBg="1")
+        resolved.push({
+          spid,
+          preset,
+          duration: anim.duration,
+          animClass,
+          start: anim.start,
+          selfDelay: anim.delay || 0,
+          paragraphIndex: 'bg',
+          build: actualBuild,
+        });
+
+        // 2. Expand to one step per paragraph
         for (let pIdx = 0; pIdx < numParagraphs; pIdx++) {
-          const pStart = pIdx === 0 ? anim.start : (anim.start === 'with' ? 'with' : 'after');
-          const pDelay = pIdx === 0 ? (anim.delay || 0) : 0;
+          const pStart = pIdx === 0 ? 'with' : anim.start === 'with' ? 'with' : 'after';
+          const pDelay = 0;
           resolved.push({
             spid,
             preset,
@@ -668,7 +724,7 @@ export function buildTimingXml(animations, domToSpIdMap) {
             start: pStart,
             selfDelay: pDelay,
             paragraphIndex: pIdx,
-            build,
+            build: actualBuild,
           });
         }
       } else {
@@ -681,7 +737,7 @@ export function buildTimingXml(animations, domToSpIdMap) {
           start: anim.start,
           selfDelay: anim.delay || 0,
           paragraphIndex: null,
-          build,
+          build: actualBuild,
         });
       }
     }
@@ -690,22 +746,20 @@ export function buildTimingXml(animations, domToSpIdMap) {
 
   // ── 2. Group into click-groups ───────────────────────────────────────────
   const clickGroups = [];
-  let currentOuter  = null;
-  let currentInner  = null;
-  let groupTime     = 0;
-  let lastDuration  = 0;
+  let currentOuter = null;
+  let currentInner = null;
+  let groupTime = 0;
+  let lastDuration = 0;
 
   for (const e of resolved) {
     if (e.start === 'click' || currentOuter === null) {
       currentInner = [{ ...e, nodeType: 'clickEffect', innerDelay: 0 }];
       currentOuter = [currentInner];
       clickGroups.push(currentOuter);
-      groupTime    = 0;
+      groupTime = 0;
       lastDuration = e.duration;
-
     } else if (e.start === 'with') {
       currentInner.push({ ...e, nodeType: 'withEffect', innerDelay: currentInner[0].innerDelay });
-
     } else if (e.start === 'after') {
       groupTime += lastDuration + e.selfDelay;
       lastDuration = e.duration;
@@ -720,68 +774,85 @@ export function buildTimingXml(animations, domToSpIdMap) {
   // PowerPoint struggles to resolve the timeline and drops the frame rate to ~5fps
   // (causing the stop-motion/buffering effect).
   _id = 1;
-  const rootId    = nextId(); // 1
+  const rootId = nextId(); // 1
   const mainSeqId = nextId(); // 2
 
   let allClickGroupXml = '';
   for (const innerWrappers of clickGroups) {
     const outerId = nextId();
     allClickGroupXml += `<p:par><p:cTn id="${outerId}" fill="hold"><p:stCondLst><p:cond delay="indefinite"/></p:stCondLst><p:childTnLst>`;
-    
+
     for (const effects of innerWrappers) {
       const innerId = nextId();
       const delay = effects[0].innerDelay;
       allClickGroupXml += `<p:par><p:cTn id="${innerId}" fill="hold"><p:stCondLst><p:cond delay="${delay}"/></p:stCondLst><p:childTnLst>`;
-      
+
       for (const e of effects) {
-        allClickGroupXml += buildEffectPar(e.spid, e.preset, e.duration, e.animClass, e.nodeType, e.paragraphIndex, e.build);
+        allClickGroupXml += buildEffectPar(
+          e.spid,
+          e.preset,
+          e.duration,
+          e.animClass,
+          e.nodeType,
+          e.paragraphIndex,
+          e.build
+        );
       }
-      
+
       allClickGroupXml += `</p:childTnLst></p:cTn></p:par>`;
     }
-    
+
     allClickGroupXml += `</p:childTnLst></p:cTn></p:par>`;
   }
 
-  // ── 4. Build p:bldLst (animBg="1" removed to fix stuttering) ───────────
+  // ── 4. Build p:bldLst (animBg="1" restored because PowerPoint requires it for compliance) ───
   const animatedSpids = [];
   const seen = new Set();
   for (const group of clickGroups) {
     for (const wrapper of group) {
       for (const e of wrapper) {
-        if (!seen.has(e.spid)) { seen.add(e.spid); animatedSpids.push(e.spid); }
+        if (!seen.has(e.spid)) {
+          seen.add(e.spid);
+          animatedSpids.push(e.spid);
+        }
       }
     }
   }
-  const bldLst = animatedSpids.length > 0
-    ? `<p:bldLst>${animatedSpids.map(s => {
-        const buildType = shapeBuilds.get(s);
-        if (buildType === 'p') {
-          return `<p:bldP spid="${s}" grpId="0" build="p"/>`;
-        }
-        return `<p:bldP spid="${s}" grpId="0"/>`;
-      }).join('')}</p:bldLst>`
-    : '';
+  const bldLst =
+    animatedSpids.length > 0
+      ? `<p:bldLst>${animatedSpids
+          .filter((s) => !textBoxSpIds || textBoxSpIds.has(s))
+          .map((s) => {
+            const buildType = shapeBuilds.get(s);
+            if (buildType === 'p') {
+              return `<p:bldP spid="${s}" grpId="0" build="p" animBg="1"/>`;
+            }
+            // animBg="1" is required for all animated textboxes in bldLst —
+            // this matches how PowerPoint's own export always formats bldP entries.
+            return `<p:bldP spid="${s}" grpId="0" animBg="1"/>`;
+          })
+          .join('')}</p:bldLst>`
+      : '';
 
   return (
     '<p:timing xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main">' +
-      '<p:tnLst>' +
-        '<p:par>' +
-          `<p:cTn id="${rootId}" dur="indefinite" restart="never" nodeType="tmRoot">` +
-            '<p:childTnLst>' +
-              '<p:seq concurrent="1" nextAc="seek">' +
-                `<p:cTn id="${mainSeqId}" dur="indefinite" nodeType="mainSeq">` +
-                  `<p:childTnLst>${allClickGroupXml}</p:childTnLst>` +
-                '</p:cTn>' +
-                // CRITICAL: <p:sldTgt/> for numbered animations (not ⚡)
-                '<p:prevCondLst><p:cond evt="onPrev" delay="0"><p:tgtEl><p:sldTgt/></p:tgtEl></p:cond></p:prevCondLst>' +
-                '<p:nextCondLst><p:cond evt="onNext" delay="0"><p:tgtEl><p:sldTgt/></p:tgtEl></p:cond></p:nextCondLst>' +
-              '</p:seq>' +
-            '</p:childTnLst>' +
-          '</p:cTn>' +
-        '</p:par>' +
-      '</p:tnLst>' +
-      bldLst +
+    '<p:tnLst>' +
+    '<p:par>' +
+    `<p:cTn id="${rootId}" dur="indefinite" restart="never" nodeType="tmRoot">` +
+    '<p:childTnLst>' +
+    '<p:seq concurrent="1" nextAc="seek">' +
+    `<p:cTn id="${mainSeqId}" dur="indefinite" nodeType="mainSeq">` +
+    `<p:childTnLst>${allClickGroupXml}</p:childTnLst>` +
+    '</p:cTn>' +
+    // CRITICAL: <p:sldTgt/> for numbered animations (not ⚡)
+    '<p:prevCondLst><p:cond evt="onPrev" delay="0"><p:tgtEl><p:sldTgt/></p:tgtEl></p:cond></p:prevCondLst>' +
+    '<p:nextCondLst><p:cond evt="onNext" delay="0"><p:tgtEl><p:sldTgt/></p:tgtEl></p:cond></p:nextCondLst>' +
+    '</p:seq>' +
+    '</p:childTnLst>' +
+    '</p:cTn>' +
+    '</p:par>' +
+    '</p:tnLst>' +
+    bldLst +
     '</p:timing>'
   );
 }

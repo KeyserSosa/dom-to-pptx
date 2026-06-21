@@ -36,9 +36,14 @@ export class PPTXEmbedFonts {
     }
   }
 
-  async addFont(fontFace, fontBuffer, type) {
+  async addFont(fontFace, source, typeOrWasmUrl, wasmUrl) {
     // Convert to EOT/fntdata for PPTX compatibility
-    const eotData = await fontToEot(type, fontBuffer);
+    let eotData;
+    if (Array.isArray(source)) {
+      eotData = await fontToEot(source, typeOrWasmUrl);
+    } else {
+      eotData = await fontToEot(typeOrWasmUrl, source, wasmUrl);
+    }
     const rid = this.rId++;
     this.fonts.push({ name: fontFace, data: eotData, rid });
   }
@@ -156,10 +161,7 @@ export class PPTXEmbedFonts {
       const rel = doc.createElementNS(RELS_NS, 'Relationship');
       rel.setAttribute('Id', `rId${font.rid}`);
       rel.setAttribute('Target', `fonts/${font.rid}.fntdata`);
-      rel.setAttribute(
-        'Type',
-        'http://schemas.openxmlformats.org/officeDocument/2006/relationships/font'
-      );
+      rel.setAttribute('Type', 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/font');
       relationships.appendChild(rel);
     });
 

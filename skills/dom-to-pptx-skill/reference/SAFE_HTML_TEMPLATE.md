@@ -1,10 +1,12 @@
 # Safe HTML Template for dom-to-pptx
 
-A minimal, copy-paste starting template that respects **every** dom-to-pptx compatibility constraint. Use this as the skeleton for any new deck — every rule below is enforced by the scanner in [VALIDATION.md](VALIDATION.md).
+A minimal, copy-paste starting template that respects **every** dom-to-pptx compatibility constraint. Use this as the skeleton for any new deck — every rule below is enforced by the scanner in
+[VALIDATION.md](VALIDATION.md).
 
 ## Why "safe"?
 
-dom-to-pptx converts DOM → native PPTX shapes by reading `getBoundingClientRect()` and computed styles. It ignores animations, fails silently on non-CORS images, and has partial support for a handful of CSS properties (see [STYLE_WHITELIST.md](STYLE_WHITELIST.md)). This template sticks to the **intersection** of what dom-to-pptx reliably converts and what looks good in PowerPoint after export.
+dom-to-pptx converts DOM → native PPTX shapes by reading `getBoundingClientRect()` and computed styles. It ignores animations, fails silently on non-CORS images, and has partial support for a handful
+of CSS properties (see [STYLE_WHITELIST.md](STYLE_WHITELIST.md)). This template sticks to the **intersection** of what dom-to-pptx reliably converts and what looks good in PowerPoint after export.
 
 ## The template
 
@@ -23,6 +25,9 @@ dom-to-pptx converts DOM → native PPTX shapes by reading `getBoundingClientRec
       rel="stylesheet"
       crossorigin="anonymous"
     />
+    <!-- Animations & transitions stylesheets (required for browser previews of element animations; note: slide transitions are not previewed in-browser) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/dom-to-pptx@latest/dist/animations.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/dom-to-pptx@latest/dist/transitions.css" />
 
     <style>
       /* Only page chrome lives here. Slide content uses INLINE styles. */
@@ -42,26 +47,6 @@ dom-to-pptx converts DOM → native PPTX shapes by reading `getBoundingClientRec
         gap: 24px;
         padding: 40px 0;
       }
-
-      /* Export button — NOT a .slide, will not be captured */
-      .export-btn {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        z-index: 9999;
-        padding: 14px 28px;
-        border: none;
-        border-radius: 8px;
-        background: #4361ee;
-        color: #fff;
-        font-size: 16px;
-        cursor: pointer;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      }
-      .export-btn:disabled {
-        opacity: 0.6;
-        cursor: wait;
-      }
     </style>
   </head>
   <body>
@@ -78,16 +63,18 @@ dom-to-pptx converts DOM → native PPTX shapes by reading `getBoundingClientRec
     4.  Images: full https:// URL (Unsplash / Cloudinary / picsum / your own
         CORS-enabled CDN). NEVER relative paths, NEVER file://.
     5.  Gradients: linear-gradient() only. No radial/conic.
-    6.  No: animation, transition, backdrop-filter, text-shadow,
-        mix-blend-mode, filter (except filter: blur() — partial support).
-    7.  Fonts: px units only. Arial / Helvetica / Georgia / a CORS-loaded
+    6.  No: backdrop-filter, text-shadow, mix-blend-mode, filter (except
+        filter: blur() — partial support).
+    7.  Animations & Slide Transitions: Supported ONLY via whitelisted CSS
+        classes (e.g. fade-in, slide-transition-fade). No custom @keyframes. Note: only slide element animations are previewed in-browser; slide-to-slide transitions are not previewed in-browser.
+    8.  Fonts: px units only. Arial / Helvetica / Georgia / a CORS-loaded
         Google Font. No rem/em/vw on slide content.
     ========================================================================
   -->
 
-      <!-- ┌─ SLIDE 1 — Title ──────────────────────────────────────────────┐ -->
+      <!-- ┌─ SLIDE 1 — Title (Fades in on slide entry) ──────────────────────┐ -->
       <div
-        class="slide"
+        class="slide slide-transition-fade"
         style="
     width: 1920px; height: 1080px;
     position: relative; overflow: hidden;
@@ -95,7 +82,9 @@ dom-to-pptx converts DOM → native PPTX shapes by reading `getBoundingClientRec
   "
       >
         <div style="position: absolute; left: 120px; top: 420px; width: 1400px;">
+          <!-- Animated title (Triggers on click) -->
           <h1
+            class="fade-in animate-duration-[1000]"
             style="
         margin: 0;
         font-family: 'Inter', Arial, sans-serif;
@@ -106,7 +95,9 @@ dom-to-pptx converts DOM → native PPTX shapes by reading `getBoundingClientRec
           >
             Presentation Title
           </h1>
+          <!-- Animated subtitle (Triggers after the title animates) -->
           <p
+            class="fly-in to-up animate-duration-[800] animate-delay-[200] animate-trigger-after"
             style="
         margin: 28px 0 0 0;
         font-size: 32px; font-weight: 400;
@@ -117,8 +108,9 @@ dom-to-pptx converts DOM → native PPTX shapes by reading `getBoundingClientRec
           </p>
         </div>
 
-        <!-- Accent bar -->
+        <!-- Accent bar (Animates with the title) -->
         <div
+          class="fade-in animate-duration-[1000] animate-trigger-with"
           style="
       position: absolute; left: 120px; top: 380px;
       width: 120px; height: 6px;
@@ -164,9 +156,7 @@ dom-to-pptx converts DOM → native PPTX shapes by reading `getBoundingClientRec
           <li style="font-size: 30px; color: #333333; line-height: 1.5; margin-bottom: 24px;">
             Third point supporting the argument.
           </li>
-          <li style="font-size: 30px; color: #333333; line-height: 1.5;">
-            Closing thought or takeaway.
-          </li>
+          <li style="font-size: 30px; color: #333333; line-height: 1.5;">Closing thought or takeaway.</li>
         </ul>
       </div>
 
@@ -181,14 +171,11 @@ dom-to-pptx converts DOM → native PPTX shapes by reading `getBoundingClientRec
       >
         <!-- Left column -->
         <div style="position: absolute; left: 120px; top: 160px; width: 720px;">
-          <h2
-            style="margin: 0; font-size: 52px; font-weight: 700; color: #1a1a1a; line-height: 1.1;"
-          >
+          <h2 style="margin: 0; font-size: 52px; font-weight: 700; color: #1a1a1a; line-height: 1.1;">
             Why this matters
           </h2>
           <p style="margin: 32px 0 0 0; font-size: 26px; line-height: 1.6; color: #555555;">
-            A short paragraph explaining the idea. Keep it tight — one clear thought, two or three
-            sentences maximum.
+            A short paragraph explaining the idea. Keep it tight — one clear thought, two or three sentences maximum.
           </p>
         </div>
         <!-- Right column: image -->
@@ -206,52 +193,13 @@ dom-to-pptx converts DOM → native PPTX shapes by reading `getBoundingClientRec
       </div>
     </div>
 
-    <!-- Export button -->
-    <button class="export-btn" id="exportBtn">Export PPTX</button>
-
+    <!-- Preview/animation script (Optional: for browser previewing only) -->
     <script src="https://cdn.jsdelivr.net/npm/dom-to-pptx@latest/dist/dom-to-pptx.bundle.js"></script>
     <script>
-      const btn = document.getElementById('exportBtn');
-
-      btn.addEventListener('click', async () => {
-        // 1. Pre-flight validation (see VALIDATION.md)
-        const issues = window.validateSlides ? window.validateSlides() : [];
-        if (issues.length) {
-          const proceed = confirm(
-            'Validator found ' +
-              issues.length +
-              ' issue(s):\n\n' +
-              issues
-                .slice(0, 10)
-                .map((i) => '• ' + i)
-                .join('\n') +
-              (issues.length > 10 ? '\n...(' + (issues.length - 10) + ' more in console)' : '') +
-              '\n\nExport anyway?'
-          );
-          console.table(issues);
-          if (!proceed) return;
-        }
-
-        // 2. Export
-        btn.disabled = true;
-        btn.textContent = 'Exporting…';
-        try {
-          const slides = document.querySelectorAll('.slide');
-          await domToPptx.exportToPptx(Array.from(slides), {
-            fileName: 'presentation.pptx',
-            autoEmbedFonts: true,
-          });
-          btn.textContent = 'Downloaded ✓';
-        } catch (err) {
-          console.error(err);
-          btn.textContent = 'Error — see console';
-        } finally {
-          setTimeout(() => {
-            btn.disabled = false;
-            btn.textContent = 'Export PPTX';
-          }, 2500);
-        }
-      });
+      // Apply browser preview properties on load
+      if (window.domToPptx && window.domToPptx.applyBrowserAnimations) {
+        window.domToPptx.applyBrowserAnimations(document.body);
+      }
     </script>
   </body>
 </html>
@@ -261,26 +209,39 @@ dom-to-pptx converts DOM → native PPTX shapes by reading `getBoundingClientRec
 
 1. **Copy it verbatim** as `presentation.html`.
 2. **Duplicate** the `<!-- ┌─ SLIDE N ─┐ -->` block for each new slide.
-3. **Keep edits inline** — don't move styles into a `<style>` block or external CSS.
+3. **Keep edits inline** — don't move layout styles into a `<style>` block or external CSS.
 4. **Swap the font** by changing the `<link>` href AND the `font-family` on each slide root. Always keep `crossorigin="anonymous"`.
-5. **Load the validator** (copy the snippet from [VALIDATION.md](VALIDATION.md) into a second `<script>` tag above the export script) so the pre-flight check is real, not a no-op.
-6. **Open in Chrome/Edge** — Firefox has stricter CORS behavior that sometimes breaks Unsplash images.
+5. **Compile to PowerPoint**:
+   Run the headless exporter directly from your command line:
+
+   ```bash
+   # Compile all slides in the deck
+   npx dom-to-pptx-export presentation.html -o presentation.pptx
+
+   # Compile a single slide only (e.g., Slide 2)
+   npx dom-to-pptx-export presentation.html -s "#slide-2" -o slide2-only.pptx
+   ```
+
+6. **Preview in browser**: Open `presentation.html` in Chrome/Edge. Firefox has stricter CORS behavior that sometimes breaks Unsplash images.
 
 ## What NOT to add to this template
 
-| Don't                                                                 | Why                                                                                                                                                                                                  |
-| --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Tailwind / Bootstrap CDN                                              | Classes are fine (computed styles are read), but it encourages utilities that translate poorly (`backdrop-blur`, `animate-*`). If you want Tailwind, keep it to layout/color utilities and validate. |
-| `<style>` blocks for slide content                                    | dom-to-pptx reads computed styles so it _works_, but inline styles are the safest round-trip and make debugging layouts trivial.                                                                     |
-| `transform: translate(-50%, -50%)` centering tricks                   | `transform: translate` isn't respected by the converter. Use `left:` + `width:` math, or `display: flex; justify-content: center; align-items: center;` on the parent.                               |
-| `vh`, `vw`, `rem`, `em`, `clamp()` on slide content                   | Fixed `px` is the only unit that round-trips predictably.                                                                                                                                            |
-| Lazy-loaded images (`loading="lazy"`)                                 | The DOM is measured synchronously — a lazy image may not have loaded when export fires.                                                                                                              |
-| Fonts loaded via `@font-face` pointing at relative `url(./fonts/...)` | Relative font paths won't embed. Use a CORS-serving CDN or Google Fonts.                                                                                                                             |
+<!-- prettier-ignore -->
+| Don't | Why |
+| --- | --- |
+| Tailwind / Bootstrap CDN | Classes are fine (computed styles are read), but it encourages utilities that translate poorly (`backdrop-blur`). If you want Tailwind, keep it to layout/color utilities. For motion, use whitelisted transition/animation classes. |
+| `<style>` blocks for slide content | dom-to-pptx reads computed styles so it _works_, but inline styles are the safest round-trip and make debugging layouts trivial. |
+| `transform: translate(-50%, -50%)` centering tricks | `transform: translate` isn't respected by the converter. Use `left:` + `width:` math, or `display: flex; justify-content: center; align-items: center;` on the parent. |
+| `vh`, `vw`, `rem`, `em`, `clamp()` on slide content | Fixed `px` is the only unit that round-trips predictably. |
+| Lazy-loaded images (`loading="lazy"`) | The DOM is measured synchronously — a lazy image may not have loaded when export fires. |
+| Fonts loaded via `@font-face` pointing at relative `url(./fonts/...)` | Relative font paths won't embed. Use a CORS-serving CDN or Google Fonts. |
 
 ## See also
 
 - [STYLE_WHITELIST.md](STYLE_WHITELIST.md) — exhaustive allow/block list
 - [VALIDATION.md](VALIDATION.md) — pre-export scanner
+- [ANIMATIONS_WHITELIST.md](ANIMATIONS_WHITELIST.md) — exhaustive list of whitelisted element-level animations, triggers, and text builds
+- [TRANSITIONS_WHITELIST.md](TRANSITIONS_WHITELIST.md) — exhaustive list of whitelisted slide-level transition effects and durations
 - [SAMPLE_PROMPTS.md](SAMPLE_PROMPTS.md) — prompts for common layouts
 - [TEMPLATE.md](TEMPLATE.md) — layout pattern library (card grids, stats, steps…)
 - [STYLE_PRESETS.md](STYLE_PRESETS.md) — color/typography presets

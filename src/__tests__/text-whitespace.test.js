@@ -12,12 +12,8 @@ describe('splitPreformattedText', () => {
   });
 
   it('preserves leading indentation and inner spaces for pre / pre-wrap', () => {
-    expect(texts(splitPreformattedText('  a   b', 'pre', { isLastChild: true }))).toEqual([
-      '  a   b',
-    ]);
-    expect(texts(splitPreformattedText('  a   b', 'pre-wrap', { isLastChild: true }))).toEqual([
-      '  a   b',
-    ]);
+    expect(texts(splitPreformattedText('  a   b', 'pre', { isLastChild: true }))).toEqual(['  a   b']);
+    expect(texts(splitPreformattedText('  a   b', 'pre-wrap', { isLastChild: true }))).toEqual(['  a   b']);
   });
 
   it('collapses runs of spaces/tabs but keeps newlines for pre-line', () => {
@@ -66,18 +62,14 @@ describe('splitPreformattedText', () => {
   });
 
   it('normalizes CRLF to a single break', () => {
-    expect(texts(splitPreformattedText('a\r\nb', 'pre', { isLastChild: true }))).toEqual([
-      'a',
-      'b',
-    ]);
+    expect(texts(splitPreformattedText('a\r\nb', 'pre', { isLastChild: true }))).toEqual(['a', 'b']);
   });
 
   it('applies text-transform per line', () => {
-    expect(
-      texts(
-        splitPreformattedText('aa\nbb', 'pre', { isLastChild: true, textTransform: 'uppercase' })
-      )
-    ).toEqual(['AA', 'BB']);
+    expect(texts(splitPreformattedText('aa\nbb', 'pre', { isLastChild: true, textTransform: 'uppercase' }))).toEqual([
+      'AA',
+      'BB',
+    ]);
   });
 
   it('returns nothing for empty / terminator-only content', () => {

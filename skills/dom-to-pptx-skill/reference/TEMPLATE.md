@@ -24,9 +24,7 @@ Reference architecture for generating dom-to-pptx-compatible HTML presentations.
       style="width: 1920px; height: 1080px; position: relative; overflow: hidden; background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);"
     >
       <div style="position: absolute; left: 120px; top: 400px;">
-        <h1 style="font-size: 72px; color: #ffffff; font-family: Arial, sans-serif; margin: 0;">
-          Presentation Title
-        </h1>
+        <h1 style="font-size: 72px; color: #ffffff; font-family: Arial, sans-serif; margin: 0;">Presentation Title</h1>
         <p style="font-size: 32px; color: #cccccc; margin-top: 24px;">Subtitle or description</p>
       </div>
     </div>
@@ -36,9 +34,7 @@ Reference architecture for generating dom-to-pptx-compatible HTML presentations.
       class="slide"
       style="width: 1920px; height: 1080px; position: relative; overflow: hidden; background: #ffffff;"
     >
-      <h2
-        style="font-size: 48px; color: #1a1a1a; position: absolute; top: 80px; left: 120px; margin: 0;"
-      >
+      <h2 style="font-size: 48px; color: #1a1a1a; position: absolute; top: 80px; left: 120px; margin: 0;">
         Section Title
       </h2>
       <ul
@@ -152,12 +148,8 @@ Reference architecture for generating dom-to-pptx-compatible HTML presentations.
     src="https://images.unsplash.com/photo-xxx?w=1920"
     style="position: absolute; top: 0; left: 0; width: 1920px; height: 1080px; object-fit: cover;"
   />
-  <div
-    style="position: absolute; top: 0; left: 0; width: 1920px; height: 1080px; background: rgba(0,0,0,0.5);"
-  ></div>
-  <h1
-    style="position: absolute; top: 400px; left: 120px; font-size: 72px; color: #ffffff; margin: 0;"
-  >
+  <div style="position: absolute; top: 0; left: 0; width: 1920px; height: 1080px; background: rgba(0,0,0,0.5);"></div>
+  <h1 style="position: absolute; top: 400px; left: 120px; font-size: 72px; color: #ffffff; margin: 0;">
     Title on Image
   </h1>
 </div>
@@ -166,9 +158,7 @@ Reference architecture for generating dom-to-pptx-compatible HTML presentations.
 ### Card Grid (2x2)
 
 ```html
-<div
-  style="display: flex; flex-wrap: wrap; position: absolute; top: 200px; left: 120px; width: 1680px;"
->
+<div style="display: flex; flex-wrap: wrap; position: absolute; top: 200px; left: 120px; width: 1680px;">
   <!-- Card 1 -->
   <div
     style="width: 800px; height: 320px; background: #ffffff; border-radius: 16px; padding: 40px; margin: 0 20px 40px 0; box-shadow: 0 8px 32px rgba(0,0,0,0.1);"
@@ -203,16 +193,12 @@ Reference architecture for generating dom-to-pptx-compatible HTML presentations.
 ### Sidebar Layout
 
 ```html
-<div
-  style="width: 1920px; height: 1080px; position: relative; overflow: hidden; background: #ffffff;"
->
+<div style="width: 1920px; height: 1080px; position: relative; overflow: hidden; background: #ffffff;">
   <!-- Left sidebar -->
   <div
     style="position: absolute; left: 0; top: 0; width: 400px; height: 1080px; background: #1a1a1a; padding: 60px 40px;"
   >
-    <div
-      style="width: 80px; height: 80px; background: #FF5722; border-radius: 12px; margin-bottom: 40px;"
-    ></div>
+    <div style="width: 80px; height: 80px; background: #FF5722; border-radius: 12px; margin-bottom: 40px;"></div>
     <h3 style="font-size: 28px; color: #ffffff; margin: 0 0 16px 0;">Brand</h3>
     <p style="font-size: 18px; color: #999999; margin: 0;">Company tagline</p>
   </div>
@@ -233,9 +219,7 @@ Reference architecture for generating dom-to-pptx-compatible HTML presentations.
 ### Image with Caption
 
 ```html
-<div
-  style="width: 1920px; height: 1080px; position: relative; overflow: hidden; background: #f8f6f1;"
->
+<div style="width: 1920px; height: 1080px; position: relative; overflow: hidden; background: #f8f6f1;">
   <img
     src="https://images.unsplash.com/photo-xxx?w=1200"
     style="position: absolute; top: 100px; left: 50%; transform: translateX(-50%); width: 1400px; height: 700px; object-fit: cover; border-radius: 16px;"
@@ -316,16 +300,10 @@ Reference architecture for generating dom-to-pptx-compatible HTML presentations.
 <img src="https://..." style="width: 1920px; height: 1080px; object-fit: cover;" />
 
 <!-- Content image: Fixed size -->
-<img
-  src="https://..."
-  style="width: 600px; height: 400px; object-fit: cover; border-radius: 12px;"
-/>
+<img src="https://..." style="width: 600px; height: 400px; object-fit: cover; border-radius: 12px;" />
 
 <!-- Thumbnail: Small fixed -->
-<img
-  src="https://..."
-  style="width: 120px; height: 120px; object-fit: cover; border-radius: 50%;"
-/>
+<img src="https://..." style="width: 120px; height: 120px; object-fit: cover; border-radius: 50%;" />
 ```
 
 ---
@@ -367,8 +345,6 @@ background: linear-gradient(180deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 
 
 ---
 
-## Export Integration
-
 ### Complete Export Snippet
 
 ```html
@@ -387,23 +363,6 @@ background: linear-gradient(180deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 
         padding: 0;
         background: #333;
       }
-      .export-btn {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 16px 32px;
-        background: #4361ee;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 16px;
-        z-index: 10000;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      }
-      .export-btn:hover {
-        background: #3451d1;
-      }
       .slide {
         display: block;
       }
@@ -411,46 +370,95 @@ background: linear-gradient(180deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 
   </head>
   <body>
     <!-- Slides go here -->
+    <div class="slide" id="slide-1" style="width: 1920px; height: 1080px; position: relative; background: #ffffff;">
+      <h1 style="position: absolute; left: 100px; top: 100px; font-size: 54px; margin: 0;">Slide 1</h1>
+    </div>
 
-    <button class="export-btn" onclick="exportPptx()">Export PPTX</button>
-
+    <!-- Preview/animation script (Optional: for browser previewing only) -->
     <script src="https://cdn.jsdelivr.net/npm/dom-to-pptx@latest/dist/dom-to-pptx.bundle.js"></script>
     <script>
-      async function exportPptx() {
-        const btn = document.querySelector('.export-btn');
-        btn.textContent = 'Exporting...';
-        btn.disabled = true;
-        try {
-          const slides = document.querySelectorAll('.slide');
-          await domToPptx.exportToPptx(Array.from(slides), {
-            fileName: 'presentation.pptx',
-          });
-          btn.textContent = 'Downloaded!';
-        } catch (err) {
-          console.error(err);
-          btn.textContent = 'Error - Check Console';
-        }
-        setTimeout(() => {
-          btn.textContent = 'Export PPTX';
-          btn.disabled = false;
-        }, 3000);
+      if (window.domToPptx && window.domToPptx.applyBrowserAnimations) {
+        window.domToPptx.applyBrowserAnimations(document.body);
       }
     </script>
   </body>
 </html>
 ```
 
+### Headless Compilation Instructions
+
+To convert this presentation to a PowerPoint file, run the exporter utility on the command line:
+
+```bash
+# Compile all elements with the class '.slide' (default)
+npx dom-to-pptx-export presentation.html -o presentation.pptx
+
+# Compile a specific slide only
+npx dom-to-pptx-export presentation.html -s "#slide-1" -o slide1-only.pptx
+```
+
+### Slide with Transitions & Animations
+
+This layout is a content slide that enters with a **Push Left** transition, fades the title in, and flys in three info cards from the bottom.
+
+```html
+<!-- Slide with Push Left transition -->
+<div
+  class="slide slide-transition-push transition-dir-l"
+  style="width: 1920px; height: 1080px; position: relative; overflow: hidden; background: #ffffff;"
+>
+  <!-- Animated Title (Fades in on click) -->
+  <h2
+    class="fade-in animate-duration-[800]"
+    style="position: absolute; left: 120px; top: 100px; margin: 0; font-family: 'Inter', Arial, sans-serif; font-size: 56px; font-weight: 700; color: #1a1a1a;"
+  >
+    Animated Feature Deck
+  </h2>
+
+  <!-- Card Grid (Cards fly in sequentially) -->
+  <div style="position: absolute; top: 260px; left: 120px; right: 120px; display: flex; gap: 40px;">
+    <!-- Card 1 (Flys in after the title) -->
+    <div
+      class="fly-in to-up animate-duration-[700] animate-trigger-after"
+      style="flex: 1; height: 450px; background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 24px; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);"
+    >
+      <h3 style="font-size: 32px; color: #333333; margin: 0 0 16px 0;">01</h3>
+      <p style="font-size: 20px; color: #666666; margin: 0; line-height: 1.5;">Card content animated sequentially.</p>
+    </div>
+
+    <!-- Card 2 (Flys in simultaneously with Card 1 but delayed by 150ms) -->
+    <div
+      class="fly-in to-up animate-duration-[700] animate-delay-[150] animate-trigger-with"
+      style="flex: 1; height: 450px; background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 24px; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);"
+    >
+      <h3 style="font-size: 32px; color: #333333; margin: 0 0 16px 0;">02</h3>
+      <p style="font-size: 20px; color: #666666; margin: 0; line-height: 1.5;">Card content animated sequentially.</p>
+    </div>
+
+    <!-- Card 3 (Flys in simultaneously with Card 1 but delayed by 300ms) -->
+    <div
+      class="fly-in to-up animate-duration-[700] animate-delay-[300] animate-trigger-with"
+      style="flex: 1; height: 450px; background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 24px; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);"
+    >
+      <h3 style="font-size: 32px; color: #333333; margin: 0 0 16px 0;">03</h3>
+      <p style="font-size: 20px; color: #666666; margin: 0; line-height: 1.5;">Card content animated sequentially.</p>
+    </div>
+  </div>
+</div>
+```
+
 ---
 
 ## Troubleshooting
 
-| Issue             | Solution                                               |
-| ----------------- | ------------------------------------------------------ |
-| Text misaligned   | Use absolute positioning with explicit left/top values |
-| Font wrong        | Use web-safe fonts (Arial, Helvetica, Georgia)         |
-| Image not showing | Ensure HTTPS URL and CORS-accessible                   |
-| Colors off        | Use hex codes directly, avoid CSS variables            |
-| Gradient fails    | Use simple 2-color linear-gradient                     |
-| Shadow missing    | Use box-shadow inline with explicit values             |
-| Border radius     | Works but may need explicit px values                  |
-| Text truncated    | Increase container width or reduce font size           |
+<!-- prettier-ignore -->
+| Issue | Solution |
+| --- | --- |
+| Text misaligned | Use absolute positioning with explicit left/top values |
+| Font wrong | Use web-safe fonts (Arial, Helvetica, Georgia) |
+| Image not showing | Ensure HTTPS URL and CORS-accessible |
+| Colors off | Use hex codes directly, avoid CSS variables |
+| Gradient fails | Use simple 2-color linear-gradient |
+| Shadow missing | Use box-shadow inline with explicit values |
+| Border radius | Works but may need explicit px values |
+| Text truncated | Increase container width or reduce font size |

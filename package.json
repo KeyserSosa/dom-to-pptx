@@ -1,6 +1,6 @@
 {
   "name": "dom-to-pptx",
-  "version": "1.1.10",
+  "version": "2.0.0",
   "type": "module",
   "description": "A client-side library that converts any HTML element into a fully editable PowerPoint slide. **dom-to-pptx** transforms DOM structures into pixel-accurate `.pptx` content, preserving gradients, shadows, rounded images, and responsive layouts. It translates CSS Flexbox/Grid, linear-gradients, box-shadows, and typography into native PowerPoint shapes, enabling precise, design-faithful slide generation directly from the browser.",
   "main": "dist/dom-to-pptx.cjs",
@@ -12,16 +12,24 @@
       "require": "./dist/dom-to-pptx.cjs",
       "default": "./dist/dom-to-pptx.cjs"
     },
+    "./node": {
+      "import": "./dist/dom-to-pptx-node.mjs",
+      "require": "./dist/dom-to-pptx-node.cjs",
+      "default": "./dist/dom-to-pptx-node.cjs"
+    },
     "./skills/*": "./skills/*"
   },
   "bin": {
-    "dom-to-pptx-skills": "bin/cli.js"
+    "dom-to-pptx": "bin/cli-main.js",
+    "dom-to-pptx-exporter": "bin/cli-exporter.js",
+    "dom-to-pptx-skills": "bin/cli-skills-installer.js"
   },
   "files": [
     "dist",
     "bin",
     "skills",
     "Readme.md",
+    "CONTRIBUTORS.md",
     "CHANGELOG.md",
     "LICENSE"
   ],
@@ -72,13 +80,59 @@
     "dom-to-pptx-skills",
     "powerpoint-skills"
   ],
-  "author": "Atharva Dharmendra Jagtap <atharvaj321@gmail.com>",
+  "author": {
+    "name": "Atharva Dharmendra Jagtap",
+    "url": "https://github.com/atharva9167j"
+  },
+  "contributors": [
+    {
+      "name": "Adriano Meligrana",
+      "url": "https://github.com/ameligrana"
+    },
+    {
+      "name": "Andrea Giannangelo",
+      "url": "https://github.com/Facens"
+    },
+    {
+      "name": "Claude",
+      "url": "https://github.com/claude"
+    },
+    {
+      "name": "Constantin Budin",
+      "url": "https://github.com/mymro"
+    },
+    {
+      "name": "cwjcharles",
+      "url": "https://github.com/cwjcharles"
+    },
+    {
+      "name": "Dave Ingram",
+      "url": "https://github.com/dingram"
+    },
+    {
+      "name": "Kaka-cheaper",
+      "url": "https://github.com/Kaka-cheaper"
+    },
+    {
+      "name": "rain2bow",
+      "url": "https://github.com/rain2bow"
+    },
+    {
+      "name": "Sergey Subbotin",
+      "url": "https://github.com/ssubbotin"
+    },
+    {
+      "name": "Sian George",
+      "url": "https://github.com/SGcpu"
+    }
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/atharva9167j/dom-to-pptx/issues"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@eslint/markdown": "^8.0.2",
     "@rollup/plugin-commonjs": "^29.0.0",
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^16.0.3",
@@ -98,11 +152,13 @@
     "vitest": "^4.0.18"
   },
   "dependencies": {
+    "@puppeteer/browsers": "^3.0.4",
     "fonteditor-core": "^2.6.3",
     "html2canvas": "^1.4.1",
     "jszip": "^3.10.1",
-    "opentype.js": "^1.3.4",
+    "opentype.js": "^2.0.0",
     "pako": "^2.1.0",
-    "pptxgenjs": "^3.12.0"
+    "pptxgenjs": "^4.0.1",
+    "puppeteer": "^25.1.0"
   }
 }

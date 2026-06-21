@@ -16,6 +16,7 @@ import {
   generateGradientSVG,
   getRotation,
   getWritingModeVert,
+  mapVertToTextDirection,
   svgToPng,
   svgToSvg,
   getPadding,
@@ -56,8 +57,7 @@ export async function exportToPptx(target, options = {}) {
     if (typeof pkg === 'function') return pkg;
     if (pkg && typeof pkg.default === 'function') return pkg.default;
     if (pkg && typeof pkg.PptxGenJS === 'function') return pkg.PptxGenJS;
-    if (pkg && pkg.PptxGenJS && typeof pkg.PptxGenJS.default === 'function')
-      return pkg.PptxGenJS.default;
+    if (pkg && pkg.PptxGenJS && typeof pkg.PptxGenJS.default === 'function') return pkg.PptxGenJS.default;
     return null;
   };
 
@@ -125,7 +125,7 @@ export async function exportToPptx(target, options = {}) {
       console.warn('Element not found, skipping slide:', el);
       continue;
     }
-    
+
     const transition = extractTransitionFromElement(root);
     if (transition) {
       slideTransitions[slideIndex] = transition;
@@ -146,7 +146,25 @@ export async function exportToPptx(target, options = {}) {
 
   // 3. Font Embedding Logic
   let finalBlob;
-  let fontsToEmbed = options.fonts || [];
+  let rawFonts = options.fonts || [];
+  let fontsToEmbed;
+
+  // Group by name
+  const uniqueFonts = new Map();
+
+  for (const f of rawFonts) {
+    if (!uniqueFonts.has(f.name)) {
+      uniqueFonts.set(f.name, new Set());
+    }
+    if (f.url) {
+      uniqueFonts.get(f.name).add(f.url);
+    }
+    if (f.urls) {
+      for (const url of f.urls) {
+        uniqueFonts.get(f.name).add(url);
+      }
+    }
+  }
 
   if (options.autoEmbedFonts) {
     // A. Scan DOM for used font families
@@ -155,12 +173,12 @@ export async function exportToPptx(target, options = {}) {
     // B. Scan CSS for URLs matches
     const detectedFonts = await getAutoDetectedFonts(usedFamilies);
 
-    // C. Merge (Avoid duplicates)
-    const explicitNames = new Set(fontsToEmbed.map((f) => f.name));
+    // C. Merge (collect all URLs for each font name)
     for (const autoFont of detectedFonts) {
-      if (!explicitNames.has(autoFont.name)) {
-        fontsToEmbed.push(autoFont);
+      if (!uniqueFonts.has(autoFont.name)) {
+        uniqueFonts.set(autoFont.name, new Set());
       }
+      uniqueFonts.get(autoFont.name).add(autoFont.url);
     }
 
     if (detectedFonts.length > 0) {
@@ -169,6 +187,18 @@ export async function exportToPptx(target, options = {}) {
         detectedFonts.map((f) => f.name)
       );
     }
+  }
+
+  fontsToEmbed = Array.from(uniqueFonts.entries()).map(([name, urlSet]) => ({
+    name,
+    urls: Array.from(urlSet),
+  }));
+
+  if (fontsToEmbed.length > 0) {
+    console.log(
+      'Fonts to embed after deduplication and subset gathering:',
+      fontsToEmbed.map((f) => `${f.name} (${f.urls.length} subsets)`)
+    );
   }
 
   if (fontsToEmbed.length > 0) {
@@ -180,23 +210,36 @@ export async function exportToPptx(target, options = {}) {
     const embedder = new PPTXEmbedFonts();
     await embedder.loadZip(zip);
 
-    // Fetch and Embed
-    for (const fontCfg of fontsToEmbed) {
-      try {
-        const response = await fetch(fontCfg.url);
-        if (!response.ok) throw new Error(`Failed to fetch ${fontCfg.url}`);
-        const buffer = await response.arrayBuffer();
+    // Fetch and Embed Concurrently
+    await Promise.all(
+      fontsToEmbed.map(async (fontCfg) => {
+        try {
+          if (fontCfg.urls.length === 0) {
+            throw new Error(`No URLs found for font family ${fontCfg.name}`);
+          }
 
-        // Infer type
-        const ext = fontCfg.url.split('.').pop().split(/[?#]/)[0].toLowerCase();
-        let type = 'ttf';
-        if (['woff', 'otf'].includes(ext)) type = ext;
+          // Fetch all subsets in parallel
+          const subsets = await Promise.all(
+            fontCfg.urls.map(async (url) => {
+              const response = await fetch(url);
+              if (!response.ok) throw new Error(`Failed to fetch ${url}`);
+              const buffer = await response.arrayBuffer();
 
-        await embedder.addFont(fontCfg.name, buffer, type);
-      } catch (e) {
-        console.warn(`Failed to embed font: ${fontCfg.name} (${fontCfg.url})`, e);
-      }
-    }
+              // Infer type
+              const ext = url.split('.').pop().split(/[?#]/)[0].toLowerCase();
+              let type = 'ttf';
+              if (['woff', 'woff2', 'otf'].includes(ext)) type = ext;
+
+              return { buffer, type };
+            })
+          );
+
+          await embedder.addFont(fontCfg.name, subsets, options.woff2WasmUrl);
+        } catch (e) {
+          console.warn(`Failed to embed font family: ${fontCfg.name}`, e);
+        }
+      })
+    );
 
     await embedder.updateFiles();
     if (options.skipNormalize !== true) {
@@ -314,11 +357,7 @@ async function processSlide(root, slide, pptx, globalOptions = {}) {
       }
 
       // Optimization: Skip completely hidden elements immediately
-      if (
-        nodeStyle.display === 'none' ||
-        nodeStyle.visibility === 'hidden' ||
-        currentOpacity === 0
-      ) {
+      if (nodeStyle.display === 'none' || nodeStyle.visibility === 'hidden' || currentOpacity === 0) {
         return;
       }
       let zVal = 0;
@@ -332,15 +371,11 @@ async function processSlide(root, slide, pptx, globalOptions = {}) {
     }
 
     // Prepare the item. If it needs async work, it returns a 'job'
-    const result = prepareRenderItem(
-      node,
-      { ...layoutConfig, root },
-      order,
-      pptx,
-      currentSortKey,
-      nodeStyle,
-      { ...globalOptions, _inheritedOpacity: parentOpacity, _inheritedAnimation: inheritedAnimation }
-    );
+    const result = prepareRenderItem(node, { ...layoutConfig, root }, order, pptx, currentSortKey, nodeStyle, {
+      ...globalOptions,
+      _inheritedOpacity: parentOpacity,
+      _inheritedAnimation: inheritedAnimation,
+    });
 
     if (result) {
       if (result.items) {
@@ -381,9 +416,7 @@ async function processSlide(root, slide, pptx, globalOptions = {}) {
 
   // 3. Cleanup and Sort
   // Remove items that failed to generate data (marked with skip)
-  const finalQueue = renderQueue.filter(
-    (item) => !item.skip && (item.type !== 'image' || item.options.data)
-  );
+  const finalQueue = renderQueue.filter((item) => !item.skip && (item.type !== 'image' || item.options.data));
 
   finalQueue.sort((a, b) => {
     return compareKeys(a.zIndex, b.zIndex);
@@ -564,15 +597,7 @@ function isIconElement(node) {
   const tag = node.tagName.toUpperCase();
   if (
     tag.includes('-') ||
-    [
-      'MATERIAL-ICON',
-      'ICONIFY-ICON',
-      'REMIX-ICON',
-      'ION-ICON',
-      'EVA-ICON',
-      'BOX-ICON',
-      'FA-ICON',
-    ].includes(tag)
+    ['MATERIAL-ICON', 'ICONIFY-ICON', 'REMIX-ICON', 'ION-ICON', 'EVA-ICON', 'BOX-ICON', 'FA-ICON'].includes(tag)
   ) {
     return true;
   }
@@ -625,36 +650,28 @@ function getPseudoElementRect(hostRect, pseudoStyle) {
     let hasLeft = false;
     if (leftStr && leftStr !== 'auto') {
       hasLeft = true;
-      left = leftStr.endsWith('%')
-        ? (parseFloat(leftStr) / 100) * hostRect.width
-        : parseFloat(leftStr);
+      left = leftStr.endsWith('%') ? (parseFloat(leftStr) / 100) * hostRect.width : parseFloat(leftStr);
     }
 
     let top = 0;
     let hasTop = false;
     if (topStr && topStr !== 'auto') {
       hasTop = true;
-      top = topStr.endsWith('%')
-        ? (parseFloat(topStr) / 100) * hostRect.height
-        : parseFloat(topStr);
+      top = topStr.endsWith('%') ? (parseFloat(topStr) / 100) * hostRect.height : parseFloat(topStr);
     }
 
     let right = 0;
     let hasRight = false;
     if (rightStr && rightStr !== 'auto') {
       hasRight = true;
-      right = rightStr.endsWith('%')
-        ? (parseFloat(rightStr) / 100) * hostRect.width
-        : parseFloat(rightStr);
+      right = rightStr.endsWith('%') ? (parseFloat(rightStr) / 100) * hostRect.width : parseFloat(rightStr);
     }
 
     let bottom = 0;
     let hasBottom = false;
     if (bottomStr && bottomStr !== 'auto') {
       hasBottom = true;
-      bottom = bottomStr.endsWith('%')
-        ? (parseFloat(bottomStr) / 100) * hostRect.height
-        : parseFloat(bottomStr);
+      bottom = bottomStr.endsWith('%') ? (parseFloat(bottomStr) / 100) * hostRect.height : parseFloat(bottomStr);
     }
 
     if (hasLeft) {
@@ -802,15 +819,7 @@ function countParagraphs(node, scale) {
   return count;
 }
 
-function prepareRenderItem(
-  node,
-  config,
-  domOrder,
-  pptx,
-  effectiveZIndex,
-  computedStyle,
-  globalOptions = {}
-) {
+function prepareRenderItem(node, config, domOrder, pptx, effectiveZIndex, computedStyle, globalOptions = {}) {
   // 1. Text Node Handling
   if (node.nodeType === 3) {
     const textContent = node.nodeValue.trim();
@@ -881,11 +890,8 @@ function prepareRenderItem(
   const anim = parseAnimation(node, style);
   // Use the node's own animation, or fall back to the inherited one from an ancestor.
   // Inherited animations use start='with' so children animate simultaneously with the parent.
-  const effectiveAnim = anim || (
-    globalOptions._inheritedAnimation
-      ? { ...globalOptions._inheritedAnimation, start: 'with' }
-      : null
-  );
+  const effectiveAnim =
+    anim || (globalOptions._inheritedAnimation ? { ...globalOptions._inheritedAnimation, start: 'with' } : null);
   if (effectiveAnim) {
     let numParagraphs = 1;
     if (isTextContainer(node)) {
@@ -914,8 +920,7 @@ function prepareRenderItem(
   // offsetWidth/offsetHeight being integer-rounded. When the element is rotated
   // we must fall back to offset* because rect.* describes the rotated bounding box.
   const widthPx = rotation === 0 ? rect.width || node.offsetWidth : node.offsetWidth || rect.width;
-  const heightPx =
-    rotation === 0 ? rect.height || node.offsetHeight : node.offsetHeight || rect.height;
+  const heightPx = rotation === 0 ? rect.height || node.offsetHeight : node.offsetHeight || rect.height;
   const unrotatedW = widthPx * PX_TO_INCH * config.scale;
   const unrotatedH = heightPx * PX_TO_INCH * config.scale;
   const centerX = rect.left + rect.width / 2;
@@ -992,6 +997,20 @@ function prepareRenderItem(
     const listItems = [];
     const liChildren = Array.from(node.children).filter((c) => c.tagName === 'LI');
 
+    // --- Extract UL/OL container CSS for proper rendering ---
+    const ulPaddingTop = parseFloat(style.paddingTop) || 0;
+    const ulPaddingRight = parseFloat(style.paddingRight) || 0;
+    const ulPaddingBottom = parseFloat(style.paddingBottom) || 0;
+    const ulPaddingLeft = parseFloat(style.paddingLeft) || 0;
+
+    // Convert to inches for PPTX margin array: [top, right, bottom, left]
+    const listMargin = [
+      ulPaddingTop * PX_TO_INCH * config.scale * 72,
+      ulPaddingRight * PX_TO_INCH * config.scale * 72,
+      ulPaddingBottom * PX_TO_INCH * config.scale * 72,
+      ulPaddingLeft * PX_TO_INCH * config.scale * 72,
+    ];
+
     liChildren.forEach((child, index) => {
       const liStyle = window.getComputedStyle(child);
       const liRect = child.getBoundingClientRect();
@@ -1044,12 +1063,18 @@ function prepareRenderItem(
         }
       }
 
-      // 2. Calculate Dynamic Indent (Respects padding-left)
+      // 2. Calculate Bullet Indent
+      // visualIndentPx = total horizontal offset from UL left edge to where the LI text starts.
+      // ulPaddingLeft = UL's own left padding; it's already accounted for by the text box margin.
+      // bullet.indent = gap between bullet glyph and text content, in points.
+      // This equals the distance the LI content is shifted past the UL padding boundary.
       const visualIndentPx = liRect.left - parentRect.left;
-      const computedIndentPt = visualIndentPx * 0.75 * config.scale;
+      // Bullet indent = visual indent minus the UL's own padding-left (which is in margin),
+      // clamped to 0. Convert px -> pt.
+      const bulletIndentPt = Math.max(0, (visualIndentPx - ulPaddingLeft) * 0.75 * config.scale);
 
-      if (bullet && computedIndentPt > 0) {
-        bullet.indent = computedIndentPt;
+      if (bullet && bulletIndentPt > 0) {
+        bullet.indent = bulletIndentPt;
       }
 
       // 3. Extract Text Parts
@@ -1111,15 +1136,52 @@ function prepareRenderItem(
     });
 
     if (listItems.length > 0) {
-      // Add background if exists
+      // Build background/border/shadow shape for the list container
       const bgColorObj = parseColor(style.backgroundColor);
-      if (bgColorObj.hex && bgColorObj.opacity > 0) {
+      const hasBg = bgColorObj.hex && bgColorObj.opacity > 0;
+      const borderColorObj = parseColor(style.borderColor);
+      const borderWidth = parseFloat(style.borderWidth);
+      const hasBorder = borderWidth > 0 && borderColorObj.hex;
+      const shadowStr = style.boxShadow;
+      const hasShadow = shadowStr && shadowStr !== 'none';
+
+      // Resolve border-radius for the list container
+      const listBorderRadius = parseFloat(style.borderRadius) || 0;
+      const listMinDim = Math.min(widthPx, heightPx);
+      const listIsPercent = style.borderRadius && style.borderRadius.toString().includes('%');
+      let listRadiusPx = listBorderRadius;
+      if (listIsPercent) listRadiusPx = (listBorderRadius / 100) * listMinDim;
+
+      if (hasBg || hasBorder || hasShadow) {
+        let listShapeType = pptx.ShapeType.rect;
+        const listShapeOpts = {
+          x,
+          y,
+          w,
+          h,
+          ...(hasBg && { fill: { color: bgColorObj.hex, transparency: (1 - bgColorObj.opacity) * 100 } }),
+          ...(hasBorder && { line: { color: borderColorObj.hex, width: borderWidth * 0.75 * config.scale } }),
+        };
+
+        if (hasShadow) listShapeOpts.shadow = getVisibleShadow(shadowStr, config.scale);
+
+        if (listRadiusPx > 0) {
+          const isFullRound = listRadiusPx >= listMinDim / 2;
+          const isSquare = Math.abs(widthPx - heightPx) < 1;
+          if (isFullRound && (listIsPercent || isSquare)) {
+            listShapeType = pptx.ShapeType.ellipse;
+          } else {
+            listShapeType = pptx.ShapeType.roundRect;
+            listShapeOpts.rectRadius = Math.min(listRadiusPx, listMinDim / 2) * PX_TO_INCH * config.scale;
+          }
+        }
+
         items.push({
           type: 'shape',
           zIndex: parentSortKey.concat([-Infinity]),
           domOrder,
-          shapeType: 'rect',
-          options: { x, y, w, h, fill: { color: bgColorObj.hex } },
+          shapeType: listShapeType,
+          options: listShapeOpts,
         });
       }
 
@@ -1135,10 +1197,12 @@ function prepareRenderItem(
           h,
           align: 'left',
           valign: 'top',
-          margin: 0,
+          // Apply CSS padding as PPTX text box inset margin [top, right, bottom, left] in points
+          margin: listMargin,
           autoFit: true,
           wrap: !(style.whiteSpace === 'nowrap' || style.whiteSpace === 'pre'),
           vert: writingModeVert,
+          ...(writingModeVert && { textDirection: mapVertToTextDirection(writingModeVert) }),
         },
       });
 
@@ -1228,14 +1292,7 @@ function prepareRenderItem(
     };
 
     const job = async () => {
-      const processed = await getProcessedImage(
-        node.src,
-        widthPx,
-        heightPx,
-        radii,
-        objectFit,
-        objectPosition
-      );
+      const processed = await getProcessedImage(node.src, widthPx, heightPx, radii, objectFit, objectPosition);
       if (processed) item.options.data = processed;
       else item.skip = true;
     };
@@ -1322,8 +1379,7 @@ function prepareRenderItem(
   const isBgClipText = bgClip === 'text';
   const bgImgStr = style.backgroundImage;
   const hasGradient = !isBgClipText && bgImgStr && bgImgStr.includes('linear-gradient');
-  const urlMatch =
-    !isBgClipText && !hasGradient && bgImgStr ? bgImgStr.match(/url\(['"]?(.*?)['"]?\)/) : null;
+  const urlMatch = !isBgClipText && !hasGradient && bgImgStr ? bgImgStr.match(/url\(['"]?(.*?)['"]?\)/) : null;
   const hasBgImgUrl = !!urlMatch;
 
   const borderColorObj = parseColor(style.borderColor);
@@ -1368,8 +1424,7 @@ function prepareRenderItem(
         if (style.alignItems === 'flex-end' || style.alignItems === 'end') align = 'right';
 
         if (style.justifyContent === 'center' && style.display.includes('flex')) valign = 'middle';
-        if (style.justifyContent === 'flex-end' && style.display.includes('flex'))
-          valign = 'bottom';
+        if (style.justifyContent === 'flex-end' && style.display.includes('flex')) valign = 'bottom';
       } else {
         if (style.alignItems === 'center') valign = 'middle';
         if (style.alignItems === 'flex-end' || style.alignItems === 'end') valign = 'bottom';
@@ -1432,13 +1487,7 @@ function prepareRenderItem(
       let bgData;
       let padIn = 0;
       if (softEdge) {
-        const svgInfo = generateBlurredSVG(
-          widthPx,
-          heightPx,
-          bgColorObj.hex,
-          borderRadiusValue,
-          softEdge
-        );
+        const svgInfo = generateBlurredSVG(widthPx, heightPx, bgColorObj.hex, borderRadiusValue, softEdge);
         bgData = svgInfo.data;
         padIn = svgInfo.padding * PX_TO_INCH * config.scale;
       } else {
@@ -1448,11 +1497,11 @@ function prepareRenderItem(
           style.backgroundImage,
           hasPartialBorderRadius
             ? {
-              tl: borderTopLeftRadius,
-              tr: borderTopRightRadius,
-              br: borderBottomRightRadius,
-              bl: borderBottomLeftRadius,
-            }
+                tl: borderTopLeftRadius,
+                tr: borderTopRightRadius,
+                br: borderBottomRightRadius,
+                bl: borderBottomLeftRadius,
+              }
             : borderRadiusValue,
           hasBorder ? { color: borderColorObj.hex, width: borderWidth } : null
         );
@@ -1493,6 +1542,7 @@ function prepareRenderItem(
           wrap: !(style.whiteSpace === 'nowrap' || style.whiteSpace === 'pre'),
           autoFit: true,
           vert: writingModeVert,
+          ...(writingModeVert && { textDirection: mapVertToTextDirection(writingModeVert) }),
         },
       });
     }
@@ -1522,18 +1572,12 @@ function prepareRenderItem(
     const useSolidFill = (bgColorObj.hex && !isImageWrapper) || customShapeName;
 
     if (hasPartialBorderRadius && useSolidFill && !textPayload && !customShapeName) {
-      const shapeSvg = generateCustomShapeSVG(
-        widthPx,
-        heightPx,
-        bgColorObj.hex,
-        bgColorObj.opacity,
-        {
-          tl: parseFloat(style.borderTopLeftRadius) || 0,
-          tr: parseFloat(style.borderTopRightRadius) || 0,
-          br: parseFloat(style.borderBottomRightRadius) || 0,
-          bl: parseFloat(style.borderBottomLeftRadius) || 0,
-        }
-      );
+      const shapeSvg = generateCustomShapeSVG(widthPx, heightPx, bgColorObj.hex, bgColorObj.opacity, {
+        tl: parseFloat(style.borderTopLeftRadius) || 0,
+        tr: parseFloat(style.borderTopRightRadius) || 0,
+        br: parseFloat(style.borderBottomRightRadius) || 0,
+        bl: parseFloat(style.borderBottomLeftRadius) || 0,
+      });
 
       items.push({
         type: 'image',
@@ -1594,6 +1638,7 @@ function prepareRenderItem(
           wrap: !(style.whiteSpace === 'nowrap' || style.whiteSpace === 'pre'),
           autoFit: true,
           vert: writingModeVert,
+          ...(writingModeVert && { textDirection: mapVertToTextDirection(writingModeVert) }),
         };
         items.push({
           type: 'text',
@@ -1614,12 +1659,7 @@ function prepareRenderItem(
     }
 
     if (hasCompositeBorder) {
-      const borderSvgData = generateCompositeBorderSVG(
-        widthPx,
-        heightPx,
-        borderRadiusValue,
-        borderInfo.sides
-      );
+      const borderSvgData = generateCompositeBorderSVG(widthPx, heightPx, borderRadiusValue, borderInfo.sides);
       if (borderSvgData) {
         items.push({
           type: 'image',
@@ -1730,25 +1770,217 @@ function createCompositeBorderItems(sides, x, y, w, h, scale, zIndex, domOrder) 
   return items;
 }
 
+function getBrowserAnimationName(name, direction, orientation) {
+  let animName = name.toLowerCase();
+
+  // Map compatibility aliases to base names
+  if (animName === 'rise-up' || animName === 'drop-in') animName = 'fade-in';
+  if (animName === 'drop-out') animName = 'fade-out';
+  if (animName.startsWith('swivel-in')) animName = 'fade-in';
+  if (animName.startsWith('swivel-out')) animName = 'fade-out';
+  if (animName.startsWith('fly-in-left')) {
+    animName = 'fly-in';
+    direction = 'left';
+  }
+  if (animName.startsWith('fly-in-right')) {
+    animName = 'fly-in';
+    direction = 'right';
+  }
+  if (animName.startsWith('fly-in-top')) {
+    animName = 'fly-in';
+    direction = 'down';
+  }
+  if (animName.startsWith('fly-in-bottom')) {
+    animName = 'fly-in';
+    direction = 'up';
+  }
+  if (animName.startsWith('fly-out-left')) {
+    animName = 'fly-out';
+    direction = 'left';
+  }
+  if (animName.startsWith('fly-out-right')) {
+    animName = 'fly-out';
+    direction = 'right';
+  }
+  if (animName.startsWith('fly-out-top')) {
+    animName = 'fly-out';
+    direction = 'up';
+  }
+  if (animName.startsWith('fly-out-bottom')) {
+    animName = 'fly-out';
+    direction = 'down';
+  }
+
+  if (animName.startsWith('fly-in')) {
+    const dir = direction || 'up';
+    animName = `fly-in-to-${dir}`;
+  } else if (animName.startsWith('fly-out')) {
+    const dir = direction || 'down';
+    animName = `fly-out-to-${dir}`;
+  } else if (animName.startsWith('wipe-in')) {
+    const dir = direction || 'down';
+    animName = `wipe-in-to-${dir}`;
+  } else if (animName.startsWith('wipe-out')) {
+    const dir = direction || 'down';
+    animName = `wipe-out-to-${dir}`;
+  } else if (animName.startsWith('split-in')) {
+    const orient = orientation || 'vertical';
+    animName = `split-in-${orient}`;
+  } else if (animName.startsWith('split-out')) {
+    const orient = orientation || 'vertical';
+    animName = `split-out-${orient}`;
+  } else if (animName.startsWith('random-bars-in') || animName.startsWith('randombar-in')) {
+    const orient = orientation || 'horizontal';
+    animName = `random-bars-in-${orient}`;
+  } else if (animName.startsWith('random-bars-out') || animName.startsWith('randombar-out')) {
+    const orient = orientation || 'horizontal';
+    animName = `random-bars-out-${orient}`;
+  }
+  return animName;
+}
+
+function makeParagraphBuild(el, anim, baseDelay, playState = 'running', triggerGap = 800) {
+  const children = Array.from(el.children);
+  if (children.length === 0) return [];
+
+  // Start child staggers after the parent container animation finishes
+  let currentDelay = baseDelay + anim.duration;
+  const childElements = [];
+
+  children.forEach((child, index) => {
+    child.style.animationName = getBrowserAnimationName(anim.name, anim.direction, anim.orientation);
+    child.style.animationDuration = `${anim.duration}ms`;
+    child.style.animationFillMode = 'both';
+    child.style.animationPlayState = playState;
+
+    if (index === 0) {
+      child.style.animationDelay = `${currentDelay}ms`;
+    } else {
+      currentDelay += anim.duration + triggerGap;
+      child.style.animationDelay = `${currentDelay}ms`;
+    }
+    childElements.push(child);
+  });
+
+  return childElements;
+}
+
+function makeLetterBuild(el, anim, baseDelay, playState = 'running') {
+  const spans = [];
+  const state = { charIndex: 0 };
+
+  // Start letter typing after the parent container animation finishes
+  const startDelay = baseDelay + anim.duration;
+
+  function splitTextNodeIntoSpans(textNode) {
+    const text = textNode.textContent;
+    const parent = textNode.parentNode;
+    const fragment = document.createDocumentFragment();
+
+    for (const char of text) {
+      const span = document.createElement('span');
+      if (char === ' ') {
+        span.innerHTML = '&nbsp;';
+      } else {
+        span.textContent = char;
+      }
+      span.style.display = 'inline-block';
+
+      const animName = getBrowserAnimationName(anim.name, anim.direction, anim.orientation);
+      span.style.animationName = animName;
+      span.style.animationDuration = `${anim.duration}ms`;
+      span.style.animationFillMode = 'both';
+      span.style.animationPlayState = playState;
+
+      // Stagger delay by 30ms per character
+      const letterDelay = startDelay + state.charIndex * 30;
+      span.style.animationDelay = `${letterDelay}ms`;
+
+      fragment.appendChild(span);
+      spans.push(span);
+      state.charIndex++;
+    }
+
+    parent.replaceChild(fragment, textNode);
+  }
+
+  function walkTextNodes(node) {
+    const children = Array.from(node.childNodes);
+    for (const child of children) {
+      if (child.nodeType === 3) {
+        // Text Node
+        if (child.textContent.trim().length > 0) {
+          splitTextNodeIntoSpans(child);
+        }
+      } else if (child.nodeType === 1) {
+        // Element Node
+        walkTextNodes(child);
+      }
+    }
+  }
+
+  walkTextNodes(el);
+
+  return spans;
+}
+
+function getActualEndTime(el, anim, baseDelay) {
+  if (anim.build === 'paragraph') {
+    const children = el.children ? Array.from(el.children) : [];
+    if (children.length > 0) {
+      const triggerGap = 800;
+      let currentDelay = baseDelay + anim.duration;
+      for (let i = 1; i < children.length; i++) {
+        currentDelay += anim.duration + triggerGap;
+      }
+      return currentDelay + anim.duration;
+    }
+  } else if (anim.build === 'letter') {
+    let charCount = 0;
+    function countChars(node) {
+      const children = Array.from(node.childNodes);
+      for (const child of children) {
+        if (child.nodeType === 3) {
+          if (child.textContent.trim().length > 0) {
+            charCount += child.textContent.length;
+          }
+        } else if (child.nodeType === 1) {
+          countChars(child);
+        }
+      }
+    }
+    countChars(el);
+    if (charCount > 0) {
+      const startDelay = baseDelay + anim.duration;
+      const lastCharDelay = startDelay + (charCount - 1) * 30;
+      return lastCharDelay + anim.duration;
+    }
+  }
+  return baseDelay + anim.duration;
+}
+
 /**
  * Applies browser animation inline styles by parsing animation class utilities.
  * This helper enables real-time browser previewing of custom slide animation speeds/delays.
- * 
+ *
  * @param {HTMLElement} parentElement
+ * @param {Object} [options]
+ * @param {boolean} [options.enableClick=false] - If true, click-triggered builds require clicks to advance
  */
-export function applyBrowserAnimations(parentElement) {
+export function applyBrowserAnimations(parentElement, options = {}) {
   if (!parentElement) return;
-  const elements = parentElement.querySelectorAll('*');
+
+  const elements = parentElement.querySelectorAll ? parentElement.querySelectorAll('*') : [];
   const allElements = [parentElement, ...Array.from(elements)];
 
+  // 1. Apply basic utility classes for all elements (backward compatibility)
   for (const el of allElements) {
     if (el.nodeType !== 1) continue;
-
-    // Parse animation classes: e.g. animate-duration-[700]
     let duration = null;
     let delay = null;
+    const classList = el.classList ? Array.from(el.classList) : [];
 
-    for (const cls of Array.from(el.classList)) {
+    for (const cls of classList) {
       const durMatch = cls.match(/^animate-duration-\[(\d+)\]$/);
       if (durMatch) {
         duration = `${durMatch[1]}ms`;
@@ -1759,7 +1991,158 @@ export function applyBrowserAnimations(parentElement) {
       }
     }
 
-    if (duration) el.style.animationDuration = duration;
-    if (delay) el.style.animationDelay = delay;
+    if (duration && el.style) el.style.animationDuration = duration;
+    if (delay && el.style) el.style.animationDelay = delay;
+  }
+
+  // 2. Setup full timeline sequencer for elements with recognized slide animations
+  const slides = parentElement.querySelectorAll ? parentElement.querySelectorAll('.slide') : [];
+  const slidesList = slides.length > 0 ? Array.from(slides) : [parentElement];
+
+  for (const slide of slidesList) {
+    if (slide.__animationsApplied) continue;
+
+    const slideElements = slide.querySelectorAll ? slide.querySelectorAll('*') : [];
+    const allSlideElements = [slide, ...Array.from(slideElements)];
+    const animatedElements = [];
+
+    for (const el of allSlideElements) {
+      if (el.nodeType !== 1) continue;
+      let style;
+      try {
+        style = typeof window !== 'undefined' && window.getComputedStyle ? window.getComputedStyle(el) : null;
+      } catch (e) {
+        style = null;
+      }
+      if (!style) {
+        style = {
+          animationName: el.style?.animationName || 'none',
+          getPropertyValue: (prop) => el.style?.[prop] || '',
+        };
+      }
+
+      const anim = parseAnimation(el, style);
+      if (anim) {
+        animatedElements.push({ el, anim });
+      }
+    }
+
+    if (animatedElements.length === 0) continue;
+
+    slide.__animationsApplied = true;
+
+    // Group elements into sequential click-groups (steps)
+    const stepGroups = [];
+    let currentGroup = [];
+
+    animatedElements.forEach((item) => {
+      if (item.anim.start === 'click' && currentGroup.length > 0) {
+        stepGroups.push(currentGroup);
+        currentGroup = [];
+      }
+      currentGroup.push(item);
+    });
+    if (currentGroup.length > 0) {
+      stepGroups.push(currentGroup);
+    }
+
+    const enableClick = options?.enableClick === true;
+    let autoTimelineTime = 0;
+    const stepAdvanceActions = [];
+
+    stepGroups.forEach((group, groupIdx) => {
+      let groupLocalStart = 0;
+      let lastElementEndTime = 0;
+      const groupActions = [];
+
+      // Compute local delays relative to the step's start
+      group.forEach((item, itemIdx) => {
+        const { anim } = item;
+        let localDelay = 0;
+
+        if (itemIdx === 0) {
+          localDelay = anim.delay;
+          groupLocalStart = localDelay;
+          lastElementEndTime = getActualEndTime(item.el, anim, localDelay);
+        } else {
+          if (anim.start === 'with') {
+            localDelay = groupLocalStart + anim.delay;
+            const endTime = getActualEndTime(item.el, anim, localDelay);
+            if (endTime > lastElementEndTime) {
+              lastElementEndTime = endTime;
+            }
+          } else if (anim.start === 'after') {
+            localDelay = lastElementEndTime + anim.delay;
+            groupLocalStart = localDelay;
+            lastElementEndTime = getActualEndTime(item.el, anim, localDelay);
+          }
+        }
+        item.computedLocalDelay = localDelay;
+      });
+
+      // Apply animation styles and builds
+      const isPausedStep = enableClick && groupIdx > 0;
+      const playState = isPausedStep ? 'paused' : 'running';
+
+      group.forEach((item) => {
+        const { el, anim, computedLocalDelay } = item;
+
+        let finalDelay = computedLocalDelay;
+        if (!enableClick && groupIdx > 0) {
+          finalDelay += autoTimelineTime;
+        }
+
+        const resolvedAnimName = getBrowserAnimationName(anim.name, anim.direction, anim.orientation);
+        if (el.style) {
+          el.style.animationName = resolvedAnimName;
+          el.style.animationDuration = `${anim.duration}ms`;
+          el.style.animationDelay = `${finalDelay}ms`;
+          el.style.animationFillMode = 'both';
+          el.style.animationPlayState = playState;
+        }
+
+        let buildChildren = [];
+        if (anim.build === 'paragraph') {
+          buildChildren = makeParagraphBuild(el, anim, finalDelay, playState);
+        } else if (anim.build === 'letter') {
+          buildChildren = makeLetterBuild(el, anim, finalDelay, playState);
+        }
+
+        groupActions.push({ el, buildChildren });
+      });
+
+      stepAdvanceActions.push(groupActions);
+
+      if (!enableClick) {
+        // Advance automatic timeline by the maximum duration of this group plus a default gap
+        let groupMaxEnd = 0;
+        group.forEach((item) => {
+          const end = getActualEndTime(item.el, item.anim, item.computedLocalDelay);
+          if (end > groupMaxEnd) groupMaxEnd = end;
+        });
+        autoTimelineTime += groupMaxEnd + 800; // 800ms step delay
+      }
+    });
+
+    // Bind click listener for click-to-play sequencing
+    if (enableClick && stepAdvanceActions.length > 1 && slide.addEventListener) {
+      let currentStep = 0;
+      slide.addEventListener('click', (e) => {
+        if (e.target && e.target.closest && (e.target.closest('a') || e.target.closest('button'))) return;
+
+        if (currentStep < stepAdvanceActions.length - 1) {
+          currentStep++;
+          const actions = stepAdvanceActions[currentStep];
+          actions.forEach(({ el, buildChildren }) => {
+            if (el.style) el.style.animationPlayState = 'running';
+            if (buildChildren) {
+              buildChildren.forEach((child) => {
+                if (child.style) child.style.animationPlayState = 'running';
+              });
+            }
+          });
+        }
+      });
+    }
   }
 }

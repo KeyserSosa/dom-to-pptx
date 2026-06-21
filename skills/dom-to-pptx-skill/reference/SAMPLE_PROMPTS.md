@@ -1,8 +1,10 @@
 # Sample Prompts for Common Slide Layouts
 
-Copy-paste prompts that produce dom-to-pptx-safe HTML for the layouts people ask for most. Each prompt is self-contained — drop in your content, adjust the style preset, and the result can go straight into the template from [SAFE_HTML_TEMPLATE.md](SAFE_HTML_TEMPLATE.md).
+Copy-paste prompts that produce dom-to-pptx-safe HTML for the layouts people ask for most. Each prompt is self-contained — drop in your content, adjust the style preset, and the result can go straight
+into the template from [SAFE_HTML_TEMPLATE.md](SAFE_HTML_TEMPLATE.md).
 
-Every prompt below already bakes in the constraints from [STYLE_WHITELIST.md](STYLE_WHITELIST.md): fixed 1920×1080, inline styles, absolute/flex layout, https images, no animations or blocked properties.
+Every prompt below already bakes in the constraints from [STYLE_WHITELIST.md](STYLE_WHITELIST.md): fixed 1920×1080, inline styles, absolute/flex layout, https images, slide transitions and element
+animations via whitelisted CSS classes, and no custom keyframes or blocked properties.
 
 ---
 
@@ -51,7 +53,7 @@ Copy and paste this into any prompt to apply a specific theme:
     - Subtitle: 36px, weight 400, opacity 0.8
     - Meta: 20px, uppercase, tracking-widest
   </TYPOGRAPHY>
-  <CONSTRAINTS>No transforms except rotate; no animations; inline styles only.</CONSTRAINTS>
+  <CONSTRAINTS>No transforms except rotate; slide transitions and element animations via whitelisted CSS classes only; inline layout styles only.</CONSTRAINTS>
 </SLIDE_CONFIG>
 ```
 
@@ -369,7 +371,7 @@ N. Thank you — [CLOSING]
 Global requirements:
 - Use the [PRESET NAME] palette from STYLE_PRESETS.md for backgrounds, accents, and text.
 - Every slide: 1920×1080, class="slide", position: relative, overflow: hidden, inline styles.
-- No transforms except rotate; no animation, transition, backdrop-filter, radial-gradient, or viewport units.
+- No transforms except rotate; slide transitions and element animations via whitelisted CSS classes only; no backdrop-filter, radial-gradient, or viewport units.
 - All images: https:// CORS-enabled URL (Unsplash preferred), object-fit: cover, border-radius where appropriate.
 - Google Fonts <link> in <head> with crossorigin="anonymous".
 - Wrap all slides in <div class="slide-stage"> and include the export button + validator + export script from SAFE_HTML_TEMPLATE.md.
@@ -383,7 +385,13 @@ Return a single valid HTML file ready to open in a browser.
 
 - **Always specify 1920×1080** in the prompt — otherwise the model may default to responsive sizing, which breaks the exporter.
 - **Mention "inline styles only"** — otherwise `<style>` tags with classes tend to appear, which works but is harder to debug.
-- **Name the blocked properties explicitly** ("no transforms except rotate; no animation, transition, backdrop-filter, radial-gradient") — vague guidance like "be compatible" isn't enough.
+- **Name the blocked and allowed motion properties explicitly** ("no transforms except rotate; slide transitions and element animations only via whitelisted classes; no backdrop-filter,
+  radial-gradient") — vague guidance like "be compatible" isn't enough.
+- **Instruct the AI to apply the "Complete Staging Rule" for motion**: If any element is animated, _all_ foreground elements on the slide must be animated in a coordinated chain or stagger. Ensure
+  there are no static foreground elements showing before their containing slides/headers animate in.
+- **Specify the Motion Tone & Pacing**: Explicitly prompt for the transition style (e.g. subtle `fade`/`push` for professional decks, or expressive `gallery`/`doors` for creative launches) and specify
+  normal/fast speeds.
+- **Request specific motion recipes**: Ask the model to use the typing reveal effect (`fade-in letter animate-duration-[400]`) on titles, or staggered parallel entry on card grids.
 - **Pin image sources** — give a fallback Unsplash URL in the prompt so the model doesn't invent unreachable URLs.
 - **Append the validator** — every prompt above assumes the output will be dropped into the safe template, which already runs `window.validateSlides()` before export.
 
@@ -394,5 +402,7 @@ Return a single valid HTML file ready to open in a browser.
 - [SAFE_HTML_TEMPLATE.md](SAFE_HTML_TEMPLATE.md) — the shell the generated slides drop into
 - [STYLE_WHITELIST.md](STYLE_WHITELIST.md) — what these prompts are working around
 - [VALIDATION.md](VALIDATION.md) — runs after generation to catch regressions
+- [ANIMATIONS_WHITELIST.md](ANIMATIONS_WHITELIST.md) — exhaustive list of whitelisted element-level animations, triggers, and text builds
+- [TRANSITIONS_WHITELIST.md](TRANSITIONS_WHITELIST.md) — exhaustive list of whitelisted slide-level transition effects and durations
 - [STYLE_PRESETS.md](STYLE_PRESETS.md) — palettes referenced in the prompts
 - [TEMPLATE.md](TEMPLATE.md) — more hand-written layout examples

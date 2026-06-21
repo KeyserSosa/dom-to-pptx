@@ -1,6 +1,13 @@
 # dom-to-pptx
 
-**The High-Fidelity HTML to PowerPoint Converter (v1.1.10)**
+**The High-Fidelity HTML to PowerPoint Converter (v2.0.0)**
+
+[![npm version](https://img.shields.io/npm/v/dom-to-pptx.svg?style=flat-square)](https://www.npmjs.com/package/dom-to-pptx)
+[![npm downloads](https://img.shields.io/npm/dm/dom-to-pptx.svg?style=flat-square)](https://www.npmjs.com/package/dom-to-pptx)
+[![](https://data.jsdelivr.com/v1/package/npm/dom-to-pptx/badge?style=rounded)](https://www.jsdelivr.com/package/npm/dom-to-pptx)
+[![license](https://img.shields.io/npm/l/dom-to-pptx.svg?style=flat-square)](https://github.com/atharva9167j/dom-to-pptx/blob/master/LICENSE)
+
+> Trusted by **230,000+ downloads every month** — and now with native motion support.
 
 > [!TIP]
 > **Quick Start for AI Agents (Claude Code, Gemini, Windsurf):**
@@ -13,18 +20,30 @@
 
 Most HTML-to-PPTX libraries fail when faced with modern web design. They break on gradients, misalign text, ignore rounded corners, or simply take a screenshot (which isn't editable).
 
-**dom-to-pptx** is different. It is a **Coordinate Scraper & Style Engine** that traverses your DOM, calculates the exact computed styles of every element (Flexbox/Grid positions, complex gradients, shadows), and mathematically maps them to native PowerPoint shapes and text boxes. The result is a fully editable, vector-sharp presentation that looks exactly like your web view.
+**dom-to-pptx** is different. It is a **Coordinate Scraper & Style Engine** that traverses your DOM, calculates the exact computed styles of every element (Flexbox/Grid positions, complex gradients, shadows), and mathematically maps them to native PowerPoint shapes and text boxes. The result is a fully editable, vector-sharp presentation that looks exactly like your web view and as of v2.0.0, one that moves like a real motion-designed deck too.
 
-### 🛠️ Updates in v1.1.10
+## 🎬 What's New in v2.0.0
 
-- **CSS Pseudo-Element Text Content Support**: Added full support for extracting and rendering custom text content inside pseudo-elements (`::before` / `::after`), styled natively with background colors, borders, and margins.
-- **Canvas Rendering Bugfix**: Fixed a bug where clipped divs with partial border-radius were not being captured via canvas because the job promise was not correctly assigned to `bgJob`.
-- **Handled Known Limitations**: Resolved advanced scenarios like OOXML Schema Corrections, Missing OOXML Features, CSS-Only Visuals, Slide-Aspect Matching, and Layout Primitives.
-- **ESLint 9 Support & Lint Cleanup**: Restructured devDependencies to natively support ESLint 9 configs and cleaned up all static analysis issues in the source directories.
+This is the biggest release yet, bringing native motion to your exports:
+
+- **20+ Element Animations**: Entrance and exit animations — including `fade-in`, `zoom-in`, `fly-in`, and `wipe-in` with directional variants (e.g. `to-up`) — applied directly as CSS classes and baked into real PowerPoint animation effects on export.
+- **70+ Slide Transitions**: A full library of slide-to-slide transitions, from subtle corporate styles (`slide-transition-fade`, `slide-transition-push`, `slide-transition-wipe`) to expressive creative styles (gallery, doors, zoom, bounce, and more).
+- **Animation Timing & Sequencing Controls**: Fine-grained `animate-duration-[MS]` and `animate-delay-[MS]` utility classes, plus trigger classes (`animate-trigger-on-click`, `animate-trigger-with`, `animate-trigger-after`) to choreograph click-driven or sequential builds.
+- **Creative Text Builds**: Character-by-character typing effects (`letter` class) and row-by-row bullet reveals (`paragraph` class).
+- **Browser Preview Support**: New `animations.css` stylesheet and a `domToPptx.applyBrowserAnimations()` helper to preview element animations in-browser before export (note: slide-to-slide transitions are not previewed in-browser, only element animations are, though both export correctly).
+
+See [Animations & Transitions](#-animations--transitions-new-in-v200) below for full usage details.
 
 ## Features
 
-### 🚀 New in v1.1.0
+### 🎬 Animations & Transitions (New in v2.0.0)
+
+- **Native Entrance & Exit Animations:** Apply animation classes directly to HTML elements — no JS config needed — and they're converted into real, editable PowerPoint animation effects.
+- **Slide Transitions:** Apply transition classes to your `.slide` containers to control how PowerPoint moves between slides, from subtle fades to expressive creative effects.
+- **Sequencing & Triggers:** Coordinate multi-element builds with `animate-trigger-with` (simultaneous) and `animate-trigger-after` (chained), or require a click with `animate-trigger-on-click`.
+- **Typing & List-Reveal Builds:** Use the `letter` or `paragraph` class for character-by-character or line-by-line text reveals.
+
+### 🚀 Smart Font Embedding (v1.1.0)
 
 - **Smart Font Embedding:** The library **automatically detects** the fonts used in your HTML, finds their URLs in your CSS, and embeds them into the PPTX. Your slides will look identical on any computer, even if the user doesn't have the fonts installed.
 - **Enhanced Icon Support:** Flawless rendering of FontAwesome, Material Icons, and SVG-based icon libraries (including gradient text icons).
@@ -64,21 +83,50 @@ Most HTML-to-PPTX libraries fail when faced with modern web design. They break o
 npm install dom-to-pptx
 ```
 
-## 🤖 AI Skills Installation (New!)
+## 🖥️ Command Line Interface (CLI) & Agent Skills (New!)
 
-You can now install the **dom-to-pptx skills** directly into your favorite AI agent (Claude Code, Gemini CLI, Windsurf, etc.) to help it generate high-fidelity presentations.
+`dom-to-pptx` ships with a CLI suite to run headless PPTX exports or configure AI coding assistants:
 
-Run the following command to start the interactive installer:
+### 1. Unified CLI Router (`dom-to-pptx`)
+
+Run the unified command directly:
+
+```bash
+# General help
+npx dom-to-pptx --help
+
+# Run headless exporter (delegates to dom-to-pptx-exporter)
+npx dom-to-pptx export slides.html [options]
+
+# Run interactive skills installer (delegates to dom-to-pptx-skills)
+npx dom-to-pptx skills
+```
+
+### 2. Headless Exporter CLI (`dom-to-pptx-exporter`)
+
+A dedicated command to export local HTML files or remote URLs to PPTX files directly from the command line using a headless browser:
+
+```bash
+npx dom-to-pptx-exporter slides.html --output presentation.pptx
+```
+
+**Options:**
+
+- `--output, -o <path>`: Output `.pptx` file path (defaults to same folder as input).
+- `--selector, -s <css>`: CSS selector for slide container elements (defaults to `.slide`).
+- `--inject`: Force-inject the local browser bundle (useful if the HTML doesn't bundle `dom-to-pptx`).
+- `--title <text>` / `--author <text>`: Add presentation title / author metadata.
+- `--width <num>` / `--height <num>`: Set custom slide dimensions in inches.
+
+### 3. Agent Skills Installer CLI (`dom-to-pptx-skills`)
+
+An interactive installer to configure presentation engineering skills for coding agents (Claude Code, Gemini CLI, Windsurf, Cursor):
 
 ```bash
 npx dom-to-pptx-skills
 ```
 
-The installer will ask you:
-
-1. **Which AI Agent** you are using.
-2. **Installation scope** (Local `.agent/skills` for current project or Global for all projects).
-3. It will then automatically copy the latest optimized prompts and templates to your agent's directory.
+The installer scans for agent directories, lets you choose targeted locations, and configures the optimized prompt templates automatically.
 
 ---
 
@@ -150,7 +198,64 @@ await exportToPptx('#slide-with-charts', {
 
 In PowerPoint, right-click the SVG image and select **"Convert to Shape"** (or **Group > Ungroup**) to make it fully editable.
 
-### 5. Browser Usage (Script Tags)
+### 5. Animated Slides & Transitions (New in v2.0.0)
+
+Animations and transitions are applied declaratively via CSS classes — no extra JavaScript options are needed. Just link the animation stylesheet (note: slide-to-slide transitions are not previewed in the browser; only element animations are) so motion previews correctly in the browser, then export as usual.
+
+The `applyBrowserAnimations(parentElement, options)` helper configures the browser-side motion preview timeline. When `enableClick` is `false` (default automatic playback mode), the sequencer automatically schedules the slide's animations step-by-step. It accurately calculates the staggered duration of paragraph and letter builds, ensuring the next click-trigger step does not start until the previous build finishes. When `enableClick` is `true`, it binds a click listener to the `.slide` elements to advance the timeline manually on click.
+
+```html
+<head>
+  <!-- Required for accurate in-browser preview of animations (note: slide transitions are not previewed in-browser) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/dom-to-pptx@latest/dist/animations.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/dom-to-pptx@latest/dist/transitions.css" />
+</head>
+
+<body>
+  <div class="slide-stage">
+    <!-- Apply a transition class to the slide itself -->
+    <div class="slide slide-transition-fade" id="slide-1" style="width:1920px;height:1080px;">
+      <!-- Apply an entrance animation to an element -->
+      <h1 class="fade-in animate-duration-[1000]">Dynamic Presentation</h1>
+
+      <!-- Chain a second animation after the first finishes -->
+      <p class="fly-in to-up animate-duration-[800] animate-delay-[200] animate-trigger-after">
+        Powered by dom-to-pptx native animations
+      </p>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/dom-to-pptx@latest/dist/dom-to-pptx.bundle.js"></script>
+  <script>
+    // Apply browser-side animation behavior before the page is interacted with.
+    // Pass { enableClick: true } to require clicking the slide to step through animations,
+    // or leave empty/false to play them automatically.
+    domToPptx.applyBrowserAnimations(document.body, { enableClick: true });
+
+    document.getElementById('export-btn').onclick = async () => {
+      await domToPptx.exportToPptx(Array.from(document.querySelectorAll('.slide')), {
+        fileName: 'animated-presentation.pptx',
+      });
+    };
+  </script>
+</body>
+```
+
+**Key animation/transition utility classes:**
+
+| Class pattern                                                                   | Applies to         | Purpose                                                      |
+| :------------------------------------------------------------------------------ | :----------------- | :----------------------------------------------------------- |
+| `fade-in`, `zoom-in`, `fly-in`, `wipe-in` (+ exit variants)                     | Element            | Entrance/exit animation style (20+ available)                |
+| `to-up`, `to-down`, `to-left`, `to-right`                                       | Element            | Directional modifier for movement-based animations           |
+| `animate-duration-[MS]` / `animate-delay-[MS]`                                  | Element            | Custom timing in milliseconds, e.g. `animate-duration-[600]` |
+| `animate-trigger-on-click` / `animate-trigger-with` / `animate-trigger-after`   | Element            | Click-triggered, simultaneous, or sequential-chain timing    |
+| `letter` / `paragraph`                                                          | Text element       | Character-by-character typing or row-by-row reveal builds    |
+| `slide-transition-fade`, `slide-transition-push`, `slide-transition-wipe`, etc. | `.slide` container | Slide-to-slide transition style (70+ available)              |
+| `transition-duration-fast` / `transition-dur-[MS]`                              | `.slide` container | Custom transition speed                                      |
+
+> For the complete, exhaustive list of all 20+ animations and 70+ transitions with names and previews, see `ANIMATIONS_WHITELIST.md` and `TRANSITIONS_WHITELIST.md` (installed via `npx dom-to-pptx-skills`, or available in the repo's `reference/` directory).
+
+### 6. Browser Usage (Script Tags)
 
 You can use `dom-to-pptx` directly via CDN. The bundle includes all dependencies.
 
@@ -182,12 +287,8 @@ We recommend building your slide container at **1920x1080px**. The library will 
   <div class="w-1/3 bg-slate-900 relative overflow-hidden flex flex-col p-10 justify-between">
     <!-- Decorative gradients -->
     <div class="absolute top-0 left-0 w-full h-full opacity-30 pointer-events-none">
-      <div
-        class="absolute -top-20 -left-20 w-64 h-64 bg-purple-600 rounded-full blur-3xl mix-blend-screen"
-      ></div>
-      <div
-        class="absolute bottom-0 right-0 w-80 h-80 bg-indigo-600 rounded-full blur-3xl mix-blend-screen"
-      ></div>
+      <div class="absolute -top-20 -left-20 w-64 h-64 bg-purple-600 rounded-full blur-3xl mix-blend-screen"></div>
+      <div class="absolute bottom-0 right-0 w-80 h-80 bg-indigo-600 rounded-full blur-3xl mix-blend-screen"></div>
     </div>
     <div class="relative z-10">
       <div
@@ -198,9 +299,7 @@ We recommend building your slide container at **1920x1080px**. The library will 
       </div>
       <h2 class="text-4xl font-bold text-white leading-tight mb-4">
         Quarterly <br />
-        <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400"
-          >Performance</span
-        >
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">Performance</span>
       </h2>
       <p class="text-slate-400 leading-relaxed">
         Visualizing the impact of high-fidelity DOM conversion on presentation workflows.
@@ -209,17 +308,13 @@ We recommend building your slide container at **1920x1080px**. The library will 
     <!-- Feature List (Flexbox/Grid test) -->
     <div class="relative z-10 space-y-4">
       <div class="flex items-center gap-3 p-3 rounded-lg bg-white/5 border border-white/5">
-        <div
-          class="w-8 h-8 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400 font-bold"
-        >
+        <div class="w-8 h-8 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400 font-bold">
           1
         </div>
         <div class="text-sm text-slate-300">Pixel-perfect Shadows</div>
       </div>
       <div class="flex items-center gap-3 p-3 rounded-lg bg-white/5 border border-white/5">
-        <div
-          class="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-400 font-bold"
-        >
+        <div class="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-400 font-bold">
           2
         </div>
         <div class="text-sm text-slate-300">Complex Gradients</div>
@@ -256,9 +351,7 @@ We recommend building your slide container at **1920x1080px**. The library will 
     <!-- Grid Layout Test -->
     <div class="grid grid-cols-2 gap-6 mb-8">
       <!-- Card 1: Gradient & Shadow -->
-      <div
-        class="bg-white p-5 rounded-xl complex-shadow border border-slate-100 relative overflow-hidden group"
-      >
+      <div class="bg-white p-5 rounded-xl complex-shadow border border-slate-100 relative overflow-hidden group">
         <div class="relative z-10">
           <p class="text-xs font-bold text-indigo-500 uppercase tracking-wider mb-1">Total Sales</p>
           <h4 class="text-3xl font-bold text-slate-800">$124,500</h4>
@@ -337,6 +430,8 @@ Returns: `Promise<Blob>` - Resolves with the generated PPTX file data (Blob).
 | `height`         | `number`  | `5.625`         | Custom slide height in inches (requires `width` to be set).                                                   |
 | `listConfig`     | `object`  | `undefined`     | Global overrides for list styles. Structure: `{ color: string, spacing: { before: number, after: number } }`. |
 
+> Note: animations and transitions are controlled entirely through CSS classes on your elements (see [Animated Slides & Transitions](#5-animated-slides--transitions-new-in-v120)), not through the `options` object.
+
 **List Configuration Example:**
 
 ```javascript
@@ -347,6 +442,21 @@ listConfig: {
   }
 }
 ```
+
+### `applyBrowserAnimations(parentElement, options)`
+
+Applies browser animation inline styles by parsing animation class utilities. This helper enables real-time browser previewing of custom slide animation speeds, delays, sequencing triggers, and text builds with PowerPoint-accurate timeline parity.
+
+| Parameter       | Type          | Default    | Description                                          |
+| :-------------- | :------------ | :--------- | :--------------------------------------------------- |
+| `parentElement` | `HTMLElement` | _Required_ | The root element of the slide stage or presentation. |
+| `options`       | `object`      | `{}`       | Optional configuration object.                       |
+
+**Options Object (`options`):**
+
+| Key           | Type      | Default | Description                                                                                                                                                                                                                                                                                     |
+| :------------ | :-------- | :------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `enableClick` | `boolean` | `false` | If `true`, click-triggered steps are initially paused and advance one-by-one upon slide clicks (matching manual click timing). If `false` (default), click-triggered steps are automatically chained and play sequentially, accurately waiting for staggered paragraph/letter builds to finish. |
 
 ## Important Notes
 
@@ -359,6 +469,14 @@ listConfig: {
 2.  **Layout System:** The library does not "read" Flexbox or Grid definitions directly. It measures the final `x, y, width, height` of every element relative to the slide root and places them absolutely. This ensures 100% visual accuracy regardless of the CSS layout method used.
 
 3.  **CORS Images:** External images (`<img>` tags) must also be served with `Access-Control-Allow-Origin: *` headers to be processed by the rounding/masking engine.
+
+4.  **Animations & Transitions:** Link `animations.css` and `transitions.css` (note: only slide element animations are previewed in the browser; slide-to-slide transitions are not previewed in-browser, though they are still exported correctly) so motion previews correctly in your browser before export — the export engine reads the applied classes and converts them into native PowerPoint animation/transition effects regardless of whether the stylesheets are present at export time.
+
+## Contributors
+
+A huge thank you to everyone who has helped improve `dom-to-pptx`!
+
+Please see [CONTRIBUTORS.md](CONTRIBUTORS.md) for the full list of our amazing contributors.
 
 ## License
 

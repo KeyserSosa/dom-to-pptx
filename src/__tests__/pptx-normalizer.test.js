@@ -32,18 +32,15 @@ describe('normalizePptxZip', () => {
         overrides: [
           {
             partName: '/ppt/slideMasters/slideMaster1.xml',
-            contentType:
-              'application/vnd.openxmlformats-officedocument.presentationml.slideMaster+xml',
+            contentType: 'application/vnd.openxmlformats-officedocument.presentationml.slideMaster+xml',
           },
           {
             partName: '/ppt/slideMasters/slideMaster2.xml',
-            contentType:
-              'application/vnd.openxmlformats-officedocument.presentationml.slideMaster+xml',
+            contentType: 'application/vnd.openxmlformats-officedocument.presentationml.slideMaster+xml',
           },
           {
             partName: '/ppt/slideMasters/slideMaster3.xml',
-            contentType:
-              'application/vnd.openxmlformats-officedocument.presentationml.slideMaster+xml',
+            contentType: 'application/vnd.openxmlformats-officedocument.presentationml.slideMaster+xml',
           },
         ],
       })
@@ -83,13 +80,11 @@ describe('normalizePptxZip', () => {
         overrides: [
           {
             partName: '/ppt/slideMasters/slideMaster1.xml',
-            contentType:
-              'application/vnd.openxmlformats-officedocument.presentationml.slideMaster+xml',
+            contentType: 'application/vnd.openxmlformats-officedocument.presentationml.slideMaster+xml',
           },
           {
             partName: '/ppt/slideMasters/slideMaster9.xml',
-            contentType:
-              'application/vnd.openxmlformats-officedocument.presentationml.slideMaster+xml',
+            contentType: 'application/vnd.openxmlformats-officedocument.presentationml.slideMaster+xml',
           },
         ],
       })
@@ -127,13 +122,11 @@ describe('normalizePptxZip', () => {
         overrides: [
           {
             partName: 'ppt/slideMasters/slideMaster1.xml',
-            contentType:
-              'application/vnd.openxmlformats-officedocument.presentationml.slideMaster+xml',
+            contentType: 'application/vnd.openxmlformats-officedocument.presentationml.slideMaster+xml',
           },
           {
             partName: 'ppt/slideMasters/slideMasterGhost.xml',
-            contentType:
-              'application/vnd.openxmlformats-officedocument.presentationml.slideMaster+xml',
+            contentType: 'application/vnd.openxmlformats-officedocument.presentationml.slideMaster+xml',
           },
         ],
       })
@@ -194,6 +187,51 @@ describe('normalizePptxZip', () => {
     expect(children.length).toBe(2);
     expect(children[0].localName).toBe('lnSpc');
     expect(children[1].localName).toBe('spcAft');
+  });
+
+  it('ensures mutual exclusivity of bullet elements by removing buNone when active bullet is present', async () => {
+    const zip = new JSZip();
+    zip.file(
+      '[Content_Types].xml',
+      buildContentTypes({
+        defaults: [{ ext: 'xml', contentType: 'application/xml' }],
+      })
+    );
+    const slideXml = `<?xml version="1.0" encoding="UTF-8"?>
+<p:sld xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main">
+  <p:cSld>
+    <p:spTree>
+      <p:sp>
+        <p:txBody>
+          <a:p>
+            <a:pPr>
+              <a:buChar char="•"/>
+            </a:pPr>
+            <a:pPr>
+              <a:buNone/>
+            </a:pPr>
+            <a:r>
+              <a:t>Hello</a:t>
+            </a:r>
+          </a:p>
+        </p:txBody>
+      </p:sp>
+    </p:spTree>
+  </p:cSld>
+</p:sld>`;
+    zip.file('ppt/slides/slide1.xml', slideXml);
+
+    await normalizePptxZip(zip);
+
+    const normalizedXml = await zip.file('ppt/slides/slide1.xml').async('string');
+    const doc = new DOMParser().parseFromString(normalizedXml, 'text/xml');
+    const pPrs = doc.getElementsByTagName('a:pPr');
+    expect(pPrs.length).toBe(1);
+
+    const pPr = pPrs[0];
+    const children = Array.from(pPr.childNodes).filter((n) => n.nodeType === 1);
+    expect(children.length).toBe(1);
+    expect(children[0].localName).toBe('buChar');
   });
 
   it('restores character spacing spc attribute from typeface __spc_ suffix', async () => {
@@ -283,9 +321,7 @@ describe('normalizePptxZip', () => {
 
     // Shape 2 (id="2") should be sorted second among visual elements because z=1
     expect(elements[3].getElementsByTagName('p:cNvPr')[0].getAttribute('id')).toBe('2');
-    expect(elements[3].getElementsByTagName('p:cNvPr')[0].getAttribute('descr')).toBe(
-      'Original User Alt'
-    );
+    expect(elements[3].getElementsByTagName('p:cNvPr')[0].getAttribute('descr')).toBe('Original User Alt');
 
     expect(elements[4].localName).toBe('extLst');
   });
@@ -337,9 +373,7 @@ describe('normalizePptxZip', () => {
 
     // Shape 2 (id="2") should be sorted second among visual elements because z=1
     expect(elements[3].getElementsByTagName('p:cNvPr')[0].getAttribute('id')).toBe('2');
-    expect(elements[3].getElementsByTagName('p:cNvPr')[0].getAttribute('name')).toBe(
-      'Original User Name'
-    );
+    expect(elements[3].getElementsByTagName('p:cNvPr')[0].getAttribute('name')).toBe('Original User Name');
 
     expect(elements[4].localName).toBe('extLst');
   });
@@ -373,5 +407,66 @@ describe('normalizePptxZip', () => {
     expect(children[1].localName).toBe('notesMasterIdLst');
     expect(children[2].localName).toBe('sldIdLst');
     expect(children[3].localName).toBe('sldSz');
+  });
+
+  describe('applySlideTransitions', () => {
+    it('injects standard transition directly', async () => {
+      const zip = new JSZip();
+      zip.file(
+        '[Content_Types].xml',
+        `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types><Default Extension="xml" ContentType="application/xml"/></Types>`
+      );
+      const slideXml = `<?xml version="1.0" encoding="UTF-8"?>
+<p:sld xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main">
+  <p:cSld/>
+</p:sld>`;
+      zip.file('ppt/slides/slide1.xml', slideXml);
+
+      const options = {
+        _slideTransitions: {
+          0: { name: 'push', dir: 'l' },
+        },
+      };
+
+      await normalizePptxZip(zip, options);
+
+      const resultXml = await zip.file('ppt/slides/slide1.xml').async('string');
+      expect(resultXml).toContain('<p:transition spd="med"><p:push dir="l"/></p:transition>');
+      expect(resultXml).not.toContain('<mc:AlternateContent');
+    });
+
+    it('injects and wraps extended transitions (p14/p15) in AlternateContent with mc:Ignorable attributes', async () => {
+      const zip = new JSZip();
+      zip.file(
+        '[Content_Types].xml',
+        `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types><Default Extension="xml" ContentType="application/xml"/></Types>`
+      );
+      const slideXml = `<?xml version="1.0" encoding="UTF-8"?>
+<p:sld xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main">
+  <p:cSld/>
+</p:sld>`;
+      zip.file('ppt/slides/slide1.xml', slideXml);
+
+      const options = {
+        _slideTransitions: {
+          0: { name: 'gallery', dir: 'l' },
+        },
+      };
+
+      await normalizePptxZip(zip, options);
+
+      const resultXml = await zip.file('ppt/slides/slide1.xml').async('string');
+      expect(resultXml).toContain('<mc:AlternateContent');
+      expect(resultXml).toContain(
+        '<mc:Choice xmlns:p14="http://schemas.microsoft.com/office/powerpoint/2010/main" Requires="p14">'
+      );
+      expect(resultXml).toContain('<p14:gallery dir="l"/>');
+      expect(resultXml).toContain('<mc:Fallback>');
+      expect(resultXml).toContain('<p:transition spd="slow">');
+      expect(resultXml).toContain('<p:fade/>');
+      expect(resultXml).toContain('xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"');
+      expect(resultXml).toContain('xmlns:p14="http://schemas.microsoft.com/office/powerpoint/2010/main"');
+      expect(resultXml).toContain('mc:Ignorable="p14"');
+    });
   });
 });

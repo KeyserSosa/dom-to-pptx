@@ -160,9 +160,7 @@ function cleanParagraphProperties(doc) {
   const paragraphs = elements.filter((n) => n.localName === 'p');
 
   for (const p of paragraphs) {
-    const pPrs = Array.from(p.childNodes).filter(
-      (node) => node.nodeType === 1 && node.localName === 'pPr'
-    );
+    const pPrs = Array.from(p.childNodes).filter((node) => node.nodeType === 1 && node.localName === 'pPr');
     if (pPrs.length > 0) {
       const targetPPr = pPrs[0];
 
@@ -196,6 +194,20 @@ function cleanParagraphProperties(doc) {
           mutated = true;
         } else {
           seen.set(key, child);
+        }
+      }
+
+      // Ensure mutual exclusivity of bullet elements (buNone, buChar, buAutoNum, buBlip)
+      const hasActiveBullet = Array.from(targetPPr.childNodes).some(
+        (node) => node.nodeType === 1 && ['buChar', 'buAutoNum', 'buBlip'].includes(node.localName)
+      );
+      if (hasActiveBullet) {
+        const buNones = Array.from(targetPPr.childNodes).filter(
+          (node) => node.nodeType === 1 && node.localName === 'buNone'
+        );
+        for (const buNone of buNones) {
+          targetPPr.removeChild(buNone);
+          mutated = true;
         }
       }
 
@@ -253,12 +265,7 @@ function restoreCharSpacing(doc) {
 
     // Find the parent rPr or defRPr or endParaRPr to set 'spc'
     let parent = el.parentNode;
-    if (
-      parent &&
-      (parent.localName === 'rPr' ||
-        parent.localName === 'defRPr' ||
-        parent.localName === 'endParaRPr')
-    ) {
+    if (parent && (parent.localName === 'rPr' || parent.localName === 'defRPr' || parent.localName === 'endParaRPr')) {
       const spcVal = parts[1];
       if (parent.getAttribute('spc') !== spcVal) {
         parent.setAttribute('spc', spcVal);
@@ -299,13 +306,9 @@ function sortSpTree(doc) {
 
       // Find cNvPr element
       let cNvPr = null;
-      const nvPr = Array.from(el.childNodes).find(
-        (n) => n.nodeType === 1 && n.localName.startsWith('nv')
-      );
+      const nvPr = Array.from(el.childNodes).find((n) => n.nodeType === 1 && n.localName.startsWith('nv'));
       if (nvPr) {
-        cNvPr = Array.from(nvPr.childNodes).find(
-          (n) => n.nodeType === 1 && n.localName === 'cNvPr'
-        );
+        cNvPr = Array.from(nvPr.childNodes).find((n) => n.nodeType === 1 && n.localName === 'cNvPr');
       }
       if (!cNvPr) {
         cNvPr = Array.from(el.getElementsByTagName('*')).find((n) => n.localName === 'cNvPr');
@@ -330,8 +333,8 @@ function sortSpTree(doc) {
           mutated = true;
         }
 
-        const nameMatch = nameAttr.match(/^__z_(\d+)__dom_(\d+)__type_([^_]*)/) ||
-          nameAttr.match(/^__z_(\d+)__dom_(\d+)(.*)/);
+        const nameMatch =
+          nameAttr.match(/^__z_(\d+)__dom_(\d+)__type_([^_]*)/) || nameAttr.match(/^__z_(\d+)__dom_(\d+)(.*)/);
         if (nameMatch) {
           if (!hasVal) {
             zVal = parseInt(nameMatch[1], 10);
@@ -343,11 +346,17 @@ function sortSpTree(doc) {
             // New format: __z_N__dom_N__type_TYPE — use type to set a proper name
             const typeSegment = nameMatch[3] || '';
             const typePrefix =
-              typeSegment === 'text' ? 'TextBox' :
-                typeSegment === 'image' ? 'Picture' :
-                  typeSegment === 'table' ? 'Table' :
-                    typeSegment === 'line' ? 'Line' :
-                      typeSegment === 'shape' ? 'Shape' : 'Shape';
+              typeSegment === 'text'
+                ? 'TextBox'
+                : typeSegment === 'image'
+                  ? 'Picture'
+                  : typeSegment === 'table'
+                    ? 'Table'
+                    : typeSegment === 'line'
+                      ? 'Line'
+                      : typeSegment === 'shape'
+                        ? 'Shape'
+                        : 'Shape';
             shapeName = `${typePrefix} ${domVal + 1}`;
           } else {
             // Old format: __z_N__dom_N [optional user text]
@@ -415,11 +424,10 @@ function applySlideAnimations(doc, slideIndex, options) {
   if (!slideAnimations || slideAnimations.length === 0) return false;
 
   const domToSpIdMap = new Map();
+  const textBoxSpIds = new Set();
 
   // Find all cNvPr elements to build the mapping from domVal to spId
-  const cNvPrs = Array.from(doc.getElementsByTagName('*')).filter(
-    (n) => n.localName === 'cNvPr'
-  );
+  const cNvPrs = Array.from(doc.getElementsByTagName('*')).filter((n) => n.localName === 'cNvPr');
 
   for (const cNvPr of cNvPrs) {
     const descr = cNvPr.getAttribute('descr') || '';
@@ -442,11 +450,23 @@ function applySlideAnimations(doc, slideIndex, options) {
         domToSpIdMap.set(domVal, []);
       }
       domToSpIdMap.get(domVal).push(spId);
+
+      // Check if this cNvPr's shape represents a TextBox (has <p:txBody>)
+      // Structure: <p:sp> -> <p:nvSpPr> -> <p:cNvPr>
+      const grandParent = cNvPr.parentNode?.parentNode;
+      if (grandParent) {
+        const hasTxBody = Array.from(grandParent.childNodes).some(
+          (child) => child.nodeType === 1 && child.localName === 'txBody'
+        );
+        if (hasTxBody) {
+          textBoxSpIds.add(spId);
+        }
+      }
     }
   }
 
   // Build the p:timing XML block
-  const timingXml = buildTimingXml(slideAnimations, domToSpIdMap);
+  const timingXml = buildTimingXml(slideAnimations, domToSpIdMap, textBoxSpIds);
   if (!timingXml) return false;
 
   let timingDoc;
@@ -467,9 +487,7 @@ function applySlideAnimations(doc, slideIndex, options) {
   const sld = doc.documentElement;
 
   // Find where to insert (before extLst if exists)
-  const extLst = Array.from(sld.childNodes).find(
-    (n) => n.nodeType === 1 && n.localName === 'extLst'
-  );
+  const extLst = Array.from(sld.childNodes).find((n) => n.nodeType === 1 && n.localName === 'extLst');
 
   if (extLst) {
     sld.insertBefore(timingNode, extLst);
@@ -491,13 +509,13 @@ function applySlideTransitions(doc, slideIndex, options) {
   if (!transitionXml) return false;
 
   const sldNode = doc.documentElement;
-  
+
   // Parse the transition XML fragment
   const tmpDoc = new DOMParser().parseFromString(
-    `<root xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main">${transitionXml}</root>`, 
+    `<root xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main">${transitionXml}</root>`,
     'text/xml'
   );
-  
+
   const parserError = tmpDoc.getElementsByTagName('parsererror')[0];
   if (parserError) {
     console.warn('[pptx-normalizer] Transition XML parsing failed:', parserError.textContent);
@@ -508,20 +526,59 @@ function applySlideTransitions(doc, slideIndex, options) {
   if (!transitionNode) return false;
 
   const importedNode = doc.importNode(transitionNode, true);
-  
-  // Add required namespaces if they aren't on the root
-  if (transitionXml.includes('p14:')) {
-    if (!sldNode.getAttribute('xmlns:p14')) {
-      sldNode.setAttribute('xmlns:p14', 'http://schemas.microsoft.com/office/powerpoint/2010/main');
+
+  const isP14 = transitionXml.includes('p14:');
+  const isP15 = transitionXml.includes('p15:');
+  let finalNode;
+
+  if (isP14 || isP15) {
+    const prefix = isP15 ? 'p15' : 'p14';
+    const nsPrefixUri =
+      prefix === 'p14'
+        ? 'http://schemas.microsoft.com/office/powerpoint/2010/main'
+        : 'http://schemas.microsoft.com/office/powerpoint/2012/main';
+    const spd = transitionNode.getAttribute('spd') || transitionData.spd || 'med';
+
+    const altXml = `
+      <mc:AlternateContent xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main">
+        <mc:Choice xmlns:${prefix}="${nsPrefixUri}" Requires="${prefix}">
+          ${transitionXml}
+        </mc:Choice>
+        <mc:Fallback>
+          <p:transition xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main" spd="${spd}">
+            <p:fade/>
+          </p:transition>
+        </mc:Fallback>
+      </mc:AlternateContent>
+    `.trim();
+
+    const altDoc = new DOMParser().parseFromString(altXml, 'text/xml');
+    const altParserError = altDoc.getElementsByTagName('parsererror')[0];
+    if (altParserError) {
+      console.warn('[pptx-normalizer] AlternateContent XML parsing failed:', altParserError.textContent);
+      return false;
     }
-  }
-  if (transitionXml.includes('p15:')) {
-    if (!sldNode.getAttribute('xmlns:p15')) {
-      sldNode.setAttribute('xmlns:p15', 'http://schemas.microsoft.com/office/powerpoint/2012/main');
+
+    finalNode = doc.importNode(altDoc.documentElement, true);
+
+    // Add required namespaces to slide root if they aren't on the root
+    if (!sldNode.getAttribute('xmlns:mc')) {
+      sldNode.setAttribute('xmlns:mc', 'http://schemas.openxmlformats.org/markup-compatibility/2006');
     }
+    if (!sldNode.getAttribute(`xmlns:${prefix}`)) {
+      sldNode.setAttribute(`xmlns:${prefix}`, nsPrefixUri);
+    }
+    const currentIgnorable = sldNode.getAttribute('mc:Ignorable') || '';
+    const existingIgnorables = currentIgnorable.split(/\s+/).filter(Boolean);
+    if (!existingIgnorables.includes(prefix)) {
+      existingIgnorables.push(prefix);
+      sldNode.setAttribute('mc:Ignorable', existingIgnorables.join(' '));
+    }
+  } else {
+    finalNode = importedNode;
   }
 
-  // The <p:transition> node must be inserted in the correct OOXML schema order:
+  // The transition node (or mc:AlternateContent) must be inserted in the correct OOXML schema order:
   // p:cSld, p:clrMapOvr, p:transition, p:timing, p:extLst
   // So we insert it before p:timing, p:hf, or p:extLst. If none exist, we append it.
   const insertBeforeTags = ['p:timing', 'p:hf', 'p:extLst'];
@@ -535,9 +592,9 @@ function applySlideTransitions(doc, slideIndex, options) {
   }
 
   if (insertRef) {
-    sldNode.insertBefore(importedNode, insertRef);
+    sldNode.insertBefore(finalNode, insertRef);
   } else {
-    sldNode.appendChild(importedNode);
+    sldNode.appendChild(finalNode);
   }
 
   return true;
