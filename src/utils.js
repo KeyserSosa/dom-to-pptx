@@ -1081,6 +1081,47 @@ export async function getAutoDetectedFonts(usedFamilies) {
   return foundFonts;
 }
 
+/**
+ * Split a text node's value into line segments for an element whose effective
+ * CSS `white-space` preserves author line breaks (`pre`, `pre-wrap`, `pre-line`).
+ *
+ * Returns `[{ text, breakLine }]` where `breakLine` marks a hard line break after
+ * that segment (PptxGenJS `breakLine`). Pure string logic — no DOM/canvas — so it
+ * is unit-testable in isolation.
+ *
+ * Rules (per CSS Text spec):
+ *  - `pre` / `pre-wrap`: keep newlines AND runs of spaces; tabs become spaces
+ *    (PPTX text runs have no tab stops).
+ *  - `pre-line`: keep newlines but collapse runs of spaces/tabs.
+ *  - A single newline right after a `<pre>` start tag is ignored (HTML parsing).
+ *  - A single trailing newline on the last text node is the line terminator and
+ *    is dropped, so `<pre>a\n</pre>` is one line, not one line + a blank one.
+ */
+export function splitPreformattedText(value, whiteSpace, options = {}) {
+  const {
+    isFirstChild = false,
+    isLastChild = false,
+    isPre = false,
+    textTransform = 'none',
+  } = options;
+
+  let raw = String(value).replace(/\r\n?/g, '\n');
+  if (isFirstChild && isPre && raw[0] === '\n') raw = raw.slice(1);
+  raw = whiteSpace === 'pre-line' ? raw.replace(/[ \t]+/g, ' ') : raw.replace(/\t/g, '    ');
+  if (isLastChild) raw = raw.replace(/\n$/, '');
+  if (!raw.length) return [];
+
+  const transform = (s) => {
+    if (textTransform === 'uppercase') return s.toUpperCase();
+    if (textTransform === 'lowercase') return s.toLowerCase();
+    if (textTransform === 'capitalize') return s.replace(/\b\w/g, (c) => c.toUpperCase());
+    return s;
+  };
+
+  const lines = raw.split('\n');
+  return lines.map((line, i) => ({ text: transform(line), breakLine: i < lines.length - 1 }));
+}
+
 export function collectTextParts(
   node,
   parentStyle,
@@ -1135,7 +1176,39 @@ export function collectTextParts(
 
   node.childNodes.forEach((child, index) => {
     if (child.nodeType === 3) {
-      // Text
+      // Honor CSS white-space: pre / pre-wrap / pre-line preserve author line
+      // breaks (and, except pre-line, runs of spaces). Without this, every newline
+      // and indent inside a <pre> / white-space:pre(-wrap) block is collapsed to a
+      // single space and multi-line content renders as one run.
+      const wsStyle = node.nodeType === 1 ? window.getComputedStyle(node) : parentStyle;
+      const whiteSpace = wsStyle.whiteSpace || 'normal';
+      if (whiteSpace === 'pre' || whiteSpace === 'pre-wrap' || whiteSpace === 'pre-line') {
+        const segs = splitPreformattedText(child.nodeValue, whiteSpace, {
+          isFirstChild: index === 0,
+          isLastChild: index === node.childNodes.length - 1,
+          isPre: node.nodeType === 1 && node.tagName === 'PRE',
+          textTransform: wsStyle.textTransform,
+        });
+        if (segs.length) {
+          const baseOpts = getTextStyle(wsStyle, scale, !isRoot, inheritedOpacity);
+          if (hyperlink) baseOpts.hyperlink = hyperlink;
+          if (baseOpts.charSpacing !== undefined && baseOpts.fontFace) {
+            baseOpts.fontFace = `${baseOpts.fontFace}__spc_${Math.round(baseOpts.charSpacing * 100)}`;
+          }
+          // Naked text node: don't paint the parent background as a text highlight.
+          delete baseOpts.highlight;
+          segs.forEach((seg) => {
+            parts.push({
+              text: seg.text,
+              options: seg.breakLine ? { ...baseOpts, breakLine: true } : { ...baseOpts },
+            });
+          });
+        }
+        trimNextLeading = false;
+        return;
+      }
+
+      // Text (white-space: normal / nowrap — collapse runs of whitespace)
       let val = child.nodeValue.replace(/[\n\r\t]+/g, ' ').replace(/\s{2,}/g, ' ');
 
       if (index === 0) val = val.trimStart();
