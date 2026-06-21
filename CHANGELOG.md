@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.1] - 2026-06-21
+
+### Added
+
+- **Workspace Monorepo Layout**: Structured the repository as a `pnpm` workspace and introduced separate npm packages (`dom-to-pptx-skills` and `dom-to-pptx-exporter`) to support direct, independent executions via `npx dom-to-pptx-skills` and `npx dom-to-pptx-exporter` directly from the NPM registry.
+
+### Fixed
+
+- **Wipe Exit Preview Directions**: Resolved swapped `@keyframes` for exit directions (`wipe-out-to-left`, `wipe-out-to-right`, `wipe-out-to-up`, and `wipe-out-to-down`) in `animations.css` to accurately preview exit animations in-browser.
+- **Animation Timing Fallbacks**: Standardized default fallback animation durations in `css-parser.js` to `1000ms` (1.0s) and `animations.css` to `500ms` (0.5s) to match native PowerPoint default timings.
+
 ## [2.0.0] - 2026-06-20
 
 ### Added
