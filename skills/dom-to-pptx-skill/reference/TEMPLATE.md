@@ -391,10 +391,10 @@ To convert this presentation to a PowerPoint file, run the exporter utility on t
 
 ```bash
 # Compile all elements with the class '.slide' (default)
-npx dom-to-pptx-export presentation.html -o presentation.pptx
+npx dom-to-pptx-exporter presentation.html -o presentation.pptx
 
 # Compile a specific slide only
-npx dom-to-pptx-export presentation.html -s "#slide-1" -o slide1-only.pptx
+npx dom-to-pptx-exporter presentation.html -s "#slide-1" -o slide1-only.pptx
 ```
 
 ### Slide with Transitions & Animations

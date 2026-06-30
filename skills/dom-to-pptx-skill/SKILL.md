@@ -72,11 +72,11 @@ Instead of requiring manual browser interactions or click buttons on the page, c
 1. **Determine Export Scope**:
    - **Multi-Slide Export**: To compile all elements representing slides in the presentation deck, pass the HTML file. It will automatically match all elements matching `.slide` (or your custom selector):
      ```bash
-     npx dom-to-pptx-export presentation.html -o presentation.pptx
+     npx dom-to-pptx-exporter presentation.html -o presentation.pptx
      ```
    - **Single-Slide Export**: To compile a single slide from the presentation (useful for drafts, testing specific layouts, or incremental builds), pass the slide element selector directly:
      ```bash
-     npx dom-to-pptx-export presentation.html -s "#slide-2" -o slide2-only.pptx
+     npx dom-to-pptx-exporter presentation.html -s "#slide-2" -o slide2-only.pptx
      ```
 2. **Customize Layout Options**:
    - You can pass custom size settings directly using CLI arguments (e.g., `--width 10 --height 5.625`) to override slide sizes.

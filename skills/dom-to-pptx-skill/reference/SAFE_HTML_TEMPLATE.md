@@ -216,10 +216,10 @@ of CSS properties (see [STYLE_WHITELIST.md](STYLE_WHITELIST.md)). This template 
 
    ```bash
    # Compile all slides in the deck
-   npx dom-to-pptx-export presentation.html -o presentation.pptx
+   npx dom-to-pptx-exporter presentation.html -o presentation.pptx
 
    # Compile a single slide only (e.g., Slide 2)
-   npx dom-to-pptx-export presentation.html -s "#slide-2" -o slide2-only.pptx
+   npx dom-to-pptx-exporter presentation.html -s "#slide-2" -o slide2-only.pptx
    ```
 
 6. **Preview in browser**: Open `presentation.html` in Chrome/Edge. Firefox has stricter CORS behavior that sometimes breaks Unsplash images.
