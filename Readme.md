@@ -22,7 +22,7 @@ Most HTML-to-PPTX libraries fail when faced with modern web design. They break o
 
 **dom-to-pptx** is different. It is a **Coordinate Scraper & Style Engine** that traverses your DOM, calculates the exact computed styles of every element (Flexbox/Grid positions, complex gradients, shadows), and mathematically maps them to native PowerPoint shapes and text boxes. The result is a fully editable, vector-sharp presentation that looks exactly like your web view and as of v2.0.0, one that moves like a real motion-designed deck too.
 
-## 🎬 What's New in v2.0.0
+## 🎬 What's New in v2
 
 This is the biggest release yet, bringing native motion to your exports:
 
@@ -36,14 +36,14 @@ See [Animations & Transitions](#-animations--transitions-new-in-v200) below for 
 
 ## Features
 
-### 🎬 Animations & Transitions (New in v2.0.0)
+### 🎬 Animations & Transitions (New in v2)
 
 - **Native Entrance & Exit Animations:** Apply animation classes directly to HTML elements — no JS config needed — and they're converted into real, editable PowerPoint animation effects.
 - **Slide Transitions:** Apply transition classes to your `.slide` containers to control how PowerPoint moves between slides, from subtle fades to expressive creative effects.
 - **Sequencing & Triggers:** Coordinate multi-element builds with `animate-trigger-with` (simultaneous) and `animate-trigger-after` (chained), or require a click with `animate-trigger-on-click`.
 - **Typing & List-Reveal Builds:** Use the `letter` or `paragraph` class for character-by-character or line-by-line text reveals.
 
-### 🚀 Smart Font Embedding (v1.1.0)
+### 🚀 Smart Font Embedding (v1.1)
 
 - **Smart Font Embedding:** The library **automatically detects** the fonts used in your HTML, finds their URLs in your CSS, and embeds them into the PPTX. Your slides will look identical on any computer, even if the user doesn't have the fonts installed.
 - **Enhanced Icon Support:** Flawless rendering of FontAwesome, Material Icons, and SVG-based icon libraries (including gradient text icons).

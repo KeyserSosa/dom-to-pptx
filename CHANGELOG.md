@@ -2,11 +2,38 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.2] - 2026-06-30
+
+### Fixed
+
+* **Incorrect CLI command in documentation**: The documented command `npx dom-to-pptx-export` does not exist. The root `package.json` only defines the following binaries:
+
+  * `dom-to-pptx`
+  * `dom-to-pptx-exporter`
+  * `dom-to-pptx-skills`
+
+  Updated the following files:
+
+  * `skills/dom-to-pptx-skill/SKILL.md` (lines 75, 79)
+  * `skills/dom-to-pptx-skill/reference/TEMPLATE.md` (lines 394, 397)
+  * `skills/dom-to-pptx-skill/reference/SAFE_HTML_TEMPLATE.md` (lines 219, 222)
+
+  Replaced `npx dom-to-pptx-export` with either:
+
+  * `npx dom-to-pptx-exporter` (package binary), or
+  * `npx dom-to-pptx export` (unified CLI subcommand),
+
+  aligning the documentation with the usage shown in `README.md`, `USAGE.md`, and `packages/dom-to-pptx-exporter/README.md`.
+
 ## [2.0.1] - 2026-06-21
 
 ### Added
 
-- **Workspace Monorepo Layout**: Structured the repository as a `pnpm` workspace and introduced separate npm packages (`dom-to-pptx-skills` and `dom-to-pptx-exporter`) to support direct, independent executions via `npx dom-to-pptx-skills` and `npx dom-to-pptx-exporter` directly from the NPM registry.
+* **Workspace monorepo layout**: Reorganized the repository as a `pnpm` workspace.
+* **Standalone npm packages**: Added the `dom-to-pptx-skills` and `dom-to-pptx-exporter` packages, enabling direct execution from the npm registry via:
+
+  * `npx dom-to-pptx-skills`
+  * `npx dom-to-pptx-exporter`
 
 ### Fixed
 
