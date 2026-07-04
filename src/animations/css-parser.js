@@ -118,8 +118,11 @@ export function parseAnimation(node, style) {
   }
 
   if (!name || name === 'none' || name === '') {
-    // Last resort: scan className list for a known animation name
-    const classNames = node.className ? node.className.split(/\s+/) : [];
+    // Last resort: scan className list for a known animation name.
+    // Use classList rather than className.split() because SVG elements
+    // expose className as an SVGAnimatedString, not a string; calling
+    // .split() on it throws and aborts the whole PPTX export.
+    const classNames = Array.from(node.classList || []);
     for (const cls of classNames) {
       if (ENTRANCE_NAMES.has(cls) || EXIT_NAMES.has(cls)) {
         name = cls;
@@ -146,7 +149,9 @@ export function parseAnimation(node, style) {
   }
 
   // ── 3. Resolve duration ──────────────────────────────────────────────────
-  const classList = node.className ? node.className.split(/\s+/) : [];
+  // classList is safe on both HTML and SVG elements; className.split() is not
+  // (SVG className is an SVGAnimatedString, not a string).
+  const classList = Array.from(node.classList || []);
   const { duration: utilDuration, delay: utilDelay } = parseUtilityClass(classList);
 
   let durationStr =

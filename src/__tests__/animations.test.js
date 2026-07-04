@@ -115,6 +115,31 @@ describe('css-parser - parseAnimation', () => {
     const parsed = parseAnimation(node, style);
     expect(parsed.start).toBe('after');
   });
+
+  it('does not throw on SVG elements whose className is an SVGAnimatedString', () => {
+    // Regression: parseAnimation used to call node.className.split(/\s+/),
+    // which throws on SVG elements because SVGElement.className is an
+    // SVGAnimatedString, not a string. Any inline <svg> with a class
+    // attribute would abort the entire PPTX export. classList is safe on
+    // both HTML and SVG elements.
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('class', 'fade-in some-utility');
+    // dataset is not defined on SVGElement in every DOM implementation, so
+    // add an empty one to keep the parser happy — the point of the test is
+    // just that we do not crash on the className access.
+    if (!svg.dataset) svg.dataset = {};
+    const style = {
+      animationName: 'fade-in',
+      animationDuration: '0.5s',
+      animationDelay: '0s',
+      getPropertyValue: () => '',
+    };
+
+    expect(() => parseAnimation(svg, style)).not.toThrow();
+    const parsed = parseAnimation(svg, style);
+    expect(parsed).not.toBeNull();
+    expect(parsed.name).toBe('fade-in');
+  });
 });
 
 describe('xml-templates - getPreset', () => {
