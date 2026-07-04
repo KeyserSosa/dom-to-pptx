@@ -9,6 +9,8 @@ All notable changes to this project will be documented in this file.
 - **Bullet formatting**: Assigned bullet formatting directly to the first text run, restoring correct bullet rendering while preserving per-bullet font face, size, and color styling.
 - **Bullet indentation**: Filtered subpixel layout noise, restored `bullet.indent` compatibility with modern PptxGenJS, and added a standard fallback indent when no explicit offset is detected.
 - **Translucent backgrounds and borders**: Fixed rendering of semi-transparent table cell backgrounds and borders by flattening colors against their DOM backdrop. Standard shapes now preserve border transparency during PowerPoint export.
+- **Embedded font variants**: Fixed automatic font embedding to preserve `@font-face` weight and style variants. PowerPoint now embeds and maps Regular, Bold, Italic, and Bold Italic fonts correctly, preventing synthetic bold rendering for multi-weight font families.
+- **SVG animation parsing**: Fixed animation parsing for inline SVG elements by using `classList` instead of `className`, preventing export failures caused by `SVGAnimatedString` and ensuring SVG icons and illustrations export correctly.
 
 ## [2.0.2] - 2026-06-30
 
