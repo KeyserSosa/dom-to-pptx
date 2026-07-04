@@ -7,7 +7,7 @@ function getCtx() {
   return _ctx;
 }
 
-function getTableBorder(style, side, scale) {
+function getTableBorder(style, side, scale, node) {
   const widthStr = style[`border${side}Width`];
   const styleStr = style[`border${side}Style`];
   const colorStr = style[`border${side}Color`];
@@ -17,8 +17,9 @@ function getTableBorder(style, side, scale) {
     return null;
   }
 
-  const color = parseColor(colorStr, style);
+  let color = parseColor(colorStr, style);
   if (!color.hex || color.opacity === 0) return null;
+  color = flattenColor(color, node, false);
 
   let dash = 'solid';
   if (styleStr === 'dashed') dash = 'dash';
@@ -83,6 +84,7 @@ export function extractTableData(node, scale) {
         const fallback = getGradientFallbackColor(style.backgroundImage, style);
         if (fallback) bg = parseColor(fallback, style);
       }
+      bg = flattenColor(bg, cell);
       const fill = bg.hex && bg.opacity > 0 ? { color: bg.hex } : null;
 
       // C. Alignment
@@ -108,10 +110,10 @@ export function extractTableData(node, scale) {
       ];
 
       // E. Borders
-      const borderTop = getTableBorder(style, 'Top', scale);
-      const borderRight = getTableBorder(style, 'Right', scale);
-      const borderBottom = getTableBorder(style, 'Bottom', scale);
-      const borderLeft = getTableBorder(style, 'Left', scale);
+      const borderTop = getTableBorder(style, 'Top', scale, cell);
+      const borderRight = getTableBorder(style, 'Right', scale, cell);
+      const borderBottom = getTableBorder(style, 'Bottom', scale, cell);
+      const borderLeft = getTableBorder(style, 'Left', scale, cell);
 
       // F. Text Direction
       const writingModeVert = getWritingModeVert(style.writingMode, style.textOrientation);
@@ -225,25 +227,34 @@ function mapDashType(style) {
  * Analyzes computed border styles and determines the rendering strategy.
  */
 export function getBorderInfo(style, scale) {
+  const topColorObj = parseColor(style.borderTopColor, style);
+  const rightColorObj = parseColor(style.borderRightColor, style);
+  const bottomColorObj = parseColor(style.borderBottomColor, style);
+  const leftColorObj = parseColor(style.borderLeftColor, style);
+
   const top = {
     width: parseFloat(style.borderTopWidth) || 0,
     style: style.borderTopStyle,
-    color: parseColor(style.borderTopColor).hex,
+    color: topColorObj.hex,
+    opacity: topColorObj.opacity,
   };
   const right = {
     width: parseFloat(style.borderRightWidth) || 0,
     style: style.borderRightStyle,
-    color: parseColor(style.borderRightColor).hex,
+    color: rightColorObj.hex,
+    opacity: rightColorObj.opacity,
   };
   const bottom = {
     width: parseFloat(style.borderBottomWidth) || 0,
     style: style.borderBottomStyle,
-    color: parseColor(style.borderBottomColor).hex,
+    color: bottomColorObj.hex,
+    opacity: bottomColorObj.opacity,
   };
   const left = {
     width: parseFloat(style.borderLeftWidth) || 0,
     style: style.borderLeftStyle,
-    color: parseColor(style.borderLeftColor).hex,
+    color: leftColorObj.hex,
+    opacity: leftColorObj.opacity,
   };
 
   const hasAnyBorder = top.width > 0 || right.width > 0 || bottom.width > 0 || left.width > 0;
@@ -267,7 +278,7 @@ export function getBorderInfo(style, scale) {
       options: {
         width: top.width * 0.75 * scale,
         color: top.color,
-        transparency: (1 - parseColor(style.borderTopColor).opacity) * 100,
+        transparency: (1 - top.opacity) * 100,
         dashType: mapDashType(top.style),
       },
     };
@@ -288,16 +299,16 @@ export function generateCompositeBorderSVG(w, h, radius, sides) {
   let borderRects = '';
 
   if (sides.top.width > 0 && sides.top.color) {
-    borderRects += `<rect x="0" y="0" width="${w}" height="${sides.top.width}" fill="#${sides.top.color}" />`;
+    borderRects += `<rect x="0" y="0" width="${w}" height="${sides.top.width}" fill="#${sides.top.color}" fill-opacity="${sides.top.opacity ?? 1}" />`;
   }
   if (sides.right.width > 0 && sides.right.color) {
-    borderRects += `<rect x="${w - sides.right.width}" y="0" width="${sides.right.width}" height="${h}" fill="#${sides.right.color}" />`;
+    borderRects += `<rect x="${w - sides.right.width}" y="0" width="${sides.right.width}" height="${h}" fill="#${sides.right.color}" fill-opacity="${sides.right.opacity ?? 1}" />`;
   }
   if (sides.bottom.width > 0 && sides.bottom.color) {
-    borderRects += `<rect x="0" y="${h - sides.bottom.width}" width="${w}" height="${sides.bottom.width}" fill="#${sides.bottom.color}" />`;
+    borderRects += `<rect x="0" y="${h - sides.bottom.width}" width="${w}" height="${sides.bottom.width}" fill="#${sides.bottom.color}" fill-opacity="${sides.bottom.opacity ?? 1}" />`;
   }
   if (sides.left.width > 0 && sides.left.color) {
-    borderRects += `<rect x="0" y="0" width="${sides.left.width}" height="${h}" fill="#${sides.left.color}" />`;
+    borderRects += `<rect x="0" y="0" width="${sides.left.width}" height="${h}" fill="#${sides.left.color}" fill-opacity="${sides.left.opacity ?? 1}" />`;
   }
 
   const svg = `
@@ -440,6 +451,70 @@ export function parseColor(str, style) {
 
   const hex = ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
   return { hex, opacity: a };
+}
+
+export function flattenColor(color, node, startFromParent = true) {
+  if (!color || !color.hex || color.opacity === 1 || color.opacity === 0) {
+    return color;
+  }
+
+  let r = parseInt(color.hex.slice(0, 2), 16);
+  let g = parseInt(color.hex.slice(2, 4), 16);
+  let b = parseInt(color.hex.slice(4, 6), 16);
+  let a = color.opacity;
+
+  let current = node;
+  if (startFromParent && node) {
+    current = node.parentElement;
+  }
+
+  while (current && current !== document) {
+    const style = window.getComputedStyle(current);
+    const bgStr = style.backgroundColor;
+    const bg = parseColor(bgStr, style);
+
+    if (bg.hex && bg.opacity > 0) {
+      const bgR = parseInt(bg.hex.slice(0, 2), 16);
+      const bgG = parseInt(bg.hex.slice(2, 4), 16);
+      const bgB = parseInt(bg.hex.slice(4, 6), 16);
+      const bgA = bg.opacity;
+
+      const aOut = a + bgA * (1 - a);
+      if (aOut > 0) {
+        r = (r * a + bgR * bgA * (1 - a)) / aOut;
+        g = (g * a + bgG * bgA * (1 - a)) / aOut;
+        b = (b * a + bgB * bgA * (1 - a)) / aOut;
+        a = aOut;
+      }
+
+      if (a >= 1) {
+        a = 1;
+        break;
+      }
+    }
+    current = current.parentElement;
+  }
+
+  if (a < 1) {
+    const bgR = 255;
+    const bgG = 255;
+    const bgB = 255;
+    const bgA = 1;
+
+    const aOut = a + bgA * (1 - a);
+    if (aOut > 0) {
+      r = (r * a + bgR * bgA * (1 - a)) / aOut;
+      g = (g * a + bgG * bgA * (1 - a)) / aOut;
+      b = (b * a + bgB * bgA * (1 - a)) / aOut;
+    }
+  }
+
+  const rHex = Math.round(r).toString(16).padStart(2, '0');
+  const gHex = Math.round(g).toString(16).padStart(2, '0');
+  const bHex = Math.round(b).toString(16).padStart(2, '0');
+  const hex = (rHex + gHex + bHex).toUpperCase();
+
+  return { hex, opacity: 1 };
 }
 
 export function getPadding(style, scale) {

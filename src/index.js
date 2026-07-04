@@ -1069,12 +1069,14 @@ function prepareRenderItem(node, config, domOrder, pptx, effectiveZIndex, comput
       // bullet.indent = gap between bullet glyph and text content, in points.
       // This equals the distance the LI content is shifted past the UL padding boundary.
       const visualIndentPx = liRect.left - parentRect.left;
-      // Bullet indent = visual indent minus the UL's own padding-left (which is in margin),
+      // Bullet indent = visual indent minus the UL's own padding-left (which is in margin) plus the LI's padding-left,
       // clamped to 0. Convert px -> pt.
-      const bulletIndentPt = Math.max(0, (visualIndentPx - ulPaddingLeft) * 0.75 * config.scale);
+      const liPaddingLeft = parseFloat(liStyle.paddingLeft) || 0;
+      const extraIndentPx = Math.max(0, visualIndentPx - ulPaddingLeft);
+      const visualIndentOffset = extraIndentPx > 5 ? extraIndentPx : 0;
 
-      if (bullet && bulletIndentPt > 0) {
-        bullet.indent = bulletIndentPt;
+      if (bullet) {
+        bullet.indent = 20 * config.scale + (visualIndentOffset + liPaddingLeft) * 0.75 * config.scale;
       }
 
       // 3. Extract Text Parts
@@ -1087,23 +1089,18 @@ function prepareRenderItem(node, config, domOrder, pptx, effectiveZIndex, comput
 
         // A. Apply Bullet
         if (bullet) {
-          const firstPartInfo = parts[0].options;
-
-          const bulletRun = {
-            text: '\u200B',
-            options: {
-              ...firstPartInfo, // Inherit base props (fontFace, etc.)
-              color: bullet.color || firstPartInfo.color,
-              fontSize: bullet.fontSize || firstPartInfo.fontSize,
-              bullet: bullet,
-            },
-          };
-
-          if (bullet.color) bulletRun.options.color = bullet.color;
-          if (bullet.fontSize) bulletRun.options.fontSize = bullet.fontSize;
-
-          // Prepend
-          parts.unshift(bulletRun);
+          if (parts.length > 0) {
+            parts.forEach((p) => {
+              p.options.bullet = bullet;
+            });
+          } else {
+            parts.push({
+              text: '',
+              options: {
+                bullet: bullet,
+              },
+            });
+          }
         }
 
         // B. Apply Spacing
@@ -1124,8 +1121,16 @@ function prepareRenderItem(node, config, domOrder, pptx, effectiveZIndex, comput
           if (mb > 0) ptAfter = mb * 0.75 * config.scale;
         }
 
-        if (ptBefore > 0) parts[0].options.paraSpaceBefore = ptBefore;
-        if (ptAfter > 0) parts[0].options.paraSpaceAfter = ptAfter;
+        if (ptBefore > 0) {
+          parts.forEach((p) => {
+            p.options.paraSpaceBefore = ptBefore;
+          });
+        }
+        if (ptAfter > 0) {
+          parts.forEach((p) => {
+            p.options.paraSpaceAfter = ptAfter;
+          });
+        }
 
         if (index < liChildren.length - 1) {
           parts[parts.length - 1].options.breakLine = true;
@@ -1731,7 +1736,16 @@ function createCompositeBorderItems(sides, x, y, w, h, scale, zIndex, domOrder) 
   if (sides.top.width > 0)
     items.push({
       ...common,
-      options: { x, y, w, h: sides.top.width * pxToInch * scale, fill: { color: sides.top.color } },
+      options: {
+        x,
+        y,
+        w,
+        h: sides.top.width * pxToInch * scale,
+        fill: {
+          color: sides.top.color,
+          ...(sides.top.opacity < 1 && { transparency: (1 - sides.top.opacity) * 100 }),
+        },
+      },
     });
   if (sides.right.width > 0)
     items.push({
@@ -1741,7 +1755,10 @@ function createCompositeBorderItems(sides, x, y, w, h, scale, zIndex, domOrder) 
         y,
         w: sides.right.width * pxToInch * scale,
         h,
-        fill: { color: sides.right.color },
+        fill: {
+          color: sides.right.color,
+          ...(sides.right.opacity < 1 && { transparency: (1 - sides.right.opacity) * 100 }),
+        },
       },
     });
   if (sides.bottom.width > 0)
@@ -1752,7 +1769,10 @@ function createCompositeBorderItems(sides, x, y, w, h, scale, zIndex, domOrder) 
         y: y + h - sides.bottom.width * pxToInch * scale,
         w,
         h: sides.bottom.width * pxToInch * scale,
-        fill: { color: sides.bottom.color },
+        fill: {
+          color: sides.bottom.color,
+          ...(sides.bottom.opacity < 1 && { transparency: (1 - sides.bottom.opacity) * 100 }),
+        },
       },
     });
   if (sides.left.width > 0)
@@ -1763,7 +1783,10 @@ function createCompositeBorderItems(sides, x, y, w, h, scale, zIndex, domOrder) 
         y,
         w: sides.left.width * pxToInch * scale,
         h,
-        fill: { color: sides.left.color },
+        fill: {
+          color: sides.left.color,
+          ...(sides.left.opacity < 1 && { transparency: (1 - sides.left.opacity) * 100 }),
+        },
       },
     });
 
