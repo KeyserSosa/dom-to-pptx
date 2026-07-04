@@ -149,20 +149,42 @@ export async function exportToPptx(target, options = {}) {
   let rawFonts = options.fonts || [];
   let fontsToEmbed;
 
-  // Group by name
+  // Classify a CSS font-weight / font-style pair into one of the four slots
+  // that PowerPoint's embedded-font list supports: regular, bold, italic,
+  // boldItalic. Anything at weight >= 600 counts as bold; italic/oblique
+  // counts as italic.
+  const classifyVariant = (weight, style) => {
+    const wRaw = String(weight || '400').toLowerCase().trim();
+    let w = parseInt(wRaw, 10);
+    if (isNaN(w)) {
+      if (wRaw === 'bold' || wRaw === 'bolder') w = 700;
+      else if (wRaw === 'lighter') w = 300;
+      else w = 400;
+    }
+    const isBold = w >= 600;
+    const sRaw = String(style || 'normal').toLowerCase();
+    const isItalic = sRaw === 'italic' || sRaw === 'oblique';
+    if (isBold && isItalic) return 'boldItalic';
+    if (isBold) return 'bold';
+    if (isItalic) return 'italic';
+    return 'regular';
+  };
+
+  // Group by (name, variant) so each PowerPoint slot gets its own font.
   const uniqueFonts = new Map();
+  const addToGroup = (name, variant, url) => {
+    const key = name + '::' + variant;
+    if (!uniqueFonts.has(key)) {
+      uniqueFonts.set(key, { name, variant, urls: new Set() });
+    }
+    uniqueFonts.get(key).urls.add(url);
+  };
 
   for (const f of rawFonts) {
-    if (!uniqueFonts.has(f.name)) {
-      uniqueFonts.set(f.name, new Set());
-    }
-    if (f.url) {
-      uniqueFonts.get(f.name).add(f.url);
-    }
+    const variant = classifyVariant(f.weight, f.style);
+    if (f.url) addToGroup(f.name, variant, f.url);
     if (f.urls) {
-      for (const url of f.urls) {
-        uniqueFonts.get(f.name).add(url);
-      }
+      for (const url of f.urls) addToGroup(f.name, variant, url);
     }
   }
 
@@ -170,28 +192,27 @@ export async function exportToPptx(target, options = {}) {
     // A. Scan DOM for used font families
     const usedFamilies = getUsedFontFamilies(elements);
 
-    // B. Scan CSS for URLs matches
+    // B. Scan CSS for URLs matches (each carries weight+style now)
     const detectedFonts = await getAutoDetectedFonts(usedFamilies);
 
-    // C. Merge (collect all URLs for each font name)
+    // C. Merge, keyed by (name, variant) so Bold does not collapse into Regular
     for (const autoFont of detectedFonts) {
-      if (!uniqueFonts.has(autoFont.name)) {
-        uniqueFonts.set(autoFont.name, new Set());
-      }
-      uniqueFonts.get(autoFont.name).add(autoFont.url);
+      const variant = classifyVariant(autoFont.weight, autoFont.style);
+      addToGroup(autoFont.name, variant, autoFont.url);
     }
 
     if (detectedFonts.length > 0) {
       console.log(
         'Auto-detected fonts:',
-        detectedFonts.map((f) => f.name)
+        detectedFonts.map((f) => `${f.name} (${classifyVariant(f.weight, f.style)})`)
       );
     }
   }
 
-  fontsToEmbed = Array.from(uniqueFonts.entries()).map(([name, urlSet]) => ({
-    name,
-    urls: Array.from(urlSet),
+  fontsToEmbed = Array.from(uniqueFonts.values()).map((entry) => ({
+    name: entry.name,
+    variant: entry.variant,
+    urls: Array.from(entry.urls),
   }));
 
   if (fontsToEmbed.length > 0) {
@@ -234,7 +255,13 @@ export async function exportToPptx(target, options = {}) {
             })
           );
 
-          await embedder.addFont(fontCfg.name, subsets, options.woff2WasmUrl);
+          await embedder.addFont(
+            fontCfg.name,
+            subsets,
+            options.woff2WasmUrl,
+            undefined,
+            fontCfg.variant || 'regular'
+          );
         } catch (e) {
           console.warn(`Failed to embed font family: ${fontCfg.name}`, e);
         }

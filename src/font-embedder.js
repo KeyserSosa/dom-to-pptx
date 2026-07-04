@@ -36,7 +36,7 @@ export class PPTXEmbedFonts {
     }
   }
 
-  async addFont(fontFace, source, typeOrWasmUrl, wasmUrl) {
+  async addFont(fontFace, source, typeOrWasmUrl, wasmUrl, variant) {
     // Convert to EOT/fntdata for PPTX compatibility
     let eotData;
     if (Array.isArray(source)) {
@@ -45,7 +45,10 @@ export class PPTXEmbedFonts {
       eotData = await fontToEot(typeOrWasmUrl, source, wasmUrl);
     }
     const rid = this.rId++;
-    this.fonts.push({ name: fontFace, data: eotData, rid });
+    // variant is one of: regular, bold, italic, boldItalic (PowerPoint's
+    // four embedded-font slots). Default to regular for callers that do
+    // not supply one, preserving the previous single-slot behaviour.
+    this.fonts.push({ name: fontFace, variant: variant || 'regular', data: eotData, rid });
   }
 
   async updateFiles() {
@@ -119,30 +122,45 @@ export class PPTXEmbedFonts {
       }
     }
 
-    // Add font references
+    // Group added fonts by typeface so we can emit one <p:embeddedFont>
+    // block per family with the right variant children. PowerPoint's
+    // embedded-font model supports four slots per family: regular, bold,
+    // italic, boldItalic. Emitting only <p:regular> when Bold was declared
+    // causes PowerPoint to fall back to synthesising bold from the Regular
+    // glyphs, which renders visibly differently from real Bold.
+    const byName = new Map();
     this.fonts.forEach((font) => {
-      // Check if already exists
-      const existing =
+      if (!byName.has(font.name)) byName.set(font.name, []);
+      byName.get(font.name).push(font);
+    });
+
+    const variantOrder = ['regular', 'bold', 'italic', 'boldItalic'];
+
+    byName.forEach((variants, name) => {
+      const alreadyDeclared =
         Array.from(embeddedFontLst.getElementsByTagNameNS(P_NS, 'font')).find(
-          (node) => node.getAttribute('typeface') === font.name
+          (node) => node.getAttribute('typeface') === name
         ) ||
         Array.from(embeddedFontLst.getElementsByTagName('p:font')).find(
-          (node) => node.getAttribute('typeface') === font.name
+          (node) => node.getAttribute('typeface') === name
         );
+      if (alreadyDeclared) return;
 
-      if (!existing) {
-        const embedFont = doc.createElementNS(P_NS, 'p:embeddedFont');
+      const embedFont = doc.createElementNS(P_NS, 'p:embeddedFont');
+      const fontNode = doc.createElementNS(P_NS, 'p:font');
+      fontNode.setAttribute('typeface', name);
+      embedFont.appendChild(fontNode);
 
-        const fontNode = doc.createElementNS(P_NS, 'p:font');
-        fontNode.setAttribute('typeface', font.name);
-        embedFont.appendChild(fontNode);
-
-        const regular = doc.createElementNS(P_NS, 'p:regular');
-        regular.setAttributeNS(R_NS, 'r:id', `rId${font.rid}`);
-        embedFont.appendChild(regular);
-
-        embeddedFontLst.appendChild(embedFont);
+      for (const variantName of variantOrder) {
+        const font = variants.find((v) => (v.variant || 'regular') === variantName);
+        if (font) {
+          const el = doc.createElementNS(P_NS, 'p:' + variantName);
+          el.setAttributeNS(R_NS, 'r:id', 'rId' + font.rid);
+          embedFont.appendChild(el);
+        }
       }
+
+      embeddedFontLst.appendChild(embedFont);
     });
 
     this.zip.file('ppt/presentation.xml', new XMLSerializer().serializeToString(doc));

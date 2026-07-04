@@ -1066,7 +1066,14 @@ export async function getAutoDetectedFonts(usedFamilies) {
 
             if (url && !processedUrls.has(url)) {
               processedUrls.add(url);
-              foundFonts.push({ name: familyName, url: url });
+              // Preserve font-weight and font-style so downstream grouping can
+              // classify each @font-face declaration into one of PowerPoint's
+              // four embedded-font slots (regular / bold / italic / boldItalic).
+              // Without this, all variants for a family collapse into a single
+              // Regular embed and PowerPoint synthesises fake bold.
+              const weight = rule.style.getPropertyValue('font-weight').trim() || '400';
+              const fontStyle = (rule.style.getPropertyValue('font-style').trim() || 'normal').toLowerCase();
+              foundFonts.push({ name: familyName, url: url, weight: weight, style: fontStyle });
             }
           }
         }
