@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.3] - 2026-07-05
+
+### Fixed
+
+- **Bullet formatting**: Assigned bullet formatting directly to the first text run, restoring correct bullet rendering while preserving per-bullet font face, size, and color styling.
+- **Bullet indentation**: Filtered subpixel layout noise, restored `bullet.indent` compatibility with modern PptxGenJS, and added a standard fallback indent when no explicit offset is detected.
+- **Translucent backgrounds and borders**: Fixed rendering of semi-transparent table cell backgrounds and borders by flattening colors against their DOM backdrop. Standard shapes now preserve border transparency during PowerPoint export.
+
 ## [2.0.2] - 2026-06-30
 
 ### Fixed
@@ -18,10 +26,9 @@ All notable changes to this project will be documented in this file.
   * `skills/dom-to-pptx-skill/reference/TEMPLATE.md` (lines 394, 397)
   * `skills/dom-to-pptx-skill/reference/SAFE_HTML_TEMPLATE.md` (lines 219, 222)
 
-  Replaced `npx dom-to-pptx-export` with either:
+  Replaced `npx dom-to-pptx-export` with:
 
-  * `npx dom-to-pptx-exporter` (package binary), or
-  * `npx dom-to-pptx export` (unified CLI subcommand),
+  * `npx dom-to-pptx-exporter` (package binary)
 
   aligning the documentation with the usage shown in `README.md`, `USAGE.md`, and `packages/dom-to-pptx-exporter/README.md`.
 
