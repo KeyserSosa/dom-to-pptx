@@ -67,7 +67,7 @@ export function extractTableData(node, scale) {
   const trList = node.querySelectorAll('tr');
   trList.forEach((tr) => {
     const rowData = [];
-    const cellList = Array.from(tr.children).filter((c) => ['TD', 'TH'].includes(c.tagName));
+    const cellList = Array.from(tr.children).filter((c) => ['td', 'th'].includes(c.tagName.toLowerCase()));
 
     cellList.forEach((cell) => {
       const style = window.getComputedStyle(cell);
@@ -624,9 +624,9 @@ export function isTextContainer(node) {
     // 1. Reject Web Components / Custom Elements
     if (el.tagName.includes('-')) return false;
     // 2. Reject Explicit Images/SVGs
-    if (el.tagName === 'IMG' || el.tagName === 'SVG') return false;
+    if (el.tagName.toLowerCase() === 'img' || el.tagName.toLowerCase() === 'svg') return false;
 
-    if (el.tagName === 'I' || el.tagName === 'SPAN') {
+    if (el.tagName.toLowerCase() === 'i' || el.tagName.toLowerCase() === 'span') {
       const cls = el.getAttribute('class') || '';
       if (
         typeof cls === 'string' &&
@@ -660,7 +660,7 @@ export function isTextContainer(node) {
     if (isFlexOrGridItem) return false;
 
     // 4. Standard Inline Tag Check
-    const isInlineTag = ['SPAN', 'B', 'STRONG', 'EM', 'I', 'A', 'SMALL', 'MARK'].includes(el.tagName);
+    const isInlineTag = ['span', 'b', 'strong', 'em', 'i', 'a', 'small', 'mark'].includes(el.tagName.toLowerCase());
     const isInlineDisplay = display.includes('inline');
 
     if (!isInlineTag && !isInlineDisplay) return false;
@@ -1264,7 +1264,7 @@ export function collectTextParts(
         const segs = splitPreformattedText(child.nodeValue, whiteSpace, {
           isFirstChild: index === 0,
           isLastChild: index === node.childNodes.length - 1,
-          isPre: node.nodeType === 1 && node.tagName === 'PRE',
+          isPre: node.nodeType === 1 && node.tagName.toLowerCase() === 'pre',
           textTransform: wsStyle.textTransform,
         });
         if (segs.length) {
@@ -1327,7 +1327,7 @@ export function collectTextParts(
         });
       }
     } else if (child.nodeType === 1) {
-      if (child.tagName === 'BR') {
+      if (child.tagName.toLowerCase() === 'br') {
         if (parts.length > 0) {
           const lastPart = parts[parts.length - 1];
           if (lastPart.text && typeof lastPart.text === 'string') {
@@ -1337,7 +1337,7 @@ export function collectTextParts(
         parts.push({ text: '', options: { breakLine: true } });
         trimNextLeading = true;
       } else {
-        const isBlock = ['DIV', 'P', 'LI'].includes(child.tagName);
+        const isBlock = ['div', 'p', 'li'].includes(child.tagName.toLowerCase());
         if (isBlock && parts.length > 0 && !parts[parts.length - 1].options?.breakLine) {
           parts.push({ text: '', options: { breakLine: true } });
         }

@@ -190,6 +190,12 @@ export async function exportHtmlToPptx(htmlSource, options = {}) {
 
   try {
     const page = await browser.newPage();
+    if (options.browserWidth && options.browserHeight) {
+      await page.setViewport({
+        width: options.browserWidth,
+        height: options.browserHeight,
+      });
+    }
 
     // 1. Navigate to HTML source (file path or URL)
     if (fs.existsSync(htmlSource)) {

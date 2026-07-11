@@ -14,6 +14,8 @@
  *   --author       <text>          Presentation author metadata
  *   --width        <number>        Slide width in inches  [default: 10]
  *   --height       <number>        Slide height in inches [default: 5.625]
+ *   --browser-width, --bw <num>    Headless browser viewport width in pixels [default: width * 192]
+ *   --browser-height, --bh <num>   Headless browser viewport height in pixels [default: height * 192]
  *   --help, -h                     Show this help message
  */
 
@@ -62,18 +64,20 @@ function printHelp() {
     ['--author       <text>', 'Presentation author metadata'],
     ['--width        <num>', 'Slide width in inches (default: 10)'],
     ['--height       <num>', 'Slide height in inches (default: 5.625)'],
+    ['--browser-width, --bw <num>', 'Viewport width in px (default: slide width * 192)'],
+    ['--browser-height, --bh <num>', 'Viewport height in px (default: slide height * 192)'],
     ['--help,    -h', 'Show this help message'],
   ];
   opts.forEach(([flag, desc]) => {
-    console.log(`  ${c.yellow}${flag.padEnd(26)}${c.reset}  ${c.dim}${desc}${c.reset}`);
+    console.log(`  ${c.yellow}${flag.padEnd(28)}${c.reset}  ${c.dim}${desc}${c.reset}`);
   });
 
   console.log(`\n${c.bold}Examples:${c.reset}`);
-  console.log(`  ${c.dim}# Raw HTML — inject lib and auto-detect .slide elements${c.reset}`);
+  console.log(`  ${c.dim}# Export using standard 16:9 slide size and corresponding viewport (1920x1080)${c.reset}`);
   console.log(`  ${c.cyan}dom-to-pptx-exporter${c.reset} slides.html\n`);
 
-  console.log(`  ${c.dim}# Use a custom CSS selector${c.reset}`);
-  console.log(`  ${c.cyan}dom-to-pptx-exporter${c.reset} slides.html ${c.yellow}-s${c.reset} ".presentation-slide"\n`);
+  console.log(`  ${c.dim}# Export with a custom browser viewport and slide aspect ratio${c.reset}`);
+  console.log(`  ${c.cyan}dom-to-pptx-exporter${c.reset} slides.html --width 13.33 --height 7.5 --bw 1280 --bh 720\n`);
 }
 
 // ─── Arg Parser ───────────────────────────────────────────────────────────────
@@ -98,6 +102,10 @@ function parseArgs(argv) {
       args.width = parseFloat(argv[++i]);
     } else if (a === '--height' && argv[i + 1]) {
       args.height = parseFloat(argv[++i]);
+    } else if ((a === '--browser-width' || a === '--bw') && argv[i + 1]) {
+      args.browserWidth = parseInt(argv[++i], 10);
+    } else if ((a === '--browser-height' || a === '--bh') && argv[i + 1]) {
+      args.browserHeight = parseInt(argv[++i], 10);
     } else if (!a.startsWith('-')) {
       args._.push(a);
     }
@@ -115,7 +123,7 @@ async function runExporter(argv) {
     process.exit(0);
   }
 
-  // Find first positional argument. If it is "export", take the next positional.
+  // Find first positional argument
   let htmlSource = args._[0];
   if (htmlSource === 'export') {
     htmlSource = args._[1];
@@ -149,30 +157,39 @@ async function runExporter(argv) {
     : resolvedInput.replace(/\.html?$/i, '') + '.pptx';
   const outputPath = args.output ? path.resolve(args.output) : defaultOutput;
 
+  // Resolve slide and browser dimensions using script scale (PPI = 192)
+  const slideWidth = args.width || 10;
+  const slideHeight = args.height || 5.625;
+  const browserWidth = args.browserWidth || Math.round(slideWidth * 192);
+  const browserHeight = args.browserHeight || Math.round(slideHeight * 192);
+
   // Build options for node-exporter
   const exporterOptions = {
     selector: args.selector || '.slide',
     injectBundle: args.inject || false,
+    browserWidth,
+    browserHeight,
     pptxOptions: {
       ...(args.title && { title: args.title }),
       ...(args.author && { author: args.author }),
-      ...(args.width && { slideWidth: args.width }),
-      ...(args.height && { slideHeight: args.height }),
+      slideWidth,
+      slideHeight,
     },
   };
 
   console.log(logo);
-  console.log(`${c.bold}Exporting:${c.reset}  ${c.cyan}${resolvedInput}${c.reset}`);
-  console.log(`${c.bold}Output:    ${c.reset}  ${c.green}${outputPath}${c.reset}`);
+  console.log(`${c.bold}Exporting:${c.reset}      ${c.cyan}${resolvedInput}${c.reset}`);
+  console.log(`${c.bold}Output:    ${c.reset}      ${c.green}${outputPath}${c.reset}`);
   console.log(
-    `${c.bold}Mode:      ${c.reset}  ${c.yellow}programmatic${c.reset} (selector: ${c.dim}${exporterOptions.selector}${c.reset})`
+    `${c.bold}Slide Dimensions:${c.reset} ${c.yellow}${slideWidth}" x ${slideHeight}"${c.reset} (Viewport: ${c.yellow}${browserWidth}px x ${browserHeight}px${c.reset})`
+  );
+  console.log(
+    `${c.bold}Mode:      ${c.reset}      ${c.yellow}programmatic${c.reset} (selector: ${c.dim}${exporterOptions.selector}${c.reset})`
   );
   console.log();
 
   let exportHtmlToPptx;
   try {
-    // Import from the built node exporter. Prefer dist/, fallback to source.
-    // Use pathToFileURL so Windows drive letters (e.g. i:) are valid ESM URLs.
     const distPath = path.resolve(__dirname, '..', 'dist', 'dom-to-pptx-node.mjs');
     const srcPath = path.resolve(__dirname, '..', 'src', 'node-exporter.js');
     const importTarget = pathToFileURL(fs.existsSync(distPath) ? distPath : srcPath).href;
@@ -230,7 +247,6 @@ async function runExporter(argv) {
 
 export { runExporter };
 
-// Auto-run only when executed directly
 const isMain =
   process.argv[1] && (process.argv[1].endsWith('cli-exporter.js') || process.argv[1].endsWith('dom-to-pptx-exporter'));
 if (isMain) {
