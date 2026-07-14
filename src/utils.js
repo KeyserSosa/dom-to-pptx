@@ -1091,77 +1091,171 @@ export function getUsedFontFamilies(root) {
   return families;
 }
 
+// Helper to extract a clean URL from a CSS `src` string. Exported so
+// getFontsFromStyleSheets can be unit-tested against synthetic CSSOM.
+function extractFontUrl(srcStr) {
+  // Look for url("..."), url('...'), or url(...).
+  // Prefer woff/ttf/otf; fall back to whatever is available.
+  const matches = srcStr.match(/url\((['"]?)(.*?)\1\)/g);
+  if (!matches) return null;
+
+  let chosenUrl = null;
+  for (const match of matches) {
+    const urlRaw = match.replace(/url\((['"]?)(.*?)\1\)/, '$2');
+    // Skip data URIs for now (unless we want to support base64 embedding).
+    if (urlRaw.startsWith('data:')) continue;
+
+    if (urlRaw.includes('.ttf') || urlRaw.includes('.otf') || urlRaw.includes('.woff')) {
+      chosenUrl = urlRaw;
+      break;
+    }
+    if (!chosenUrl) chosenUrl = urlRaw;
+  }
+  return chosenUrl;
+}
+
 /**
- * Scans document.styleSheets to find @font-face URLs for the requested families.
- * Returns an array of { name, url } objects.
+ * Walk a list of CSSStyleSheet-like objects and collect @font-face
+ * declarations whose family matches usedFamilies.
+ *
+ * Recurses into @import rules so that a `theme.css` containing
+ * `@import url('./fonts.css');` still surfaces the @font-face
+ * declarations inside `fonts.css`. Without this, a common CSS
+ * organisation (imports for shared type stacks) silently produces an
+ * empty embedded-font list.
+ *
+ * Extracted from getAutoDetectedFonts so it can be exercised in unit
+ * tests without depending on document.styleSheets.
+ *
+ * @param {Set<string>} usedFamilies
+ * @param {ArrayLike<CSSStyleSheet>} styleSheets
+ * @returns {Array<{name: string, url: string, weight: string, style: string}>}
  */
-export async function getAutoDetectedFonts(usedFamilies) {
+export function getFontsFromStyleSheets(usedFamilies, styleSheets) {
   const foundFonts = [];
   const processedUrls = new Set();
+  const visitedSheets = new Set(); // Guard against cyclic @import graphs.
 
-  // Helper to extract clean URL from CSS src string
-  const extractUrl = (srcStr) => {
-    // Look for url("...") or url('...') or url(...)
-    // Prioritize woff, ttf, otf. Avoid woff2 if possible as handling is harder,
-    // but if it's the only one, take it (convert logic handles it best effort).
-    const matches = srcStr.match(/url\((['"]?)(.*?)\1\)/g);
-    if (!matches) return null;
+  const walk = (sheet) => {
+    if (!sheet || visitedSheets.has(sheet)) return;
+    visitedSheets.add(sheet);
 
-    // Filter for preferred formats
-    let chosenUrl = null;
-    for (const match of matches) {
-      const urlRaw = match.replace(/url\((['"]?)(.*?)\1\)/, '$2');
-      // Skip data URIs for now (unless you want to support base64 embedding)
-      if (urlRaw.startsWith('data:')) continue;
-
-      if (urlRaw.includes('.ttf') || urlRaw.includes('.otf') || urlRaw.includes('.woff')) {
-        chosenUrl = urlRaw;
-        break; // Found a good one
-      }
-      // Fallback
-      if (!chosenUrl) chosenUrl = urlRaw;
-    }
-    return chosenUrl;
-  };
-
-  for (const sheet of Array.from(document.styleSheets)) {
+    let rules;
     try {
-      // Accessing cssRules on cross-origin sheets (like Google Fonts) might fail
-      // if CORS headers aren't set. We wrap in try/catch.
-      const rules = sheet.cssRules || sheet.rules;
-      if (!rules) continue;
+      rules = sheet.cssRules || sheet.rules;
+    } catch (e) {
+      // SecurityError is common for cross-origin sheets (Google Fonts etc.);
+      // we cannot scan those via CSSOM.
+      console.warn('Cannot scan stylesheet for fonts (CORS restriction):', sheet.href, e && e.message);
+      return;
+    }
+    if (!rules) return;
 
-      for (const rule of Array.from(rules)) {
-        if (rule.constructor.name === 'CSSFontFaceRule' || rule.type === 5) {
-          const familyName = rule.style.getPropertyValue('font-family').replace(/['"]/g, '').trim();
+    for (const rule of Array.from(rules)) {
+      // CSSImportRule (type === 3): recurse into the imported sheet so
+      // that `@import url('./fonts.css')` in a top-level stylesheet
+      // still surfaces its @font-face rules.
+      if (rule.constructor.name === 'CSSImportRule' || rule.type === 3) {
+        walk(rule.styleSheet);
+        continue;
+      }
 
-          if (usedFamilies.has(familyName)) {
-            const src = rule.style.getPropertyValue('src');
-            const url = extractUrl(src);
+      if (rule.constructor.name === 'CSSFontFaceRule' || rule.type === 5) {
+        const familyName = rule.style.getPropertyValue('font-family').replace(/['"]/g, '').trim();
 
-            if (url && !processedUrls.has(url)) {
-              processedUrls.add(url);
-              // Preserve font-weight and font-style so downstream grouping can
-              // classify each @font-face declaration into one of PowerPoint's
-              // four embedded-font slots (regular / bold / italic / boldItalic).
-              // Without this, all variants for a family collapse into a single
-              // Regular embed and PowerPoint synthesises fake bold.
-              const weight = rule.style.getPropertyValue('font-weight').trim() || '400';
-              const fontStyle = (rule.style.getPropertyValue('font-style').trim() || 'normal').toLowerCase();
-              foundFonts.push({ name: familyName, url: url, weight: weight, style: fontStyle });
-            }
-          }
+        if (!usedFamilies.has(familyName)) continue;
+
+        const src = rule.style.getPropertyValue('src');
+        const url = extractFontUrl(src);
+
+        if (url && !processedUrls.has(url)) {
+          processedUrls.add(url);
+          // Preserve font-weight and font-style so downstream grouping can
+          // classify each @font-face declaration into one of PowerPoint's
+          // four embedded-font slots (regular / bold / italic / boldItalic).
+          const weight = rule.style.getPropertyValue('font-weight').trim() || '400';
+          const fontStyle = (rule.style.getPropertyValue('font-style').trim() || 'normal').toLowerCase();
+          foundFonts.push({ name: familyName, url: url, weight: weight, style: fontStyle });
         }
       }
-    } catch (e) {
-      // SecurityError is common for external stylesheets (CORS).
-      // We cannot scan those automatically via CSSOM.
-      console.warn('error:', e);
-      console.warn('Cannot scan stylesheet for fonts (CORS restriction):', sheet.href);
     }
+  };
+
+  for (const sheet of Array.from(styleSheets)) {
+    walk(sheet);
   }
 
   return foundFonts;
+}
+
+/**
+ * Scans document.styleSheets to find @font-face URLs for the requested
+ * families. Returns an array of { name, url, weight, style } objects.
+ *
+ * Thin wrapper around getFontsFromStyleSheets that reads the ambient
+ * document.styleSheets. Kept async for backward compatibility with the
+ * previous signature, though the body is now synchronous.
+ */
+export async function getAutoDetectedFonts(usedFamilies) {
+  return getFontsFromStyleSheets(usedFamilies, document.styleSheets);
+}
+
+/**
+ * Map a CSS font-weight / font-style pair into one of the four slots
+ * that PowerPoint's embedded-font list supports: regular, bold, italic,
+ * boldItalic. Anything at weight >= 600 counts as bold; italic/oblique
+ * counts as italic.
+ *
+ * Exported so callers can classify a family's variants ahead of grouping,
+ * and so the classification is unit-testable.
+ */
+export function classifyFontVariant(weight, style) {
+  const wRaw = String(weight || '400').toLowerCase().trim();
+  let w = parseInt(wRaw, 10);
+  if (isNaN(w)) {
+    if (wRaw === 'bold' || wRaw === 'bolder') w = 700;
+    else if (wRaw === 'lighter') w = 300;
+    else w = 400;
+  }
+  const isBold = w >= 600;
+  const sRaw = String(style || 'normal').toLowerCase();
+  const isItalic = sRaw === 'italic' || sRaw === 'oblique';
+  if (isBold && isItalic) return 'boldItalic';
+  if (isBold) return 'bold';
+  if (isItalic) return 'italic';
+  return 'regular';
+}
+
+/**
+ * Detect when multiple @font-face declarations for the same family map
+ * into the same PowerPoint slot with materially different weights.
+ *
+ * PowerPoint's embedded-font model only exposes four slots per family
+ * (regular / bold / italic / boldItalic). CSS weight 700 (Bold) and
+ * weight 900 (Black) both classify as `bold`; the second one silently
+ * loses glyphs during embed. This is a real workflow surprise for anyone
+ * declaring `font-family: 'Inter'; font-weight: 900` alongside 700.
+ *
+ * Returns an array of { family, variant, weights } collision descriptors
+ * so callers can emit an actionable warning.
+ *
+ * @param {Array<{name: string, weight?: string|number, style?: string}>} fontEntries
+ */
+export function detectVariantSlotCollisions(fontEntries) {
+  const seen = new Map(); // key = "family::variant" -> Set of weight strings
+  for (const f of fontEntries) {
+    const variant = classifyFontVariant(f.weight, f.style);
+    const key = f.name + '::' + variant;
+    if (!seen.has(key)) seen.set(key, new Set());
+    seen.get(key).add(String(f.weight ?? '400').trim());
+  }
+  const collisions = [];
+  for (const [key, weights] of seen) {
+    if (weights.size < 2) continue;
+    const [family, variant] = key.split('::');
+    collisions.push({ family, variant, weights: Array.from(weights).sort() });
+  }
+  return collisions;
 }
 
 /**
