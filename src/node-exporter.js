@@ -3,6 +3,36 @@ import os from 'os';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+/**
+ * Compute the browser launch args for a given Puppeteer product.
+ *
+ * Chrome / Chromium / Edge get:
+ *   - `--no-sandbox` and `--disable-setuid-sandbox` because Puppeteer
+ *     runs the browser as an unprivileged user in most CI/server envs
+ *     where the setuid sandbox is unavailable.
+ *   - `--allow-file-access-from-files` so that XHR / fetch() from a
+ *     file:// page can reach other file:// URLs. Without this flag,
+ *     autoEmbedFonts silently fails whenever the caller's @font-face
+ *     rules point at local .ttf files (a common setup for offline deck
+ *     builds), and PowerPoint falls back to a system font on open. The
+ *     flag scopes only to file:// origins, so it does not weaken
+ *     security when exporting http(s):// pages.
+ *
+ * Firefox does not accept the Chrome flags and manages its own
+ * sandboxing, so we pass an empty array there.
+ *
+ * Exported so callers can override or extend the default set, and so
+ * the default is unit-testable without spinning up a browser.
+ *
+ * @param {'chrome'|'firefox'} product
+ * @returns {string[]}
+ */
+export function getLaunchArgs(product) {
+  if (product === 'firefox') return [];
+  return ['--no-sandbox', '--disable-setuid-sandbox', '--allow-file-access-from-files'];
+}
+
+
 // ─── Platform-aware browser search map ───────────────────────────────────────
 // Each entry is { name, product, paths[] }.
 // `product` is 'chrome' or 'firefox' — controls puppeteer launch args.
@@ -167,11 +197,7 @@ export async function exportHtmlToPptx(htmlSource, options = {}) {
   // Resolve browser — self-managing, no external setup required
   const { executablePath, product } = await ensureBrowser(puppeteer);
 
-  // Firefox uses WebDriver BiDi — different launch args than Chrome/Edge
-  const launchArgs =
-    product === 'firefox'
-      ? [] // Firefox manages sandboxing itself
-      : ['--no-sandbox', '--disable-setuid-sandbox'];
+  const launchArgs = getLaunchArgs(product);
 
   let browser;
   try {
@@ -190,6 +216,12 @@ export async function exportHtmlToPptx(htmlSource, options = {}) {
 
   try {
     const page = await browser.newPage();
+    if (options.browserWidth && options.browserHeight) {
+      await page.setViewport({
+        width: options.browserWidth,
+        height: options.browserHeight,
+      });
+    }
 
     // 1. Navigate to HTML source (file path or URL)
     if (fs.existsSync(htmlSource)) {

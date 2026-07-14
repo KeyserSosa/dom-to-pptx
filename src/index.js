@@ -29,6 +29,8 @@ import {
   getUsedFontFamilies,
   getAutoDetectedFonts,
   extractSpeakerNotesFromElement,
+  classifyFontVariant,
+  detectVariantSlotCollisions,
   extractTableData,
   collectTextParts,
 } from './utils.js';
@@ -162,28 +164,9 @@ export async function exportToPptx(target, options = {}) {
   let rawFonts = options.fonts || [];
   let fontsToEmbed;
 
-  // Classify a CSS font-weight / font-style pair into one of the four slots
-  // that PowerPoint's embedded-font list supports: regular, bold, italic,
-  // boldItalic. Anything at weight >= 600 counts as bold; italic/oblique
-  // counts as italic.
-  const classifyVariant = (weight, style) => {
-    const wRaw = String(weight || '400').toLowerCase().trim();
-    let w = parseInt(wRaw, 10);
-    if (isNaN(w)) {
-      if (wRaw === 'bold' || wRaw === 'bolder') w = 700;
-      else if (wRaw === 'lighter') w = 300;
-      else w = 400;
-    }
-    const isBold = w >= 600;
-    const sRaw = String(style || 'normal').toLowerCase();
-    const isItalic = sRaw === 'italic' || sRaw === 'oblique';
-    if (isBold && isItalic) return 'boldItalic';
-    if (isBold) return 'bold';
-    if (isItalic) return 'italic';
-    return 'regular';
-  };
-
   // Group by (name, variant) so each PowerPoint slot gets its own font.
+  // classifyFontVariant lives in utils.js so it can be unit-tested and
+  // reused for collision detection below.
   const uniqueFonts = new Map();
   const addToGroup = (name, variant, url) => {
     const key = name + '::' + variant;
@@ -193,8 +176,13 @@ export async function exportToPptx(target, options = {}) {
     uniqueFonts.get(key).urls.add(url);
   };
 
+  // Track every raw entry so we can detect variant-slot collisions
+  // (e.g. Inter@700 and Inter@900 both landing in the `bold` slot).
+  const rawFontDescriptors = [];
+
   for (const f of rawFonts) {
-    const variant = classifyVariant(f.weight, f.style);
+    const variant = classifyFontVariant(f.weight, f.style);
+    rawFontDescriptors.push({ name: f.name, weight: f.weight, style: f.style });
     if (f.url) addToGroup(f.name, variant, f.url);
     if (f.urls) {
       for (const url of f.urls) addToGroup(f.name, variant, url);
@@ -210,16 +198,34 @@ export async function exportToPptx(target, options = {}) {
 
     // C. Merge, keyed by (name, variant) so Bold does not collapse into Regular
     for (const autoFont of detectedFonts) {
-      const variant = classifyVariant(autoFont.weight, autoFont.style);
+      const variant = classifyFontVariant(autoFont.weight, autoFont.style);
+      rawFontDescriptors.push({ name: autoFont.name, weight: autoFont.weight, style: autoFont.style });
       addToGroup(autoFont.name, variant, autoFont.url);
     }
 
     if (detectedFonts.length > 0) {
       console.log(
         'Auto-detected fonts:',
-        detectedFonts.map((f) => `${f.name} (${classifyVariant(f.weight, f.style)})`)
+        detectedFonts.map((f) => `${f.name} (${classifyFontVariant(f.weight, f.style)})`)
       );
     }
+  }
+
+  // Warn when two @font-face declarations with materially different
+  // weights land in the same PowerPoint slot. Most common example:
+  // declaring Inter at weight 700 alongside weight 900 — both classify as
+  // `bold`, so weight 900 glyphs silently get merged into (and mostly
+  // overwritten by) weight 700. To render Inter Black distinctly, declare
+  // it under a separate CSS family (e.g. `font-family: 'Inter Black'`)
+  // rather than a heavier weight of the same family.
+  const collisions = detectVariantSlotCollisions(rawFontDescriptors);
+  for (const c of collisions) {
+    console.warn(
+      `dom-to-pptx: font "${c.family}" declares multiple weights (${c.weights.join(', ')}) ` +
+        `that collapse into PowerPoint's "${c.variant}" slot. Only one will render distinctly. ` +
+        `Declare the heavier weight under a separate CSS family (e.g. 'Inter Black') if you ` +
+        `need it to render as a distinct face.`
+    );
   }
 
   fontsToEmbed = Array.from(uniqueFonts.values()).map((entry) => ({
@@ -244,9 +250,15 @@ export async function exportToPptx(target, options = {}) {
     const embedder = new PPTXEmbedFonts();
     await embedder.loadZip(zip);
 
-    // Fetch and Embed Concurrently
+    // Fetch and Embed Concurrently. Track success/failure per (family,variant)
+    // so we can print a structured summary at the end — a silent no-op on
+    // font embedding is one of the sharpest workflow sharp edges (a 15 KB
+    // PPTX with no fonts embedded looks identical to a 15 KB PPTX with
+    // fonts intentionally excluded).
+    const embedResults = [];
     await Promise.all(
       fontsToEmbed.map(async (fontCfg) => {
+        const label = `${fontCfg.name} (${fontCfg.variant || 'regular'})`;
         try {
           if (fontCfg.urls.length === 0) {
             throw new Error(`No URLs found for font family ${fontCfg.name}`);
@@ -256,7 +268,7 @@ export async function exportToPptx(target, options = {}) {
           const subsets = await Promise.all(
             fontCfg.urls.map(async (url) => {
               const response = await fetch(url);
-              if (!response.ok) throw new Error(`Failed to fetch ${url}`);
+              if (!response.ok) throw new Error(`Failed to fetch ${url} (HTTP ${response.status})`);
               const buffer = await response.arrayBuffer();
 
               // Infer type
@@ -275,11 +287,36 @@ export async function exportToPptx(target, options = {}) {
             undefined,
             fontCfg.variant || 'regular'
           );
+          embedResults.push({ label, ok: true });
         } catch (e) {
+          const reason = e && e.message ? e.message : String(e);
+          embedResults.push({ label, ok: false, reason });
           console.warn(`Failed to embed font family: ${fontCfg.name}`, e);
         }
       })
     );
+
+    // Structured summary. Users routinely miss the per-family console.warn
+    // above (especially when fetch() 404s during a headless build), so we
+    // always print an explicit summary line — including a highly visible
+    // error line if any embed failed. This turns a silent no-op into a
+    // loud one.
+    const succeeded = embedResults.filter((r) => r.ok);
+    const failed = embedResults.filter((r) => !r.ok);
+    if (succeeded.length > 0) {
+      console.log(
+        `dom-to-pptx: embedded ${succeeded.length} font variant(s): ` + succeeded.map((r) => r.label).join(', ')
+      );
+    }
+    if (failed.length > 0) {
+      console.error(
+        `dom-to-pptx: FAILED to embed ${failed.length} font variant(s). ` +
+          `PowerPoint will fall back to a system font, breaking the design. Details:`
+      );
+      for (const r of failed) {
+        console.error(`  - ${r.label}: ${r.reason}`);
+      }
+    }
 
     await embedder.updateFiles();
     if (options.skipNormalize !== true) {
